@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Laravel Vue in Cordova</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+  <div id="app"></div>
+
+  <!-- Add both scripts (order doesn't matter much for Vite 5 output) -->
+  <script type="module" src="./build/assets/app-l0sNRNKZ.js"></script>
+  <script type="module" src="./build/assets/app-DNxiirP_.js"></script>
+
+  <script>
+    document.addEventListener('deviceready', function () {
+      console.log("Cordova is ready");
+    }, false);
+  </script>
+</body>
+</html>
