@@ -129,5 +129,19 @@ class RideController extends Controller
 
         return redirect()->back()->with('success', 'Availability updated successfully.');
     }
-    
+     public function destroy($id)
+    {
+        $ride = Ride::findOrFail($id);
+
+        // Optional: limit who can delete
+        if ($ride->status !== 'completed') {
+            return redirect()->back()->with('error', 'Only completed rides can be deleted.');
+        }
+
+        $ride->delete();
+
+        return redirect()->back()->with('success', 'Ride deleted successfully!');
+    }
 }
+    
+

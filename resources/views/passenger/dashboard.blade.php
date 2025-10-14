@@ -5,7 +5,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@600;700&display=swap');
 
         body {
-            background: url('/images/tric.png') no-repeat center center fixed;
+            background: url('/images') no-repeat center center fixed;
             background-size: cover;
             color: #fff;
             position: relative;
@@ -18,7 +18,7 @@
             left: 0;
             height: 100%;
             width: 100%;
-            background: rgba(113, 93, 97, 0.75);
+            background: rgba(248, 242, 244, 0.75);
             z-index: -1;
         }
 
@@ -38,13 +38,13 @@
         }
 
         .glass-box {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(250, 246, 246, 0.947);
             backdrop-filter: blur(12px);
             -webkit-backdrop-filter: blur(12px);
             border-radius: 16px;
-            border: 1px solid rgba(227, 170, 14, 0.185);
+            border: 1px solid rgba(243, 241, 236, 0.941);
             padding: 25px;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 8px 24px rgba(253, 251, 251, 0.25);
         }
 
         .table {
@@ -81,13 +81,13 @@
 
         {{-- GPS Map --}}
         <div class="glass-box mb-5">
-            <h3 class="mb-3">📍 Your Location</h3>
+            <h3 class="mb-3"> Your Location</h3>
             <div id="map"></div>
         </div>
 
         {{-- Ride History --}}
         <div class="glass-box">
-            <h3 class="mb-4">🕒 Ride History</h3>
+            <h3 class="mb-4"> Ride History</h3>
             @if($rides->isEmpty())
                 <div class="alert alert-info">No rides found.</div>
             @else
@@ -137,26 +137,49 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         document.addEventListener("DOMContentLoaded", function () {
-            // Initialize map
-            var map = L.map('map').setView([11.1951, 123.6929], 13);
+            // Initialize map with neutral center
+            var map = L.map('map').setView([0, 0], 2);
 
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 maxZoom: 19,
                 attribution: '&copy; OpenStreetMap contributors'
             }).addTo(map);
 
-            var marker = L.marker([11.1951, 123.6929]).addTo(map)
-                .bindPopup("📍 You are here")
-                .openPopup();
+            var marker = null;
 
             if (navigator.geolocation) {
+                // Initial passenger location
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    var lat = position.coords.latitude;
+                    var lng = position.coords.longitude;
+
+                    map.setView([lat, lng], 15);
+                    marker = L.marker([lat, lng]).addTo(map)
+                        .bindPopup(" You are here")
+                        .openPopup();
+                }, function () {
+                    alert("⚠️ GPS access denied. Showing default location.");
+                    // fallback
+                    map.setView([11.1951, 123.6929], 13);
+                    marker = L.marker([11.1951, 123.6929]).addTo(map)
+                        .bindPopup(" Default Location")
+                        .openPopup();
+                });
+
+                // Live tracking
                 navigator.geolocation.watchPosition(function (position) {
                     var lat = position.coords.latitude;
                     var lng = position.coords.longitude;
+
                     map.setView([lat, lng], 15);
-                    marker.setLatLng([lat, lng]).bindPopup("📍 Your Location").openPopup();
-                }, function () {
-                    alert("⚠️ GPS access denied. Showing default location.");
+
+                    if (marker) {
+                        marker.setLatLng([lat, lng]).bindPopup(" Your Location").openPopup();
+                    } else {
+                        marker = L.marker([lat, lng]).addTo(map)
+                            .bindPopup(" Your Location")
+                            .openPopup();
+                    }
                 });
             } else {
                 alert("❌ Your browser doesn't support GPS.");
@@ -202,7 +225,7 @@
                 });
             });
 
-            // SweetAlert success message with redirect
+            // Success message after deletion
             @if (session('success'))
                 Swal.fire({
                     icon: 'success',
@@ -210,7 +233,6 @@
                     text: '{{ session('success') }}',
                     confirmButtonColor: '#198754'
                 }).then(() => {
-                    // Redirect to dashboard
                     window.location.href = "{{ route('passenger.dashboard') }}";
                 });
             @endif

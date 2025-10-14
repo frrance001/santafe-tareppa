@@ -3,7 +3,7 @@
 @section('content')
 <style>
     body {
-        background: url('/images/tric.png') no-repeat center center fixed;
+        background: url('/images') no-repeat center center fixed;
         background-size: cover;
         position: relative;
         color: #fff;
@@ -16,7 +16,7 @@
         left: 0;
         height: 100%;
         width: 100%;
-        background: rgba(0, 0, 0, 0.75);
+        background: rgba(253, 252, 252, 0.926);
         z-index: -1;
     }
 
@@ -25,9 +25,9 @@
         backdrop-filter: blur(15px);
         -webkit-backdrop-filter: blur(15px);
         border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.903);
         padding: 30px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 8px 24px rgba(247, 245, 245, 0.845);
         color: #fff;
     }
 
@@ -37,7 +37,7 @@
     }
 
     .list-group-item {
-        background-color: rgba(0, 0, 0, 0.5);
+        background-color: rgba(240, 232, 232, 0.911);
         color: #fff;
         border-color: rgba(255, 255, 255, 0.2);
         margin-bottom: 10px;
@@ -52,7 +52,7 @@
 
 <div class="container mt-5">
     <div class="glass-container">
-        <h2>🕒 Waiting Rides</h2>
+        <h2> Waiting Rides</h2>
 
         @if(session('success'))
             <div class="alert alert-success">
@@ -76,4 +76,4 @@
         @endif
     </div>
 </div>
-@endsection
+@endsection 

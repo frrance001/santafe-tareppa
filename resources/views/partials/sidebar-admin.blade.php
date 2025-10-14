@@ -12,7 +12,7 @@
     .sidebar {
         width: 250px;
         height: 100vh;
-        background: linear-gradient(to bottom, #ff7e5f, #feb47b);
+        background: linear-gradient(to bottom, #38bdf8, #60a5fa, #93c5fd); /* ✅ Skyblue gradient */
         color: #fff;
         position: fixed;
         top: 0;
@@ -23,6 +23,21 @@
         justify-content: space-between;
         transition: transform 0.3s ease;
         z-index: 1000;
+    }
+
+    /* ✅ Admin logo container */
+    .sidebar .logo {
+        text-align: center;
+        margin-bottom: 20px;
+    }
+
+    .sidebar .logo img {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(255,255,255,0.7);
+        background: white;
     }
 
     .sidebar .welcome {
@@ -55,18 +70,18 @@
     }
 
     .sidebar ul li a:hover {
-        background-color: rgba(255, 255, 255, 0.2);
+        background-color: rgba(255, 255, 255, 0.25); /* ✅ lighter hover */
         transform: translateX(5px);
     }
 
     .sidebar ul li.active a {
-        background-color: rgba(255, 255, 255, 0.35);
+        background-color: rgba(255, 255, 255, 0.4); /* ✅ brighter active */
         font-weight: bold;
     }
 
     .logout-form button {
         width: 100%;
-        background-color: #dc3545;
+        background-color: #0ea5e9; /* ✅ Skyblue button */
         border: none;
         color: white;
         padding: 12px;
@@ -77,7 +92,7 @@
     }
 
     .logout-form button:hover {
-        background-color: #c82333;
+        background-color: #0284c7; /* ✅ darker skyblue hover */
     }
 
     /* Responsive toggle (for mobile view) */
@@ -96,7 +111,7 @@
             top: 15px;
             left: 15px;
             z-index: 1100;
-            background-color: #ff7e5f;
+            background-color: #38bdf8; /* ✅ skyblue toggle */
             border: none;
             color: white;
             padding: 8px 12px;
@@ -121,7 +136,12 @@
 <!-- Sidebar -->
 <div class="sidebar">
     <div>
-        @if(Auth::check())
+        <!-- ✅ Logo -->
+        <div class="logo">
+            <img src="/images/admin.png" alt="Admin Logo">
+        </div>
+
+        @if(Auth::check() && Auth::user()->role === 'Admin')
             <div class="welcome">
                 Welcome,<br>{{ Auth::user()->fullname }}
             </div>

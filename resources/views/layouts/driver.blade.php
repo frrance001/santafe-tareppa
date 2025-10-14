@@ -21,7 +21,7 @@
         .sidebar {
             width: 250px;
             height: 100vh;
-            background: linear-gradient(to bottom, #004e92, #000428);
+            background: linear-gradient(to bottom, #1e3c72, #2a5298); /* 🌊 stronger blue gradient */
             color: #fff;
             position: fixed;
             top: 0;
@@ -62,19 +62,19 @@
         }
 
         .sidebar ul li a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background: linear-gradient(to right, #00c6ff, #0072ff); /* 💙 gradient hover */
             padding-left: 20px;
         }
 
         .sidebar ul li.active a {
-            background-color: #0dcaf0;
-            color: #000;
+            background: linear-gradient(to right, #36d1dc, #5b86e5); /* 🌈 gradient active */
+            color: #fff;
             font-weight: bold;
         }
 
         /* Topbar for Mobile */
         .topbar {
-            background-color: #004e92;
+            background: linear-gradient(to right, #1e3c72, #2a5298); /* same deep blue gradient */
             color: white;
             padding: 12px 20px;
             display: none;

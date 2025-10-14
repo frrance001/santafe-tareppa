@@ -192,4 +192,6 @@ class RideController extends Controller
 
         return redirect()->route('passenger.dashboard')->with('success', 'Report submitted successfully.');
     }
+    
 }
+

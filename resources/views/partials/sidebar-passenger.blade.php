@@ -1,10 +1,11 @@
 <style>
     :root {
-        --sidebar-bg: linear-gradient(180deg, #2193b0, #6dd5ed);  /* smooth blue gradient */
-        --sidebar-hover: rgba(255, 255, 255, 0.1);                /* subtle hover overlay */
-        --sidebar-active: rgba(255, 255, 255, 0.25);              /* slightly more opaque for active */
-        --text-light: #ffffff;                                    /* white text */
-        --text-muted: #d0eaff;                                    /* soft muted icons */
+        /* 🎨 Sky-blue gradient theme */
+        --sidebar-bg: linear-gradient(180deg, #56ccf2, #2f80ed);
+        --sidebar-hover: rgba(255, 255, 255, 0.15); 
+        --sidebar-active: rgba(255, 255, 255, 0.3); 
+        --text-light: #ffffff;
+        --text-muted: #d0e7ff;
         --transition-speed: 0.3s;
     }
 
@@ -26,16 +27,13 @@
         border-radius: 0 20px 20px 0;
     }
 
-    /* Logo styling */
-    .sidebar .logo {
-        margin-bottom: 20px;
-        text-align: center;
-    }
-
-    .sidebar .logo img {
+    .passenger-profile {
         width: 80px;
-        height: auto;
+        height: 80px;
         border-radius: 50%;
+        object-fit: cover;
+        margin-bottom: 15px;
+        border: 2px solid #fff;
         box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
@@ -116,10 +114,6 @@
             border-radius: 0;
         }
 
-        .sidebar .logo {
-            display: none;
-        }
-
         .sidebar .welcome {
             display: none;
         }
@@ -144,12 +138,28 @@
 </style>
 
 <div class="sidebar">
-    <!-- Tricycle Logo -->
-    <div class="logo">
-        <img src="/images/tricycle.png" alt="Tricycle Logo">
-    </div>
 
-    @if(Auth::check())
+    @if(Auth::check() && Auth::user()->role === 'Passenger')
+        @php
+            $profile = Auth::user()->profile_picture ?? null;
+
+            if ($profile) {
+                // If already a full URL (starts with http)
+                if (Str::startsWith($profile, ['http://', 'https://'])) {
+                    $profileUrl = $profile;
+                } else {
+                    // If only filename stored → load from storage
+                    $profileUrl = asset('storage/profile_pictures/' . $profile);
+                }
+            } else {
+                // Default fallback image
+                $profileUrl = asset('images/default-profile.png');
+            }
+        @endphp
+
+        <!-- Passenger profile picture -->
+        <img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
+
         <div class="welcome">
             Welcome, <strong>{{ Auth::user()->fullname }}</strong>
         </div>
@@ -179,21 +189,6 @@
                 <i class="bi bi-map"></i> Ride Progress
             </a>
         </li>
-
-        @php
-            $activeRide = \App\Models\Ride::where('user_id', auth()->id())
-                ->where('status', 'completed')
-                ->latest()
-                ->first();
-        @endphp
-
-        @if($activeRide)
-        <li class="{{ request()->routeIs('passenger.rate') ? 'active' : '' }}">
-            <a href="{{ route('passenger.rate', $activeRide->id) }}">
-                <i class="bi bi-star-half"></i> Rate Driver
-            </a>
-        </li>
-        @endif
 
         <li class="{{ request()->routeIs('passenger.payment.create') ? 'active' : '' }}">
             <a href="{{ route('passenger.payment.create') }}">

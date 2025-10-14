@@ -1,95 +1,63 @@
 @extends('layouts.admin')
 
 @section('content')
-<style>
-    body {
-        background: url('/images/hoii.png') no-repeat center center fixed;
-        background-size: cover;
-        position: relative;
-        color: #fff;
-    }
+<div class="container-fluid py-5 professional-dashboard">
 
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-color: rgba(0, 0, 0, 0.75);
-        z-index: -1;
-    }
-
-    .glass-card {
-        background: rgba(255, 163, 163, 0.08);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border-radius: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-        padding: 20px;
-        color: #fff;
-        box-shadow: 0 8px 24px rgba(201, 69, 69, 0.641);
-    }
-
-    h1 {
-        color: #facc15;
-        font-weight: 800;
-    }
-
-    .card-title {
-        font-weight: 600;
-        color: #f3f4f6;
-    }
-
-    .chart-container canvas {
-        background: transparent;
-    }
-</style>
-
-<div class="container py-4">
-    <h1 class="text-center mb-5 display-6">Admin Dashboard</h1>
-
-    {{-- Stat Cards --}}
-    <div class="row g-4">
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-10">
         @php
             $cards = [
-                ['label' => 'Total Requests', 'value' => $totalRequests, 'color' => '#1e3a8a', 'icon' => 'bi-journal-text'],
-                ['label' => 'Accepted Requests', 'value' => $totalAcceptedRequests, 'color' => '#10b981', 'icon' => 'bi-check2-circle'],
-                ['label' => 'Total Passengers', 'value' => $totalPassengers, 'color' => '#06b6d4', 'icon' => 'bi-people-fill'],
-                ['label' => 'Total Drivers', 'value' => $totalDrivers, 'color' => '#ef4444', 'icon' => 'bi-truck-front-fill'],
-                ['label' => 'In-Progress Rides', 'value' => $totalInProgress, 'color' => '#f59e0b', 'icon' => 'bi-hourglass-split'],
-                ['label' => 'Completed Rides', 'value' => $totalCompleted, 'color' => '#8b5cf6', 'icon' => 'bi-check-lg'],
+                ['label' => 'Total Requests', 'value' => $totalRequests, 'color' => 'indigo'],
+                ['label' => 'Accepted Requests', 'value' => $totalAcceptedRequests, 'color' => 'emerald'],
+                ['label' => 'Passengers', 'value' => $totalPassengers, 'color' => 'amber'],
+                ['label' => 'Drivers', 'value' => $totalDrivers, 'color' => 'pink'],
+                ['label' => 'In Progress', 'value' => $totalInProgress, 'color' => 'teal'],
+                ['label' => 'Completed', 'value' => $totalCompleted, 'color' => 'purple'],
             ];
         @endphp
 
         @foreach ($cards as $card)
-            <div class="col-lg-4 col-md-6 col-sm-12">
-                <div class="glass-card text-center" style="background: linear-gradient(135deg, {{ $card['color'] }}, #60a5fa);">
-                    <h5 class="card-title"><i class="bi {{ $card['icon'] }} me-2"></i>{{ $card['label'] }}</h5>
-                    <h2>{{ $card['value'] }}</h2>
+            <div class="col-lg-4 col-md-6">
+                <div class="card stat-card h-100 shadow-sm border-0 border-start border-5 border-{{ $card['color'] }}">
+                    <div class="card-body text-center">
+                        <h2 class="fw-bolder mb-1 text-{{ $card['color'] }}">{{ $card['value'] }}</h2>
+                        <p class="mb-0 text-muted small">{{ $card['label'] }}</p>
+                    </div>
                 </div>
             </div>
         @endforeach
     </div>
 
-    {{-- Charts --}}
-    <div class="row mt-5 g-4">
-        <div class="col-md-4">
-            <div class="glass-card chart-container">
-                <h6 class="text-center fw-bold mb-3"> Bar Chart</h6>
-                <canvas id="barChart" height="250"></canvas>
+    <!-- Charts -->
+    <div class="row g-4">
+        <div class="col-md-4 mb-4">
+            <div class="card chart-card shadow-sm border-0">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h6 class="fw-bold text-dark mb-2">Requests Overview</h6>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <canvas id="barChart" height="200"></canvas>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="glass-card chart-container">
-                <h6 class="text-center fw-bold mb-3"> Line Chart</h6>
-                <canvas id="lineChart" height="250"></canvas>
+        <div class="col-md-4 mb-4">
+            <div class="card chart-card shadow-sm border-0">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h6 class="fw-bold text-dark mb-2">Growth Trend</h6>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <canvas id="lineChart" height="200"></canvas>
+                </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="glass-card chart-container">
-                <h6 class="text-center fw-bold mb-3"> Pie Chart</h6>
-                <canvas id="pieChart" height="250"></canvas>
+        <div class="col-md-4 mb-4">
+            <div class="card chart-card shadow-sm border-0">
+                <div class="card-header bg-transparent border-0 pb-0">
+                    <h6 class="fw-bold text-dark mb-2">Distribution</h6>
+                </div>
+                <div class="card-body d-flex justify-content-center align-items-center">
+                    <canvas id="doughnutChart" height="200"></canvas>
+                </div>
             </div>
         </div>
     </div>
@@ -99,67 +67,168 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
     const labels = ['Total Requests', 'Accepted', 'Passengers', 'Drivers'];
-    const data = [
+    const dataValues = [
         {{ $totalRequests }},
         {{ $totalAcceptedRequests }},
         {{ $totalPassengers }},
         {{ $totalDrivers }}
     ];
-    const backgroundColors = ['#1e3a8a', '#10b981', '#06b6d4', '#ef4444'];
 
-    function setupChart(id, type, options) {
-        const ctx = document.getElementById(id).getContext('2d');
-        new Chart(ctx, {
-            type: type,
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: 'Count',
-                    data: data,
-                    backgroundColor: backgroundColors,
-                    borderColor: '#facc15',
-                    borderWidth: 1,
-                    fill: false,
-                    tension: 0.4
-                }]
-            },
-            options: options
-        });
-    }
+    // Impactful colors
+    const backgroundColors = [
+        '#6366F1', // Indigo
+        '#22C55E', // Emerald
+        '#F59E0B', // Amber
+        '#EC4899'  // Pink
+    ];
 
-    const commonOptions = {
-        responsive: true,
-        plugins: {
-            legend: { display: false },
-            title: { display: true }
-        },
-        scales: {
-            y: {
-                beginAtZero: true,
-                ticks: { precision: 0, color: '#f3f4f6' }
-            },
-            x: {
-                ticks: { color: '#f3f4f6' }
-            }
-        }
+    // Gradient helper
+    const gradientFill = (ctx, color1, color2) => {
+        const gradient = ctx.createLinearGradient(0, 0, 0, 300);
+        gradient.addColorStop(0, color1);
+        gradient.addColorStop(1, color2);
+        return gradient;
     };
 
-    setupChart('barChart', 'bar', {
-        ...commonOptions,
-        plugins: { ...commonOptions.plugins, title: { text: 'Requests & Users' } }
-    });
-
-    setupChart('lineChart', 'line', {
-        ...commonOptions,
-        plugins: { ...commonOptions.plugins, title: { text: 'Trend Overview' } }
-    });
-
-    setupChart('pieChart', 'pie', {
+    // Spider (Radar) Chart
+new Chart(document.getElementById('barChart'), {
+    type: 'radar',
+    data: {
+        labels,
+        datasets: [{
+            label: 'Request Data',
+            data: dataValues,
+            backgroundColor: 'rgba(99, 102, 241, 0.2)', // Soft Indigo
+            borderColor: '#6366F1',
+            pointBackgroundColor: '#6366F1',
+            pointBorderColor: '#fff',
+            pointHoverBackgroundColor: '#fff',
+            pointHoverBorderColor: '#6366F1',
+            fill: true,
+            tension: 0.3
+        }]
+    },
+    options: {
         responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+            r: {
+                angleLines: { color: '#E5E7EB' },
+                grid: { color: '#E5E7EB' },
+                pointLabels: { color: '#6B7280', font: { size: 12 } },
+                ticks: {
+                    color: '#6B7280',
+                    backdropColor: 'transparent',
+                    beginAtZero: true
+                }
+            }
+        },
         plugins: {
-            legend: { position: 'bottom', labels: { color: '#fff' } },
-            title: { display: true, text: 'Data Distribution' }
+            legend: {
+                display: false
+            }
+        }
+    }
+});
+
+
+    // Line Chart
+    new Chart(document.getElementById('lineChart'), {
+        type: 'line',
+        data: {
+            labels,
+            datasets: [{
+                label: 'Trend',
+                data: dataValues,
+                borderColor: '#6366F1',
+                backgroundColor: 'rgba(99,102,241,0.2)',
+                fill: true,
+                tension: 0.4,
+                pointBackgroundColor: '#6366F1',
+                pointBorderColor: '#fff',
+                pointRadius: 5
+            }]
+        },
+        options: { 
+            plugins: { legend: { display: false } },
+            maintainAspectRatio: false
+        }
+    });
+
+    // Doughnut Chart
+    new Chart(document.getElementById('doughnutChart'), {
+        type: 'doughnut',
+        data: {
+            labels,
+            datasets: [{
+                data: dataValues,
+                backgroundColor: backgroundColors,
+                hoverOffset: 12,
+                borderWidth: 2,
+                borderColor: '#fff'
+            }]
+        },
+        options: {
+            cutout: '70%',
+            maintainAspectRatio: false,
+            plugins: { 
+                legend: { 
+                    position: 'bottom',
+                    labels: { color: '#374151', font: { size: 12, weight: 'bold' } }
+                }
+            }
         }
     });
 </script>
+
+<style>
+/* Professional Dashboard */
+.professional-dashboard {
+    font-family: 'Inter', sans-serif;
+}
+
+/* Stat Cards */
+.stat-card {
+    border-radius: 1rem;
+    background: #fff;
+    transition: all 0.2s ease-in-out;
+}
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+.stat-card h2 {
+    font-size: 2rem;
+}
+
+/* Chart Cards */
+.chart-card {
+    border-radius: 1rem;
+    background: #fff;
+    padding: 15px;
+}
+.chart-card h6 {
+    font-size: 0.95rem;
+    color: #374151;
+}
+
+/* Custom border colors for stat cards */
+.border-indigo { border-color: #6366F1 !important; }
+.text-indigo { color: #6366F1 !important; }
+
+.border-emerald { border-color: #22C55E !important; }
+.text-emerald { color: #22C55E !important; }
+
+.border-amber { border-color: #F59E0B !important; }
+.text-amber { color: #F59E0B !important; }
+
+.border-pink { border-color: #EC4899 !important; }
+.text-pink { color: #EC4899 !important; }
+
+.border-teal { border-color: #14B8A6 !important; }
+.text-teal { color: #14B8A6 !important; }
+
+.border-purple { border-color: #8B5CF6 !important; }
+.text-purple { color: #8B5CF6 !important; }
+</style>
 @endsection

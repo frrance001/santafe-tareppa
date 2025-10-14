@@ -3,54 +3,46 @@
 @section('content')
 <style>
     body {
-        background: url('/images/hoii.png') no-repeat center center fixed;
-        background-size: cover;
+        background: #ffffff !important; /* ✅ White background */
         position: relative;
-        color: #fff;
+        color: #000; /* ✅ Dark text */
     }
 
     body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 100%;
-        background-color: rgba(0, 0, 0, 0.75);
-        z-index: -1;
+        display: none; /* ✅ Remove dark overlay */
     }
 
     .glass-container {
-        background: rgba(255, 255, 255, 0.1);
+        background: #ffffff; /* ✅ Solid white container */
         border-radius: 16px;
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
         padding: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        color: #000;
     }
 
     h1 {
         font-weight: bold;
-        color: #facc15;
+        color: #1e3a8a; /* ✅ Dark blue heading */
     }
 
     table {
-        background-color: rgba(255, 255, 255, 0.08);
-        color: #fff;
+        background-color: #ffffff;
+        color: #000;
     }
 
     th {
-        background-color: rgba(0, 0, 0, 0.5);
-        color: #fff;
+        background-color: #f3f4f6; /* ✅ Light gray header */
+        color: #000;
     }
 
     tr:hover {
-        background-color: rgba(255, 255, 255, 0.1);
+        background-color: #f9fafb; /* ✅ Light hover effect */
     }
 
     .btn-danger {
         background-color: #ef4444;
         border: none;
+        color: #fff;
     }
 
     .btn-danger:hover {
@@ -61,25 +53,27 @@
         border-radius: 12px;
     }
 
-    iframe {
-        border: 2px solid rgba(255, 255, 255, 0.3);
+    #map {
+        height: 400px;
+        border: 2px solid #e5e7eb;
         border-radius: 12px;
         margin-bottom: 30px;
-        box-shadow: 0 0 15px rgba(0,0,0,0.3);
+        box-shadow: 0 0 15px rgba(0,0,0,0.1);
     }
 </style>
 
 <!-- SweetAlert2 CDN -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<div class="container mt-5 glass-container">
-    <h1 class="mb-4 text-center">🛺 Completed Rides</h1>
+<!-- Leaflet.js (Free GPS Map) -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
-    <iframe
-        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62878.59934401586!2d123.69296307274998!3d11.195128150419343!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x33ab2f3b4b0f5e0f%3A0x6a084a0b5b3bfa36!2sBantayan%20Island%2C%20Cebu!5e0!3m2!1sen!2sph!4v1700000000000!5m2!1sen!2sph"
-        width="100%" height="400" allowfullscreen="" loading="lazy"
-        referrerpolicy="no-referrer-when-downgrade">
-    </iframe>
+<div class="container mt-5 glass-container">
+    <h1 class="mb-4 text-center"> Completed Rides</h1>
+
+    <!-- Replaced Google Maps with GPS Tracker -->
+    <div id="map"></div>
 
     @if(session('success'))
         <div class="alert alert-success">
@@ -98,7 +92,7 @@
     @endif
 
     <div class="table-responsive mt-4">
-        <table class="table table-bordered table-striped text-white">
+        <table class="table table-bordered table-striped">
             <thead>
                 <tr>
                     <th>Ride ID</th>
@@ -134,6 +128,24 @@
         </table>
     </div>
 </div>
+
+<script>
+    // Initialize the map (centered on Cebu as default)
+    var map = L.map('map').setView([11.1951, 123.6929], 13);
+
+    // OpenStreetMap tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 19,
+    }).addTo(map);
+
+    // Example: loop through completed rides with GPS (if available)
+    @foreach($rides as $ride)
+        @if(isset($ride->driver_lat) && isset($ride->driver_lng))
+            L.marker([{{ $ride->driver_lat }}, {{ $ride->driver_lng }}]).addTo(map)
+                .bindPopup("Driver: {{ $ride->driver->fullname ?? 'N/A' }} <br> Ride #{{ $ride->id }}");
+        @endif
+    @endforeach
+</script>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {

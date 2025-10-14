@@ -10,12 +10,10 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-    {Schema::create('scanned_payments', function (Blueprint $table) {
-    $table->id();
-    $table->string('scanned_data');
-    $table->timestamps();
-});
-
+    {
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 
     /**
@@ -23,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('scanned_payments');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };

@@ -10,7 +10,8 @@ use App\Http\Controllers\Admin\AdminDashboardController;
 use App\Http\Controllers\Driver\RideController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Passenger\PaymentController;
-
+use App\Http\Controllers\VerificationController;
+use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -23,7 +24,7 @@ Route::post('/logout', function () {
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
 
-Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register');
+Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register.form');
 Route::post('/register', [RegisterController::class, 'register'])->name('register');
 
 Route::get('/admin/dashboard', function () {
@@ -122,10 +123,11 @@ Route::post('/driver/accept-rides/{id}/accept', [App\Http\Controllers\Driver\Rid
     ->middleware('auth');
 use App\Http\Controllers\ComplaintController;
 
-Route::middleware('auth')->group(function () {
-    Route::get('/complaint', [ComplaintController::class, 'create'])->name('complaint.create');
-    Route::post('/complaint', [ComplaintController::class, 'store'])->name('complaint.store');
+Route::prefix('admin')->name('admin.')->middleware(['auth','is_admin'])->group(function () {
+    Route::resource('complaints', \App\Http\Controllers\Admin\ComplaintController::class)
+         ->only(['index','show','update']);
 });
+
 
 Route::middleware(['auth', 'admin'])->group(function () {
     Route::get('/admin/complaints', [ComplaintController::class, 'index'])->name('admin.complaints');
@@ -226,3 +228,48 @@ Route::post('/driver/accept-rides/{ride}/accept', [DriverRideController::class, 
     Route::get('/payment/create', [PaymentController::class, 'create'])->name('payment.create');
     Route::post('/payment/store', [PaymentController::class, 'store'])->name('payment.store');
 });
+Route::middleware(['auth'])->group(function () {
+Route::get('/verification/create', [VerificationController::class, 'create'])->name('verification.create');
+Route::post('/verification', [VerificationController::class, 'store'])->name('verification.store');
+Route::get('/verification/{verification}', [VerificationController::class, 'show'])->name('verification.show');
+Route::put('/verification/{verification}', [VerificationController::class, 'update'])->name('verification.update');
+});
+
+
+// Admin area (protect with your own middleware/policies)
+Route::middleware(['auth','can:admin']) // replace with your gate/middleware
+->group(function () {
+Route::get('/admin/verifications', [VerificationController::class, 'index'])->name('verification.index');
+Route::post('/admin/verifications/{verification}/review', [VerificationController::class, 'review'])->name('verification.review');
+});
+// Admin Reports & Ratings
+Route::get('/admin/reports', [AdminController::class, 'allReports'])->name('admin.reports.index');
+Route::get('/admin/ratings', [AdminController::class, 'allRatings'])->name('admin.ratings.index');
+
+Route::middleware(['auth', 'role:passenger'])->prefix('passenger')->name('passenger.')->group(function () {
+    Route::get('/rides/waiting', [RideController::class, 'waiting'])->name('rides.waiting');
+    Route::patch('/rides/{id}/cancel', [RideController::class, 'cancel'])->name('cancel');
+});
+
+
+
+// Admin user management
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/users', [AdminController::class, 'index'])->name('users.index');
+    Route::post('/users/{id}/approve', [AdminController::class, 'approve'])->name('users.approve');
+    Route::post('/users/{id}/disapprove', [AdminController::class, 'disapprove'])->name('users.disapprove');
+   
+});
+
+// routes/web.php
+
+
+Route::get('/passenger/payment', [PaymentController::class, 'index'])->name('passenger.payment.index');
+Route::post('/passenger/payment/pay', [PaymentController::class, 'pay'])->name('passenger.payment.store');
+Route::get('/passenger/payment/success', [PaymentController::class, 'success'])->name('payment.success');
+Route::get('/passenger/payment/failed', [PaymentController::class, 'failed'])->name('payment.failed');
+
+
+Route::delete('/passenger/ride/{id}', [RideController::class, 'destroy'])
+    ->name('passenger.ride.destroy');
+

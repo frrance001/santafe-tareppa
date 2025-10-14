@@ -8,194 +8,202 @@
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
 
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <style>
         body {
-            background-image: url('/images/hoii.png'); /* ✅ Change to your actual image path */
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
+            background: #e5e7eb; /* gray-200 background */
+            font-family: 'Poppins', sans-serif;
         }
 
-        .overlay {
-            background-color: rgba(0, 0, 0, 0.5); 
-            backdrop-filter: blur(4px);
+        /* Logo drives in like a vehicle */
+        @keyframes driveIn {
+            0% {
+                opacity: 0;
+                transform: translateX(-150px) rotate(-10deg) scale(0.8);
+            }
+            60% {
+                opacity: 1;
+                transform: translateX(10px) rotate(5deg) scale(1.05);
+            }
+            100% {
+                transform: translateX(0) rotate(0deg) scale(1);
+            }
         }
+
+        /* Smoke puff effect */
+        @keyframes smoke {
+            0% {
+                opacity: 0.6;
+                transform: scale(0.3) translateY(0);
+            }
+            50% {
+                opacity: 0.4;
+                transform: scale(0.6) translateY(-10px);
+            }
+            100% {
+                opacity: 0;
+                transform: scale(1) translateY(-20px);
+            }
+        }
+
+        /* Floating effect */
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .logo-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .logo-animate {
+            animation: driveIn 1.2s ease-out forwards, float 3s ease-in-out infinite 1.5s;
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Smoke circles */
+        .smoke {
+            position: absolute;
+            bottom: 5px;
+            left: -15px;
+            width: 15px;
+            height: 15px;
+            background: rgba(107, 114, 128, 0.7); /* gray-500 smoke */
+            border-radius: 50%;
+            animation: smoke 2s linear infinite;
+            z-index: 1;
+        }
+        .smoke:nth-child(1) { animation-delay: 0s; }
+        .smoke:nth-child(2) { animation-delay: 0.5s; left: -25px; width: 12px; height: 12px; }
+        .smoke:nth-child(3) { animation-delay: 1s; left: -20px; width: 18px; height: 18px; }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center overlay px-4">
+<body class="min-h-screen flex items-center justify-center px-4">
 
-    <div class="w-full max-w-lg bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-8 shadow-xl space-y-6 text-white">
+    <!-- Registration Container -->
+    <div class="w-full max-w-lg bg-gray-100 border border-gray-300 rounded-xl p-8 shadow-xl space-y-6 text-gray-900">
         
-        <!-- Guide / Description -->
-        <div class="bg-emerald-600/30 border border-emerald-400 p-4 rounded-lg shadow-md text-sm">
-            <h3 class="text-xl font-semibold text-emerald-300 mb-2">🚖 How to Become a Rider in Santa Fe TAREPPA</h3>
-            <ul class="list-disc pl-5 space-y-1 text-white/90">
-                <li>Register with your <strong>full name, phone number, email, and profile photo</strong>.</li>
-                <li>Provide your <strong>valid location</strong> within Santa Fe and your <strong>age & sex</strong>.</li>
-                <li>Choose your role as <strong>Driver</strong> and enter a referral code if available.</li>
-                <li>Upload a <strong>clear profile photo</strong> for identification.</li>
-                <li>Once approved, you can start accepting ride requests in the TAREPPA system.</li>
-            </ul>
-            <p class="mt-2 text-white/80 text-xs italic">
-                * Only registered and approved drivers can officially operate within Santa Fe TAREPPA.
-            </p>
+        <!-- Logo with Ride + Smoke Animation -->
+        <div class="flex justify-center">
+            <div class="logo-wrapper">
+                <img src="{{ asset('images/log.png') }}" alt="Logo" 
+                     class="w-20 h-20 object-contain logo-animate">
+                <!-- Smoke puffs -->
+                <div class="smoke"></div>
+                <div class="smoke"></div>
+                <div class="smoke"></div>
+            </div>
         </div>
 
-        <!-- ✅ Requirements Section -->
-        <div class="bg-yellow-500/20 border border-yellow-400 p-4 rounded-lg shadow-md text-sm">
-            <h3 class="text-xl font-semibold text-yellow-300 mb-2">📋 Requirements for Applying</h3>
-            <ul class="list-disc pl-5 space-y-1 text-white/90">
-                <li>Valid government-issued ID (e.g., Driver’s License, Passport, Voter’s ID)</li>
-                <li>Proof of Address (Barangay Certificate, Utility Bill, etc.)</li>
-                <li>Recent 2x2 ID Photo</li>
-                <li>For Drivers: 
-                    <ul class="list-disc pl-5 mt-1">
-                        <li>Driver’s License (Non-Professional/Professional)</li>
-                        <li>Vehicle OR/CR (Official Receipt & Certificate of Registration)</li>
-                        <li>Barangay Clearance or Police Clearance</li>
-                    </ul>
-                </li>
-                <li>For Passengers: Valid ID only</li>
+        <!-- Requirements -->
+        <div class="bg-gray-200 border border-gray-400 p-4 rounded-lg shadow-sm text-sm">
+            <h3 class="text-xl font-semibold text-gray-800 mb-2"> Registration Requirements</h3>
+            <ul class="list-disc pl-5 space-y-1 text-gray-700">
+                <li>Provide your <strong>Full Name, Email, Phone Number</strong>.</li>
+                <li>Enter your <strong>Age, Sex, and City</strong>.</li>
+                <li>Set your <strong>Password</strong>.</li>
+                <li>Upload your <strong>Profile Photo</strong>.</li>
+                <li>Upload required documents: <strong>Business Permit, Barangay Clearance, Police Clearance</strong>.</li>
             </ul>
-            <p class="mt-2 text-white/80 text-xs italic">
-                * Please prepare scanned copies or photos of your requirements before submitting.
-            </p>
         </div>
 
-        <!-- Title -->
-        <h2 class="text-3xl font-bold text-center">User Registration</h2>
-
-        {{-- Show Validation Errors --}}
-        @if ($errors->any())
-            <div class="bg-red-100 text-red-800 p-4 rounded text-sm">
-                <ul class="list-disc pl-4">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        {{-- Show Success Message --}}
-        @if (session('status'))
-            <div class="bg-green-100 text-green-800 p-4 rounded text-sm">
-                {{ session('status') }}
-            </div>
-        @endif
-
-        {{-- Registration Form --}}
+        <!-- Form -->
         <form method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
 
+            <!-- Role Selection (only driver available) -->
+            <label class="block text-sm font-medium">Role</label>
+            <select name="role" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+                <option value="driver" selected>Driver</option>
+            </select>
+
             <!-- Full Name -->
-            <div>
-                <label class="block text-sm mb-1">Full Name</label>
-                <input type="text" name="fullname" value="{{ old('fullname') }}" required
-                       class="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </div>
+            <input type="text" name="fullname" placeholder="Full Name" 
+                   class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
             <!-- Email -->
-            <div>
-                <label class="block text-sm mb-1">Email</label>
-                <input type="email" name="email" value="{{ old('email') }}" required
-                       class="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </div>
+            <input type="email" name="email" placeholder="Email" 
+                   class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Phone -->
-            <div>
-                <label class="block text-sm mb-1">Phone (11-digit PH number)</label>
-                <input type="text" name="phone" value="{{ old('phone') }}" required
-                       pattern="^09\d{9}$" maxlength="11" inputmode="numeric"
-                       title="Enter 11-digit Philippine mobile number (e.g., 09123456789)"
-                       class="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </div>
+            <!-- Phone (max 11 characters, numeric only) -->
+            <input type="text" name="phone" placeholder="Phone Number (11 digits)" 
+                   maxlength="11" inputmode="numeric" pattern="[0-9]*"
+                   class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
             <!-- Age -->
-            <div>
-                <label class="block text-sm mb-1">Age</label>
-                <input type="number" name="age" value="{{ old('age') }}" required
-                       class="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </div>
+            <input type="number" name="age" placeholder="Age" 
+                   class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
             <!-- Sex -->
-            <div>
-                <label class="block text-sm mb-1">Sex</label>
-                <select name="sex" required
-                        class="w-full px-4 py-2 rounded-lg bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 appearance-none">
-                    <option value="" class="text-gray-300">Select</option>
-                    <option value="Male" class="text-black" {{ old('sex') == 'Male' ? 'selected' : '' }}>Male</option>
-                    <option value="Female" class="text-black" {{ old('sex') == 'Female' ? 'selected' : '' }}>Female</option>
-                    <option value="Other" class="text-black" {{ old('sex') == 'Other' ? 'selected' : '' }}>Other</option>
-                </select>
-            </div>
+            <select name="sex" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+                <option value="">Select Sex</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+            </select>
 
             <!-- City -->
-            <div>
-                <label class="block text-sm mb-1">City</label>
-                <select name="city" required
-                        class="w-full px-4 py-2 rounded-lg bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 appearance-none">
-                    <option value="" class="text-gray-300">Select City</option>
-                    <option value="Cebu City" class="text-black" {{ old('city') == 'Cebu City' ? 'selected' : '' }}>Cebu City</option>
-                    <option value="Mandaue" class="text-black" {{ old('city') == 'Mandaue' ? 'selected' : '' }}>Mandaue</option>
-                    <option value="Lapu-Lapu" class="text-black" {{ old('city') == 'Lapu-Lapu' ? 'selected' : '' }}>Lapu-Lapu</option>
-                    <option value="Santa Fe" class="text-black" {{ old('city') == 'Santa Fe' ? 'selected' : '' }}>Santa Fe</option>
-                </select>
-            </div>
+            <input type="text" name="city" placeholder="City" 
+                   class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Location -->
-            <div>
-                <label class="block text-sm mb-1">Location</label>
-                <input type="text" name="location" value="{{ old('location') }}" placeholder="Enter specific location"
-                       class="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </div>
+        
+            <!-- File Uploads -->
+            <label class="block text-sm font-medium">Profile Photo</label>
+            <input type="file" name="photo" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Driver Referral -->
-            <div>
-                <label class="block text-sm mb-1">Driver Referral Code (Optional)</label>
-                <input type="text" name="referral" value="{{ old('referral') }}" 
-                       placeholder="Enter referral code if any"
-                       class="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </div>
+            <label class="block text-sm font-medium">Business Permit</label>
+            <input type="file" name="business_permit" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Upload Photo -->
-            <div>
-                <label class="block text-sm mb-1">Profile Photo</label>
-                <input type="file" name="photo" accept="image/*" required
-                       class="w-full text-white">
-            </div>
+            <label class="block text-sm font-medium">Barangay Clearance</label>
+            <input type="file" name="barangay_clearance" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Password -->
-            <div>
-                <label class="block text-sm mb-1">Password</label>
-                <input type="password" name="password" required
-                       class="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </div>
-
-            <!-- Confirm Password -->
-            <div>
-                <label class="block text-sm mb-1">Confirm Password</label>
-                <input type="password" name="password_confirmation" required
-                       class="w-full px-4 py-2 rounded-lg bg-white/20 text-white placeholder-white/70 focus:outline-none focus:ring-2 focus:ring-indigo-400">
-            </div>
-
-            <!-- Role -->
-            <div>
-                <label class="block text-sm mb-1">Role</label>
-                <select name="role" required
-                        class="w-full px-4 py-2 rounded-lg bg-white/20 text-white focus:outline-none focus:ring-2 focus:ring-indigo-400 appearance-none">
-                    <option value="" class="text-gray-300">Select</option>
-                    <option value="Driver" class="text-black" {{ old('role') == 'Driver' ? 'selected' : '' }}>Driver</option>
-                    <option value="Passenger" class="text-black" {{ old('role') == 'Passenger' ? 'selected' : '' }}>Passenger</option>
-                </select>
-            </div>
+            <label class="block text-sm font-medium">Police Clearance</label>
+            <input type="file" name="police_clearance" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
 
             <!-- Submit -->
             <button type="submit"
-                    class="w-full py-2 bg-emerald-500 hover:bg-emerald-600 transition-all duration-300 rounded-lg text-white font-semibold shadow-md">
-                Register
+                    class="w-full py-2 bg-gradient-to-r from-gray-500 to-gray-700 hover:from-gray-600 hover:to-gray-800 transition duration-200 rounded-lg text-white font-semibold shadow-md">
+                Submit
             </button>
         </form>
-    </div>
+    </div>  
+
+    <!-- SweetAlert Messages -->
+    @if(session('success'))
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Success!',
+                text: "{{ session('success') }}",
+                confirmButtonColor: '#16a34a'
+            });
+        </script>
+    @endif
+
+    @if(session('error'))
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops...',
+                text: "{{ session('error') }}",
+                confirmButtonColor: '#dc2626'
+            });
+        </script>
+    @endif
+
+    @if ($errors->any())
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Errors',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+                confirmButtonColor: '#f59e0b'
+            });
+        </script>
+    @endif
 
 </body>
 </html>

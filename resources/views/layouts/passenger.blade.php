@@ -13,7 +13,7 @@
     <style>
         :root {
             --primary: #0d6efd;
-            --dark-bg: #343a40;
+            --dark-bg: #f1f5f9;
             --sidebar-width: 250px;
         }
 
@@ -170,7 +170,7 @@
             border-radius: 8px;
             overflow-x: auto;
             font-size: 14px;
-            color: #333;
+            color: #fcfbfb;
         }
 
         .main-content hr {

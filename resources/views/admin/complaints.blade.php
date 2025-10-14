@@ -65,7 +65,7 @@
 </style>
 
 <div class="container py-4">
-    <h1 class="text-center mb-4">📩 Complaints & Reports</h1>
+    <h1 class="text-center mb-4"> Complaints & Reports</h1>
 
     {{-- Flash Messages --}}
     @if (session('success'))
@@ -80,8 +80,11 @@
                 <thead class="table-dark">
                     <tr>
                         <th>ID</th>
-                        <th>User</th>
-                        <th>Message</th>
+                        <th>Passenger</th>
+                        <th>Driver</th>
+                        <th>Complaint</th>
+                        <th>Rating</th>
+                        <th>Rating Comment</th>
                         <th>Status</th>
                         <th>Submitted At</th>
                         <th>Action</th>
@@ -92,7 +95,10 @@
                         <tr>
                             <td>{{ $complaint->id }}</td>
                             <td>{{ $complaint->user->name ?? 'Unknown' }}</td>
+                            <td>{{ $complaint->driver->name ?? 'Unknown' }}</td>
                             <td>{{ Str::limit($complaint->message, 50) }}</td>
+                            <td>{{ $complaint->rating?->score ?? 'N/A' }}</td>
+                            <td>{{ $complaint->rating?->comment ?? 'No rating given' }}</td>
                             <td>
                                 <span class="badge {{ $complaint->status === 'resolved' ? 'badge-success' : 'badge-warning' }}">
                                     {{ ucfirst($complaint->status) }}
@@ -112,7 +118,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-white">No complaints found.</td>
+                            <td colspan="9" class="text-center text-white">No complaints found.</td>
                         </tr>
                     @endforelse
                 </tbody>

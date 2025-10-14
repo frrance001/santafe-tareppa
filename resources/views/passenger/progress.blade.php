@@ -3,7 +3,7 @@
 @section('content')
 <style>
     body {
-        background: url('/images/tric.png') no-repeat center center fixed;
+        background: url('/images') no-repeat center center fixed;
         background-size: cover;
         position: relative;
         color: #fff;
@@ -65,30 +65,34 @@
     @if(!$ride)
         <div class="alert alert-warning">You have no active ride at the moment.</div>
     @else
-        <!-- Glass-style card triggers modal -->
-        <button type="button" class="w-100 border-0 bg-transparent p-0" data-bs-toggle="modal" data-bs-target="#driverModal">
-            <div class="card shadow-sm glass-card">
-                <div class="card-body">
-                    <h5 class="card-title">Ride Status:
-                        <span class="badge 
-                            @if($ride?->status == 'waiting') bg-secondary 
-                            @elseif($ride?->status == 'accepted') bg-primary 
-                            @elseif($ride?->status == 'in_progress') bg-warning text-dark
-                            @elseif($ride?->status == 'completed') bg-success 
-                            @elseif($ride?->status == 'cancelled') bg-danger 
-                            @endif">
-                            {{ ucfirst($ride?->status ?? 'N/A') }}
-                        </span>
-                    </h5>
+        <!-- Only show ride status if NOT already rated -->
+        @if(!$ride->rating)
+            <button type="button" class="w-100 border-0 bg-transparent p-0" data-bs-toggle="modal" data-bs-target="#driverModal">
+                <div class="card shadow-sm glass-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Ride Status:
+                            <span id="ride-status" class="badge 
+                                @if($ride?->status == 'waiting') bg-secondary 
+                                @elseif($ride?->status == 'accepted') bg-primary 
+                                @elseif($ride?->status == 'in_progress') bg-warning text-dark
+                                @elseif($ride?->status == 'completed') bg-success 
+                                @elseif($ride?->status == 'cancelled') bg-danger 
+                                @endif">
+                                {{ ucfirst($ride?->status ?? 'N/A') }}
+                            </span>
+                        </h5>
 
-                    <hr>
+                        <hr>
 
-                    <p><strong>Pickup Location:</strong> {{ $ride?->pickup_location ?? 'N/A' }}</p>
-                    <p><strong>Drop-off Location:</strong> {{ $ride?->dropoff_location ?? 'N/A' }}</p>
-                    <p><strong>Requested At:</strong> {{ $ride?->created_at?->format('F j, Y - h:i A') ?? 'N/A' }}</p>
+                        <p><strong>Pickup Location:</strong> <span id="pickup">{{ $ride?->pickup_location ?? 'N/A' }}</span></p>
+                        <p><strong>Drop-off Location:</strong> <span id="dropoff">{{ $ride?->dropoff_location ?? 'N/A' }}</span></p>
+                        <p><strong>Requested At:</strong> <span id="requested">{{ $ride?->created_at?->format('F j, Y - h:i A') ?? 'N/A' }}</span></p>
+                    </div>
                 </div>
-            </div>
-        </button>
+            </button>
+        @else
+            <div class="alert alert-info">✅ You already rated this ride.</div>
+        @endif
     @endif
 </div>
 
@@ -100,7 +104,7 @@
                 <h5 class="modal-title" id="driverModalLabel">Driver Information</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <div class="modal-body">
+            <div class="modal-body" id="driver-info">
                 @if($ride?->driver)
                     <p><strong>Name:</strong> {{ $ride->driver?->fullname ?? 'N/A' }}</p>
                     <p><strong>Email:</strong> {{ $ride->driver?->email ?? 'N/A' }}</p>
@@ -113,7 +117,8 @@
             <div class="modal-footer d-flex justify-content-between">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
-                @if($ride?->driver && $ride?->status === 'completed')
+                <!-- Show rate/report only if completed AND not yet rated -->
+                @if($ride?->driver && $ride?->status === 'completed' && !$ride->rating)
                     <div>
                         <a href="{{ route('passenger.rate', $ride->id) }}" class="btn btn-success me-2">Rate Driver</a>
                         <a href="{{ route('passenger.report', $ride->driver_id) }}" class="btn btn-danger">Report Driver</a>
@@ -123,4 +128,40 @@
         </div>
     </div>
 </div>
+
+@if($ride && !$ride->rating)
+<script>
+    // Auto-refresh ride status every 5s
+    setInterval(() => {
+        fetch(`/passenger/ride-status/{{ $ride->id }}`)
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    // update badge text + style
+                    let badge = document.getElementById("ride-status");
+                    if (!badge) return; // stop if already rated
+                    badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
+                    badge.className = "badge"; // reset
+
+                    if (data.status === "waiting") badge.classList.add("bg-secondary");
+                    else if (data.status === "accepted") badge.classList.add("bg-primary");
+                    else if (data.status === "in_progress") badge.classList.add("bg-warning","text-dark");
+                    else if (data.status === "completed") badge.classList.add("bg-success");
+                    else if (data.status === "cancelled") badge.classList.add("bg-danger");
+
+                    // update driver info if assigned
+                    if (data.driver) {
+                        document.getElementById("driver-info").innerHTML = `
+                            <p><strong>Name:</strong> ${data.driver.fullname ?? 'N/A'}</p>
+                            <p><strong>Email:</strong> ${data.driver.email ?? 'N/A'}</p>
+                            <p><strong>Phone:</strong> ${data.driver.phone ?? 'N/A'}</p>
+                            <p><strong>Assigned At:</strong> ${data.updated_at ?? 'N/A'}</p>
+                        `;
+                    }
+                }
+            })
+            .catch(err => console.error(err));
+    }, 5000);
+</script>
+@endif
 @endsection

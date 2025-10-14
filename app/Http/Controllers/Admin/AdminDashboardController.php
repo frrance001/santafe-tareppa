@@ -56,5 +56,21 @@ public function driver()
     $payments = Payment::with('user')->latest()->get();
     return view('admin.payments', compact('payments'));
 }
+ public function approve($id) {
+    $user = User::findOrFail($id);
+    $user->status = 'approved';
+    $user->save();
+
+    return back()->with('success', 'User approved successfully!');
+}
+
+public function disapprove($id) {
+    $user = User::findOrFail($id);
+    $user->status = 'disapproved';
+    $user->save();
+
+    return back()->with('success', 'User disapproved successfully!');
+}
+
 }
 

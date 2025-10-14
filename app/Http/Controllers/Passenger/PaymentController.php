@@ -1,44 +1,34 @@
 <?php
 
-// app/Http/Controllers/Passenger/PaymentController.php
 namespace App\Http\Controllers\Passenger;
 
 use App\Http\Controllers\Controller;
-use App\Models\Payment;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
+use App\Models\Payment;
 
 class PaymentController extends Controller
 {
+    // Show payment form
     public function create()
     {
         return view('passenger.payment.create');
     }
 
+    // Handle payment submission
     public function store(Request $request)
     {
         $request->validate([
-            'gcash_number' => 'required|string',
-            'reference_number' => 'required|string',
-            'amount' => 'required|numeric',
-            'screenshot' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+            'method' => 'required|in:gcash,paymaya',
+            'amount' => 'required|numeric|min:1',
         ]);
-
-        $path = null;
-        if ($request->hasFile('screenshot')) {
-            $path = $request->file('screenshot')->store('payments', 'public');
-        }
 
         Payment::create([
-            'user_id' => Auth::id(),
-            'gcash_number' => $request->gcash_number,
-            'reference_number' => $request->reference_number,
-            'amount' => $request->amount,
-            'screenshot' => $path,
-            'status' => 'pending',
+            'user_id' => auth()->id(),
+            'method'  => $request->method,
+            'amount'  => $request->amount,
+            'status'  => 'pending',
         ]);
 
-        return redirect()->route('passenger.payment.create')
-                         ->with('success', 'Payment submitted! Please wait for confirmation.');
+        return redirect()->route('passenger.payment.create')->with('success', 'Payment initialized.');
     }
 }
