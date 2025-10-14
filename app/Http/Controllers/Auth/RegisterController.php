@@ -27,7 +27,7 @@ class RegisterController extends Controller
             'business_permit' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'barangay_clearance' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'police_clearance' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'password' => 'required|string|min:8|confirmed',
+
         ]);
 
         $user = User::create([
@@ -42,7 +42,7 @@ class RegisterController extends Controller
             'business_permit' => $request->file('business_permit')?->store('documents', 'public'),
             'barangay_clearance' => $request->file('barangay_clearance')?->store('documents', 'public'),
             'police_clearance' => $request->file('police_clearance')?->store('documents', 'public'),
-            'password' => Hash::make($request->password),
+           
             'availability' => 'offline',
             'is_verified' => false,
             'is_available' => false,
