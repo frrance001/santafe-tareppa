@@ -1,95 +1,21 @@
-# ======================================================
-# 🚀 Laravel Public Directory .htaccess (Secure)
-# ======================================================
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
-        # Disable MultiViews & Directory Listing
         Options -MultiViews -Indexes
     </IfModule>
 
     RewriteEngine On
-    RewriteBase /
 
-    # ==================================================
-    # 🔁 Redirect Trailing Slashes (except folders)
-    # ==================================================
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Redirect Trailing Slashes...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # ==================================================
-    # 🔐 Pass Authorization Header (for API/Auth)
-    # ==================================================
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
-    # ==================================================
-    # 🚦 Route All Requests To index.php
-    # ==================================================
+    # Send Requests To Front Controller...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
-
-# ======================================================
-# 🧱 Block Access To Hidden Files (.env, .git, etc.)
-# ======================================================
-<FilesMatch "^\.">
-    Require all denied
-</FilesMatch>
-
-# ======================================================
-# 🚫 Block Sensitive Files & Directories
-# ======================================================
-<FilesMatch "(^\.|composer\.json|composer\.lock|artisan|server\.php|.env|.env.*|.git|.htaccess|storage|vendor)">
-    Require all denied
-</FilesMatch>
-
-# ======================================================
-# 🧯 Disable PHP Execution in Uploads or Cache (if exists)
-# ======================================================
-<Directory "storage">
-    php_flag engine off
-</Directory>
-
-<Directory "bootstrap/cache">
-    php_flag engine off
-</Directory>
-
-# ======================================================
-# 🧰 Add Strong Security Headers
-# ======================================================
-<IfModule mod_headers.c>
-    # Prevent MIME sniffing
-    Header set X-Content-Type-Options "nosniff"
-    # Prevent clickjacking
-    Header always append X-Frame-Options SAMEORIGIN
-    # Basic XSS protection
-    Header set X-XSS-Protection "1; mode=block"
-    # Force HTTPS for one year
-    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
-    # Hide server info
-    Header unset X-Powered-By
-    # Content Security Policy (optional, strong)
-    Header set Content-Security-Policy "default-src 'self' https: data: 'unsafe-inline' 'unsafe-eval';"
-</IfModule>
-
-# ======================================================
-# 🧨 Block Dangerous File Extensions
-# ======================================================
-<FilesMatch "\.(bak|config|sql|fla|psd|ini|log|sh|inc|swp|dist|pem|key|env|gz|zip|rar)$">
-    Require all denied
-</FilesMatch>
-
-# ======================================================
-# ⚡ Optional: Force HTTPS (if not already enforced)
-# ======================================================
-<IfModule mod_rewrite.c>
-    RewriteCond %{HTTPS} off
-    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</IfModule>
-
-# ======================================================
-# 🧹 Disable Directory Browsing
-# ======================================================
-Options -Indexes
