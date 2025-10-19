@@ -14,9 +14,8 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
-    return view('auth.login');
+    return view('welcome');
 });
-    
 Route::post('/logout', function () {
     Auth::logout();
     return redirect('/login');
