@@ -14,8 +14,9 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
+
 Route::post('/logout', function () {
     Auth::logout();
     return redirect('/login');
@@ -277,3 +278,7 @@ use App\Http\Controllers\Auth\OtpLoginController;
 
 Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('send.otp');
 Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('verify.otp');
+
+
+
+Route::post('/login', [LoginController::class, 'login'])->name('login');
