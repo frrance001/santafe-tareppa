@@ -6,16 +6,24 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class RegisterController extends Controller
 {
+    /**
+     * Show the registration form.
+     */
     public function showRegistrationForm()
     {
-        return view('auth.register'); // adjust path if needed
+        return view('auth.register');
     }
 
+    /**
+     * Handle user registration.
+     */
     public function register(Request $request)
     {
+        // ✅ Validate input
         $request->validate([
             'fullname' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -27,9 +35,15 @@ class RegisterController extends Controller
             'business_permit' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'barangay_clearance' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
             'police_clearance' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'password' => 'required|string|min:8|confirmed',
         ]);
 
+        // ✅ Prepare upload paths
+        $photoPath = $this->storeFile($request, 'photo', 'photos');
+        $businessPermitPath = $this->storeFile($request, 'business_permit', 'documents');
+        $barangayClearancePath = $this->storeFile($request, 'barangay_clearance', 'documents');
+        $policeClearancePath = $this->storeFile($request, 'police_clearance', 'documents');
+
+        // ✅ Create user
         $user = User::create([
             'fullname' => $request->fullname,
             'email' => $request->email,
@@ -37,18 +51,32 @@ class RegisterController extends Controller
             'age' => $request->age,
             'sex' => $request->sex,
             'role' => $request->role ?? 'driver',
-            'status' => 'pending', // default value
-            'photo' => $request->file('photo')?->store('photos', 'public'),
-            'business_permit' => $request->file('business_permit')?->store('documents', 'public'),
-            'barangay_clearance' => $request->file('barangay_clearance')?->store('documents', 'public'),
-            'police_clearance' => $request->file('police_clearance')?->store('documents', 'public'),
-            'password' => Hash::make($request->password),
+            'status' => 'pending',
+            'photo' => $photoPath,
+            'business_permit' => $businessPermitPath,
+            'barangay_clearance' => $barangayClearancePath,
+            'police_clearance' => $policeClearancePath,
             'availability' => 'offline',
             'is_verified' => false,
             'is_available' => false,
             'verification_code' => rand(100000, 999999),
         ]);
 
-        return redirect()->route('login')->with('status', '✅ Registration successful! Please login.');
+        return redirect()
+            ->route('login')
+            ->with('status', '✅ Registration successful! Please login.');
+    }
+
+    /**
+     * Store uploaded file with a unique name.
+     */
+    private function storeFile(Request $request, string $field, string $folder)
+    {
+        if ($request->hasFile($field)) {
+            $file = $request->file($field);
+            $filename = Str::uuid() . '.' . $file->getClientOriginalExtension();
+            return $file->storeAs($folder, $filename, 'public');
+        }
+        return null;
     }
 }
