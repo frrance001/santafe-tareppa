@@ -16,7 +16,7 @@ use App\Http\Controllers\AdminController;
 Route::get('/', function () {
     return view('auth.login');
 });
-
+    
 Route::post('/logout', function () {
     Auth::logout();
     return redirect('/login');
