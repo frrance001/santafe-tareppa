@@ -3,26 +3,20 @@
 @section('content')
 <style>
     body {
-        background: #ffffff !important; /* ✅ White background */
-        position: relative;
-        color: #000; /* ✅ Dark text */
-    }
-
-    body::before {
-        display: none; /* ✅ Remove dark overlay */
+        background: #ffffff !important;
+        color: #000;
     }
 
     .glass-container {
-        background: #ffffff; /* ✅ Solid white container */
+        background: #ffffff;
         border-radius: 16px;
         padding: 30px;
         box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        color: #000;
     }
 
     h1 {
         font-weight: bold;
-        color: #1e3a8a; /* ✅ Dark blue heading */
+        color: #1e3a8a;
     }
 
     table {
@@ -31,12 +25,12 @@
     }
 
     th {
-        background-color: #f3f4f6; /* ✅ Light gray header */
+        background-color: #f3f4f6;
         color: #000;
     }
 
     tr:hover {
-        background-color: #f9fafb; /* ✅ Light hover effect */
+        background-color: #f9fafb;
     }
 
     .btn-danger {
@@ -62,17 +56,17 @@
     }
 </style>
 
-<!-- SweetAlert2 CDN -->
+<!-- ✅ SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Leaflet.js (Free GPS Map) -->
+<!-- ✅ Leaflet + Geoapify -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <div class="container mt-5 glass-container">
-    <h1 class="mb-4 text-center"> Completed Rides</h1>
+    <h1 class="mb-4 text-center">Completed Rides</h1>
 
-    <!-- Replaced Google Maps with GPS Tracker -->
+    <!-- 🌍 Geoapify Map -->
     <div id="map"></div>
 
     @if(session('success'))
@@ -129,24 +123,53 @@
     </div>
 </div>
 
+<!-- ✅ Map Script -->
 <script>
-    // Initialize the map (centered on Cebu as default)
-    var map = L.map('map').setView([11.1951, 123.6929], 13);
+    // Initialize Geoapify map
+    var map = L.map('map').setView([11.1951, 123.6929], 12);
 
-    // OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        maxZoom: 19,
+    // ✅ Geoapify Tile Layer (replace with your API key)
+    L.tileLayer(`https://maps.geoapify.com/v1/tile/positron/{z}/{x}/{y}.png?apiKey=da1d5d28dc354b6ea277eae05b50312b`, {
+        maxZoom: 20,
+        attribution: '&copy; OpenStreetMap contributors | © Geoapify'
     }).addTo(map);
 
-    // Example: loop through completed rides with GPS (if available)
+    // ✅ Add ride markers
     @foreach($rides as $ride)
-        @if(isset($ride->driver_lat) && isset($ride->driver_lng))
-            L.marker([{{ $ride->driver_lat }}, {{ $ride->driver_lng }}]).addTo(map)
-                .bindPopup("Driver: {{ $ride->driver->fullname ?? 'N/A' }} <br> Ride #{{ $ride->id }}");
+        @if(isset($ride->pickup_lat, $ride->pickup_lng, $ride->dropoff_lat, $ride->dropoff_lng))
+            // Pickup marker
+            var pickupMarker = L.marker([{{ $ride->pickup_lat }}, {{ $ride->pickup_lng }}])
+                .addTo(map)
+                .bindPopup("<strong>Pickup:</strong> {{ $ride->pickup_location }}<br><strong>Ride #{{ $ride->id }}</strong>");
+
+            // Dropoff marker
+            var dropoffMarker = L.marker([{{ $ride->dropoff_lat }}, {{ $ride->dropoff_lng }}])
+                .addTo(map)
+                .bindPopup("<strong>Dropoff:</strong> {{ $ride->dropoff_location }}<br><strong>Ride #{{ $ride->id }}</strong>");
+
+            // Draw line between pickup and dropoff
+            var latlngs = [
+                [{{ $ride->pickup_lat }}, {{ $ride->pickup_lng }}],
+                [{{ $ride->dropoff_lat }}, {{ $ride->dropoff_lng }}]
+            ];
+            var polyline = L.polyline(latlngs, {color: '#1e3a8a', weight: 3, opacity: 0.8}).addTo(map);
+        @endif
+
+        @if(isset($ride->driver_lat, $ride->driver_lng))
+            // Driver marker
+            var driverMarker = L.marker([{{ $ride->driver_lat }}, {{ $ride->driver_lng }}], {
+                icon: L.icon({
+                    iconUrl: 'https://cdn-icons-png.flaticon.com/512/1946/1946411.png',
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32]
+                })
+            }).addTo(map)
+            .bindPopup("<strong>Driver:</strong> {{ $ride->driver->fullname ?? 'N/A' }}<br><strong>Ride #{{ $ride->id }}</strong>");
         @endif
     @endforeach
 </script>
 
+<!-- ✅ Delete Confirmation -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll('.delete-btn').forEach(btn => {

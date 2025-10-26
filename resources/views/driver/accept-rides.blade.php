@@ -1,6 +1,15 @@
 @extends('layouts.driver')
 
 @section('content')
+@if(Auth::user()->role !== 'driver')
+    <div class="container d-flex justify-content-center align-items-center" style="height:80vh;">
+        <div class="text-center">
+            <h3 class="text-danger mb-3">🚫 Access Denied</h3>
+            <p>You are not allowed to view this page.</p>
+            <a href="{{ route('login') }}" class="btn btn-primary">Go Back</a>
+        </div>
+    </div>
+@else
 <div class="container-fluid py-4">
     <div class="row g-4">
         <!-- Left Panel: Ride Requests -->
@@ -43,7 +52,7 @@
         <div class="col-lg-8 col-md-7">
             <div class="card shadow-sm h-100">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0"> Ride Map</h5>
+                    <h5 class="mb-0">Ride Map</h5>
                 </div>
                 <div class="card-body">
                     <div id="rideMap" class="rounded shadow mb-3" style="height: 450px;"></div>
@@ -120,7 +129,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
         fetch(`/driver/accept-rides/${selectedRideId}/accept`, {
             method:'POST',
-            headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type':'application/json' },
+            headers: { 
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Content-Type':'application/json'
+            },
             body: JSON.stringify({})
         })
         .then(async res => { 
@@ -131,14 +143,21 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .then(data => {
             if(data.success){
-                Swal.fire('Ride Accepted!', data.message, 'success');
+                Swal.fire('✅ Ride Accepted!', data.message, 'success');
                 const rideItem = document.getElementById(`ride-${selectedRideId}`);
-                if(rideItem) rideItem.remove();
+                if(rideItem) {
+                    rideItem.classList.add('fade-out');
+                    setTimeout(() => rideItem.remove(), 400);
+                }
                 selectedRideId = null;
-                document.querySelectorAll('.ride-item').forEach(el => el.classList.remove('active'));
                 if(pickupMarker) map.removeLayer(pickupMarker);
                 if(dropoffMarker) map.removeLayer(dropoffMarker);
                 if(routeLine) map.removeLayer(routeLine);
+
+                // If no more rides, show message
+                if(document.querySelectorAll('.ride-item').length === 0) {
+                    document.getElementById('rideList').innerHTML = '<p class="text-center my-3">No ride requests available.</p>';
+                }
             } else {
                 Swal.fire('❌ Failed', data.message || 'Something went wrong.', 'error');
             }
@@ -147,4 +166,18 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 </script>
+
+<style>
+.ride-item.active {
+    background-color: #e0f7fa !important;
+    border-left: 4px solid #00796b;
+}
+.fade-out {
+    animation: fadeOut 0.4s forwards;
+}
+@keyframes fadeOut {
+    to { opacity: 0; transform: translateX(-20px); }
+}
+</style>
+@endif
 @endsection

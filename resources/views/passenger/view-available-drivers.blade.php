@@ -132,23 +132,38 @@ table tbody tr td {
     </div>
 </div>
 
-<!-- Leaflet + Plugins -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-<script src="https://unpkg.com/esri-leaflet"></script>
-<script src="https://unpkg.com/esri-leaflet-geocoder"></script>
-<link rel="stylesheet" href="https://unpkg.com/esri-leaflet-geocoder/dist/esri-leaflet-geocoder.css"/>
+<!-- ✅ Geoapify + Leaflet + SweetAlert2 -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const drivers = @json($drivers);
+    const geoapifyKey = "da1d5d28dc354b6ea277eae05b50312b"; // 🔑 Replace with your actual Geoapify API Key
+
+    // Initialize map
     const map = L.map('map').setView([11.1951, 123.6929], 13);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors'
-    }).addTo(map);
+    // ✅ Define base layers (Normal and Hybrid)
+    const baseLayers = {
+        "🗺️ Map": L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-carto/{z}/{x}/{y}.png?apiKey=${geoapifyKey}`, {
+            attribution: '© <a href="https://www.geoapify.com/" target="_blank">Geoapify</a>',
+            maxZoom: 20
+        }),
+        "🌍 Hybrid": L.tileLayer(`https://maps.geoapify.com/v1/tile/satellite-hybrid/{z}/{x}/{y}.png?apiKey=${geoapifyKey}`, {
+            attribution: '© <a href="https://www.geoapify.com/" target="_blank">Geoapify</a>',
+            maxZoom: 20
+        })
+    };
 
+    // Add default layer
+    baseLayers["🌍 Hybrid"].addTo(map);
+
+    // Layer control
+    L.control.layers(baseLayers).addTo(map);
+
+    // Icons
     const driverIcon = L.icon({iconUrl:'/images/tricycle.png', iconSize:[40,40]});
     const passengerIcon = L.icon({iconUrl:'/images/passenger.png', iconSize:[35,35]});
     const pickupIcon = L.icon({iconUrl:'/images/marker.jpg', iconSize:[35,35]});
@@ -161,7 +176,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const pickupInput = document.getElementById("pickup_location");
     const dropoffInput = document.getElementById("dropoff_location");
 
-    // Show available drivers on map
+    // ✅ Show available drivers
     drivers.forEach(driver => {
         if(driver.is_available && driver.lat && driver.lng) {
             L.marker([driver.lat, driver.lng], { icon: driverIcon })
@@ -170,22 +185,18 @@ document.addEventListener('DOMContentLoaded', function () {
         }
     });
 
-    // Show passenger location if available
+    // ✅ Show passenger location
     if(navigator.geolocation){
-        navigator.geolocation.watchPosition(pos => {
+        navigator.geolocation.getCurrentPosition(pos => {
             const lat = pos.coords.latitude;
             const lng = pos.coords.longitude;
-            if(!pickupMarker){
-                pickupMarker = L.marker([lat,lng], { icon: passengerIcon, draggable:true })
-                                 .addTo(map).bindPopup("You are here").openPopup();
-            } else {
-                pickupMarker.setLatLng([lat,lng]);
-            }
-            map.setView([lat,lng],14);
+            pickupMarker = L.marker([lat,lng], { icon: passengerIcon, draggable:true })
+                             .addTo(map).bindPopup("You are here").openPopup();
+            map.setView([lat,lng], 14);
         });
     }
 
-    // Map click to set pickup/drop-off
+    // ✅ Map click for pickup/drop-off
     let settingPickup = true;
     map.on('click', function(e){
         const latlng = e.latlng;
@@ -205,68 +216,63 @@ document.addEventListener('DOMContentLoaded', function () {
         updateRoute();
     });
 
-    function debounce(func, delay){
-        let timeout;
-        return function(){
-            clearTimeout(timeout);
-            timeout = setTimeout(func, delay);
-        }
-    }
-
-    function addMarker(inputEl, icon, isPickup=true){
-        const value = inputEl.value;
-        if(!value) return;
-        L.esri.Geocoding.geocode().text(value).run((err, results) => {
-            if(!results || !results.results.length) return;
-            const latlng = results.results[0].latlng;
-            if(isPickup){
-                if(pickupMarker) map.removeLayer(pickupMarker);
-                pickupMarker = L.marker(latlng, {icon:icon, draggable:true}).addTo(map).bindPopup("Pickup").openPopup();
+    // ✅ Geoapify geocoding
+    async function geocodeAddress(address, isPickup = true) {
+        if (!address) return;
+        const url = `https://api.geoapify.com/v1/geocode/search?text=${encodeURIComponent(address)}&apiKey=${geoapifyKey}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        if (data.features && data.features.length > 0) {
+            const lat = data.features[0].geometry.coordinates[1];
+            const lng = data.features[0].geometry.coordinates[0];
+            const latlng = [lat, lng];
+            if (isPickup) {
+                if (pickupMarker) map.removeLayer(pickupMarker);
+                pickupMarker = L.marker(latlng, { icon: pickupIcon, draggable:true }).addTo(map).bindPopup("Pickup").openPopup();
             } else {
-                if(dropoffMarker) map.removeLayer(dropoffMarker);
-                dropoffMarker = L.marker(latlng, {icon:icon, draggable:true}).addTo(map).bindPopup("Drop-off").openPopup();
+                if (dropoffMarker) map.removeLayer(dropoffMarker);
+                dropoffMarker = L.marker(latlng, { icon: dropoffIcon, draggable:true }).addTo(map).bindPopup("Drop-off").openPopup();
             }
             map.setView(latlng, 15);
             updateRoute();
-        });
-    }
-
-    pickupInput.addEventListener("input", debounce(() => addMarker(pickupInput, pickupIcon, true), 800));
-    dropoffInput.addEventListener("input", debounce(() => addMarker(dropoffInput, dropoffIcon, false), 800));
-
-    function updateRoute(){
-        if(pickupMarker && dropoffMarker){
-            const p = pickupMarker.getLatLng();
-            const d = dropoffMarker.getLatLng();
-            const url = `https://router.project-osrm.org/route/v1/driving/${p.lng},${p.lat};${d.lng},${d.lat}?overview=full&geometries=geojson`;
-            fetch(url).then(res => res.json()).then(data => {
-                if(data.routes && data.routes.length > 0){
-                    const route = data.routes[0].geometry;
-                    if(routeLayer) map.removeLayer(routeLayer);
-                    routeLayer = L.geoJSON(route, {color:'blue', weight:5, opacity:0.7}).addTo(map);
-
-                    const mins = Math.round(data.routes[0].duration / 60);
-                    const fare = mins * 10;
-
-                    Swal.fire({
-                        icon: 'info',
-                        title: 'Estimated Travel Info',
-                        html: `
-                            <strong>Time:</strong> Approximately ${mins} minutes<br>
-                            <strong>Fare:</strong> ₱${fare.toFixed(2)}
-                        `,
-                        timer: 5000,
-                        showConfirmButton: false
-                    });
-                }
-            });
         }
     }
 
-    // Handle ride request
+    pickupInput.addEventListener("change", () => geocodeAddress(pickupInput.value, true));
+    dropoffInput.addEventListener("change", () => geocodeAddress(dropoffInput.value, false));
+
+    // ✅ Routing
+    async function updateRoute(){
+        if(pickupMarker && dropoffMarker){
+            const p = pickupMarker.getLatLng();
+            const d = dropoffMarker.getLatLng();
+            const url = `https://api.geoapify.com/v1/routing?waypoints=${p.lat},${p.lng}|${d.lat},${d.lng}&mode=drive&apiKey=${geoapifyKey}`;
+            const res = await fetch(url);
+            const data = await res.json();
+            if(data.features && data.features.length){
+                const route = data.features[0].geometry;
+                if(routeLayer) map.removeLayer(routeLayer);
+                routeLayer = L.geoJSON(route, {color:'blue', weight:5, opacity:0.7}).addTo(map);
+
+                const mins = Math.round(data.features[0].properties.time / 60);
+                const fare = mins * 10;
+                Swal.fire({
+                    icon: 'info',
+                    title: 'Estimated Travel Info',
+                    html: `<strong>Time:</strong> ${mins} minutes<br><strong>Fare:</strong> ₱${fare.toFixed(2)}`,
+                    timer: 5000,
+                    showConfirmButton: false
+                });
+            }
+        }
+    }
+
+    // ✅ Ride request modal
     const requestBtns = document.querySelectorAll('.request-btn');
     const driverIdField = document.getElementById('driver_id');
     const driverInfo = document.getElementById('driverInfo');
+    const rideForm = document.getElementById('rideForm');
+    const bookBtn = document.getElementById('bookBtn');
 
     requestBtns.forEach(btn => {
         btn.addEventListener('click', function () {
@@ -276,13 +282,12 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    const rideForm = document.getElementById('rideForm');
-    const bookBtn = document.getElementById('bookBtn');
     rideForm.addEventListener('submit', function(){
         bookBtn.disabled = true;
         bookBtn.textContent = "Booking...";
     });
 
+    // ✅ Alerts
     @if(session('success'))
         Swal.fire({icon:'success', title:'Ride Requested', text:'{{ session('success') }}', confirmButtonColor:'#198754'});
     @endif

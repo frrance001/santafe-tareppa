@@ -12,7 +12,7 @@ use App\Http\Controllers\ReportController;
 use App\Http\Controllers\Passenger\PaymentController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\AdminController;
-
+use App\Http\Controllers\LocationController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -23,6 +23,9 @@ Route::post('/logout', function () {
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [LoginController::class, 'login']);
+
+Route::get('/otp-verify', [LoginController::class, 'showOtpForm'])->name('otp.verify');
+Route::post('/otp-verify', [LoginController::class, 'verifyOtp'])->name('otp.verify.post');
 
 Route::get('/register', [RegisterController::class, 'showRegistrationForm'])->name('register.form');
 Route::post('/register', [RegisterController::class, 'register'])->name('register');
@@ -273,3 +276,7 @@ Route::get('/passenger/payment/failed', [PaymentController::class, 'failed'])->n
 Route::delete('/passenger/ride/{id}', [RideController::class, 'destroy'])
     ->name('passenger.ride.destroy');
 
+//location
+Route::post('/update-location', [App\Http\Controllers\LocationController::class, 'update'])
+    ->middleware('auth')
+    ->name('update.location');

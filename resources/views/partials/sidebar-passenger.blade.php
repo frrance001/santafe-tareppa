@@ -139,31 +139,31 @@
 
 <div class="sidebar">
 
-    @if(Auth::check() && Auth::user()->role === 'Passenger')
-        @php
-            $profile = Auth::user()->profile_picture ?? null;
+   @if(Auth::check() && Auth::user()->role === 'Passenger')
+    @php
+        $profile = Auth::user()->profile_picture ?? null;
 
-            if ($profile) {
-                // If already a full URL (starts with http)
-                if (Str::startsWith($profile, ['http://', 'https://'])) {
-                    $profileUrl = $profile;
-                } else {
-                    // If only filename stored → load from storage
-                    $profileUrl = asset('storage/profile_pictures/' . $profile);
-                }
+        if ($profile) {
+            // If already a full URL (starts with http)
+            if (Str::startsWith($profile, ['http://', 'https://'])) {
+                $profileUrl = $profile;
             } else {
-                // Default fallback image
-                $profileUrl = asset('images/default-profile.png');
+                // If only filename stored → load from storage
+                $profileUrl = asset('storage/profile_pictures/' . $profile);
             }
-        @endphp
+        } else {
+            // Default fallback image
+            $profileUrl = asset('images/default-profile.png');
+        }
+    @endphp
 
-        <!-- Passenger profile picture -->
-        <img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
+    <!-- Passenger profile picture -->
+    <img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
 
-        <div class="welcome">
-            Welcome, <strong>{{ Auth::user()->fullname }}</strong>
-        </div>
-    @endif
+    <div class="welcome">
+        Welcome, <strong>{{ Auth::user()->email }}</strong>
+    </div>
+@endif
 
     <ul>
         <li class="{{ request()->routeIs('passenger.dashboard') ? 'active' : '' }}">

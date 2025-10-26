@@ -165,84 +165,107 @@
 
     <form method="POST" action="{{ route('login') }}" id="loginForm">
       @csrf
+<div class="mb-3">
+  <label for="role" class="form-label">Select Role</label>
+  <select name="role" id="role" class="form-control" required>
+    <option value="passenger">Passenger</option>
+    <option value="driver">Driver</option>
+    <option value="admin">Admin</option>
+  </select>
+</div>
 
-      <div class="mb-3">
-        <label for="role" class="form-label">Select Role</label>
-        <select name="role" id="role" class="form-control" required>
-          <option value="passenger">Passenger</option>
-          <option value="driver">Driver</option>
-          <option value="admin">Admin</option>
-        </select>
-      </div>
+<div class="mb-3">
+  <label for="email" class="form-label">Email address</label>
+  <input name="email" type="email" id="email" class="form-control" placeholder="Enter your email" required autofocus>
+</div>
 
-      <div class="mb-3">
-        <label for="email" class="form-label">Email address</label>
-        <input name="email" type="email" id="email" class="form-control" placeholder="Enter your email" required autofocus>
-      </div>
+<!-- Hidden password for passenger & driver -->
+<div class="mb-4 position-relative" id="passwordField">
+  <label for="password" class="form-label">Password</label>
+  <input name="password" type="password" id="password" class="form-control" placeholder="Enter your password">
+  <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+</div>
 
-      <div class="mb-4 position-relative">
-        <label for="password" class="form-label">Password</label>
-        <input name="password" type="password" id="password" class="form-control" placeholder="Enter your password" required>
-        <i class="bi bi-eye toggle-password" id="togglePassword"></i>
-      </div>
 
       <button type="submit" id="loginBtn" class="btn btn-login w-100">
         <i class="bi bi-box-arrow-in-right me-1"></i> Login
       </button>
     </form>
   </div>
+<script>
+  // ✅ Toggle password visibility
+  const togglePassword = document.getElementById('togglePassword');
+  const passwordInput = document.getElementById('password');
+  togglePassword.addEventListener('click', () => {
+    const type = passwordInput.type === 'password' ? 'text' : 'password';
+    passwordInput.type = type;
+    togglePassword.classList.toggle('bi-eye');
+    togglePassword.classList.toggle('bi-eye-slash');
+  });
 
-  <script>
-    // Toggle password visibility
-    const togglePassword = document.getElementById('togglePassword');
-    const passwordInput = document.getElementById('password');
-    togglePassword.addEventListener('click', () => {
-      const type = passwordInput.type === 'password' ? 'text' : 'password';
-      passwordInput.type = type;
-      togglePassword.classList.toggle('bi-eye');
-      togglePassword.classList.toggle('bi-eye-slash');
+  // ✅ Hide password field for Passenger & Driver
+  const roleSelect = document.getElementById('role');
+  const passwordField = document.getElementById('passwordField');
+
+  // Hide by default if role != admin
+  if (roleSelect.value !== 'admin') {
+    passwordField.style.display = 'none';
+  }
+
+  roleSelect.addEventListener('change', () => {
+    if (roleSelect.value === 'admin') {
+      passwordField.style.display = 'block';
+    } else {
+      passwordField.style.display = 'none';
+    }
+  });
+
+  // ✅ Block right-click & Inspect shortcuts
+  document.addEventListener('contextmenu', e => e.preventDefault());
+  document.addEventListener('keydown', function(e) {
+    if (e.keyCode === 123) e.preventDefault(); // F12
+    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) e.preventDefault(); // Ctrl+Shift+I/J
+    if (e.ctrlKey && e.key.toLowerCase() === 'u') e.preventDefault(); // Ctrl+U
+  });
+
+  // ✅ Limit login attempts (max 3)
+  let loginAttempts = 0;
+  const maxAttempts = 3;
+  const loginForm = document.getElementById('loginForm');
+  const loginBtn = document.getElementById('loginBtn');
+
+  loginForm.addEventListener('submit', function(e) {
+    loginAttempts++;
+    if (loginAttempts > maxAttempts) {
+      e.preventDefault();
+      Swal.fire({
+        icon: 'error',
+        title: 'Too Many Attempts',
+        text: 'You have exceeded 3 login attempts. Please try again later.',
+      });
+      loginBtn.disabled = true;
+      loginBtn.innerText = "Locked";
+      return false;
+    }
+  });
+
+  // ✅ SweetAlert2 for server-side feedback
+  @if(session('error'))
+    Swal.fire({ icon: 'error', title: 'Oops...', text: '{{ session('error') }}' });
+  @endif
+
+  @if(session('success'))
+    Swal.fire({ icon: 'success', title: 'Success', text: '{{ session('success') }}' });
+  @endif
+
+  @if($errors->any())
+    Swal.fire({
+      icon: 'error',
+      title: 'Error',
+      html: `<ul style="text-align:left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>`
     });
+  @endif
+</script>
 
-    // Block right-click & Inspect shortcuts
-    document.addEventListener('contextmenu', e => e.preventDefault());
-    document.addEventListener('keydown', function(e) {
-      if (e.keyCode === 123) e.preventDefault();
-      if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) e.preventDefault();
-      if (e.ctrlKey && e.key.toLowerCase() === 'u') e.preventDefault();
-    });
-
-    // ✅ Login Attempts with SweetAlert2
-    let loginAttempts = 0;
-    const maxAttempts = 3;
-    const loginForm = document.getElementById('loginForm');
-    const loginBtn = document.getElementById('loginBtn');
-
-    loginForm.addEventListener('submit', function(e) {
-      loginAttempts++;
-
-      if (loginAttempts > maxAttempts) {
-        e.preventDefault();
-        Swal.fire({
-          icon: 'error',
-          title: 'Too Many Attempts',
-          text: 'You have exceeded 3 login attempts. Please try again later.',
-        });
-        loginBtn.disabled = true;
-        loginBtn.innerText = "Locked";
-        return false;
-      }
-    });
-
-    // ✅ SweetAlert2 for server-side errors
-    @if(session('error'))
-      Swal.fire({ icon: 'error', title: 'Oops...', text: '{{ session('error') }}' });
-    @endif
-    @if(session('success'))
-      Swal.fire({ icon: 'success', title: 'Success', text: '{{ session('success') }}' });
-    @endif
-    @if($errors->any())
-      Swal.fire({ icon: 'error', title: 'Error', html: `<ul style="text-align:left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>` });
-    @endif
-  </script>
 </body>
 </html>

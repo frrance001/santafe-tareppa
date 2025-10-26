@@ -3,52 +3,60 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
 use Illuminate\Http\Request;
+use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class RegisterController extends Controller
 {
+    // Show registration form
     public function showRegistrationForm()
     {
-        return view('auth.register'); // adjust path if needed
+        return view('auth.register');
     }
 
+    // Handle registration
     public function register(Request $request)
     {
+        // Validate inputs (no password required)
         $request->validate([
             'fullname' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'required|string|max:11',
-            'age' => 'required|integer|min:18|max:60',
-            'sex' => 'required|string',
-            'role' => 'required|string',
-            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'business_permit' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'barangay_clearance' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'police_clearance' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
-            'password' => 'required|string|min:8|confirmed',
+            'email' => 'required|email|unique:users,email',
+            'phone' => 'required|digits:11',
+            'age' => 'required|integer|min:18',
+            'sex' => 'required|in:Male,Female',
+            'city' => 'required|string|max:255',
+            'role' => 'required|in:driver',
+            'photo' => 'required|image|mimes:jpg,jpeg,png|max:2048',
+            'business_permit' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'barangay_clearance' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
+            'police_clearance' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120',
         ]);
 
+        // Handle file uploads
+        $photo = $request->file('photo')->store('uploads/photos', 'public');
+        $businessPermit = $request->file('business_permit')->store('uploads/docs', 'public');
+        $barangayClearance = $request->file('barangay_clearance')->store('uploads/docs', 'public');
+        $policeClearance = $request->file('police_clearance')->store('uploads/docs', 'public');
+
+        // Create user (password is random, hashed)
         $user = User::create([
             'fullname' => $request->fullname,
             'email' => $request->email,
             'phone' => $request->phone,
             'age' => $request->age,
             'sex' => $request->sex,
-            'role' => $request->role ?? 'driver',
-            'status' => 'pending', // default value
-            'photo' => $request->file('photo')?->store('photos', 'public'),
-            'business_permit' => $request->file('business_permit')?->store('documents', 'public'),
-            'barangay_clearance' => $request->file('barangay_clearance')?->store('documents', 'public'),
-            'police_clearance' => $request->file('police_clearance')?->store('documents', 'public'),
-            'password' => Hash::make($request->password),
-            'availability' => 'offline',
-            'is_verified' => false,
-            'is_available' => false,
-            'verification_code' => rand(100000, 999999),
+            'city' => $request->city,
+            'role' => $request->role,
+            'photo' => $photo,
+            'business_permit' => $businessPermit,
+            'barangay_clearance' => $barangayClearance,
+            'police_clearance' => $policeClearance,
+            'password' => Hash::make(Str::random(16)), // random password
         ]);
 
-        return redirect()->route('login')->with('status', '✅ Registration successful! Please login.');
+        return redirect()->back()->with('success', 'Driver registered successfully! You can now log in via OTP.');
     }
 }
