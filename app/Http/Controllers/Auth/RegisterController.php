@@ -57,6 +57,7 @@ class RegisterController extends Controller
             'password' => Hash::make(Str::random(16)), // random password
         ]);
 
-        return redirect()->back()->with('success', 'Driver registered successfully! You can now log in via OTP.');
+       return redirect()->route('login')->with('success', 'Registration successful! You can now log in.');
+
     }
 }

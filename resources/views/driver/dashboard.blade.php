@@ -21,7 +21,6 @@
                         ->orderBy('created_at', 'desc')
                         ->get();
 
-            // Active ride with destination
             $activeRide = \App\Models\Ride::where('driver_id', auth()->id())
                         ->where('status', 'in_progress')
                         ->latest()
@@ -73,6 +72,13 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
+{{-- SweetAlert2 --}}
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+{{-- ✅ Pusher & Laravel Echo --}}
+<script src="https://js.pusher.com/8.2/pusher.min.js"></script>
+<script src="{{ asset('js/echo.js') }}"></script> {{-- Make sure Echo is configured --}}
+
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     // Default map
@@ -86,19 +92,21 @@ document.addEventListener("DOMContentLoaded", function () {
     // Driver marker
     let driverMarker = L.marker([11.1951, 123.6929]).addTo(map).bindPopup("Your Location");
 
-    // Destination (from backend)
+    // Destination marker (if in-progress ride)
     @if($activeRide && $activeRide->destination_lat && $activeRide->destination_lng)
         let destLat = {{ $activeRide->destination_lat }};
         let destLng = {{ $activeRide->destination_lng }};
-        let destinationMarker = L.marker([destLat, destLng], {icon: L.icon({
-            iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
-            iconSize: [32, 32]
-        })}).addTo(map).bindPopup("Destination");
+        let destinationMarker = L.marker([destLat, destLng], {
+            icon: L.icon({
+                iconUrl: "https://cdn-icons-png.flaticon.com/512/684/684908.png",
+                iconSize: [32, 32]
+            })
+        }).addTo(map).bindPopup("Destination");
 
         let routeLine = L.polyline([], {color: 'blue'}).addTo(map);
     @endif
 
-    // Update driver location
+    // Update driver location in real-time
     function updateLocation(position) {
         let lat = position.coords.latitude;
         let lon = position.coords.longitude;
@@ -107,11 +115,8 @@ document.addEventListener("DOMContentLoaded", function () {
         document.getElementById("lon").textContent = lon.toFixed(6);
 
         driverMarker.setLatLng([lat, lon]);
-
-        // Center map on driver
         map.setView([lat, lon], 15);
 
-        // Update polyline to destination
         @if($activeRide && $activeRide->destination_lat && $activeRide->destination_lng)
             routeLine.setLatLngs([[lat, lon], [destLat, destLng]]);
         @endif
@@ -130,6 +135,26 @@ document.addEventListener("DOMContentLoaded", function () {
     } else {
         alert("Geolocation is not supported by your browser.");
     }
+
+    // ✅ Laravel Echo listener for new ride requests
+    Echo.private(`driver.{{ auth()->id() }}`)
+        .listen('RideRequested', (e) => {
+            Swal.fire({
+                icon: 'info',
+                title: '🚖 New Ride Request!',
+                html: `
+                    <strong>Passenger:</strong> ${e.passengerName}<br>
+                    <strong>Pickup:</strong> ${e.pickup}<br>
+                    <strong>Drop-off:</strong> ${e.dropoff}
+                `,
+                confirmButtonText: 'OK',
+                confirmButtonColor: '#3085d6'
+            });
+
+            // Play sound alert
+            const audio = new Audio('/sounds/notification.mp3');
+            audio.play();
+        });
 });
 </script>
 @endsection

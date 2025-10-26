@@ -6,7 +6,6 @@
         margin: 0;
         padding: 0;
         background: #ffffff;
-        position: relative;
         color: #000;
     }
 
@@ -35,13 +34,44 @@
         max-width: 300px;
         margin-bottom: 20px;
     }
+
+    /* Modal Glass Style */
+    .modal-content {
+        background: rgba(255, 255, 255, 0.97);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .driver-photo {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid #e5e7eb;
+    }
+
+    .photo-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .photo-label {
+        font-weight: 600;
+        color: #1e3a8a;
+        margin-top: 10px;
+    }
+
+    .photo-card {
+        text-align: center;
+    }
 </style>
 
-<!-- CSRF Token -->
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div class="container mt-5 glass-container">
-    <!-- Search Box -->
     <input type="text" id="searchInput" class="form-control search-box" placeholder="Search users...">
 
     @forelse ($users as $role => $roleUsers)
@@ -55,46 +85,19 @@
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Phone</th>
-                        <th>Age</th>
-                        <th>Sex</th>
                         <th>City</th>
                         <th>Role</th>
-                        <th class="text-center">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach ($roleUsers as $user)
-                        <tr>
+                        <tr data-user='@json($user)'>
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->fullname }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->phone }}</td>
-                            <td>{{ $user->age }}</td>
-                            <td>{{ ucfirst($user->sex) }}</td>
                             <td>{{ $user->city }}</td>
                             <td>{{ ucfirst($user->role) }}</td>
-                            <td class="text-center">
-                                <!-- Approve -->
-                                <form action="{{ route('admin.users.approve', $user->id) }}" method="POST" style="display:inline;" data-action-form>
-                                    @csrf
-                                    @method('POST')
-                                    <button type="submit" class="btn btn-sm btn-success">Approve</button>
-                                </form>
-
-                                <!-- Disapprove -->
-                                <form action="{{ route('admin.users.disapprove', $user->id) }}" method="POST" style="display:inline;" data-action-form>
-                                    @csrf
-                                    @method('POST')
-                                    <button type="submit" class="btn btn-sm btn-warning">Disapprove</button>
-                                </form>
-
-                                <!-- Delete -->
-                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;" data-delete-form>
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger" type="submit">Delete</button>
-                                </form>
-                            </td>
                         </tr>
                     @endforeach
                 </tbody>
@@ -105,72 +108,134 @@
     @endforelse
 </div>
 
-<!-- SweetAlert2 -->
+<!-- Modal -->
+<div class="modal fade" id="userInfoModal" tabindex="-1" aria-labelledby="userInfoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+      <div class="modal-header bg-primary text-white">
+        <h5 class="modal-title" id="userInfoModalLabel">Driver Information</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        <ul class="list-group mb-3">
+          <li class="list-group-item"><strong>ID:</strong> <span id="modal-id"></span></li>
+          <li class="list-group-item"><strong>Full Name:</strong> <span id="modal-fullname"></span></li>
+          <li class="list-group-item"><strong>Email:</strong> <span id="modal-email"></span></li>
+          <li class="list-group-item"><strong>Phone:</strong> <span id="modal-phone"></span></li>
+          <li class="list-group-item"><strong>Age:</strong> <span id="modal-age"></span></li>
+          <li class="list-group-item"><strong>Sex:</strong> <span id="modal-sex"></span></li>
+          <li class="list-group-item"><strong>City:</strong> <span id="modal-city"></span></li>
+          <li class="list-group-item"><strong>Role:</strong> <span id="modal-role"></span></li>
+        </ul>
+
+        <h6 class="fw-bold text-primary mb-2">Documents & Photos:</h6>
+        <div id="photoGallery" class="photo-gallery">
+            <div class="photo-card">
+                <p class="photo-label">Profile Photo</p>
+                <img id="profilePhoto" class="driver-photo" src="" alt="Profile Photo">
+            </div>
+            <div class="photo-card">
+                <p class="photo-label">Police Clearance</p>
+                <img id="policeClearance" class="driver-photo" src="" alt="Police Clearance">
+            </div>
+            <div class="photo-card">
+                <p class="photo-label">Barangay Clearance</p>
+                <img id="brgyClearance" class="driver-photo" src="" alt="Barangay Clearance">
+            </div>
+            <div class="photo-card">
+                <p class="photo-label">Business Permit</p>
+                <img id="businessPermit" class="driver-photo" src="" alt="Business Permit">
+            </div>
+        </div>
+      </div>
+
+      <div class="modal-footer justify-content-between">
+        <div>
+            <form id="approveForm" action="" method="POST" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+            </form>
+
+            <form id="disapproveForm" action="" method="POST" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
+            </form>
+
+            <form id="deleteForm" action="" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+        </div>
+
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Search filter
-    const searchInput = document.getElementById("searchInput");
-    searchInput.addEventListener("keyup", function() {
-        let filter = searchInput.value.toLowerCase();
-        document.querySelectorAll(".user-table tbody tr").forEach(row => {
-            let text = row.innerText.toLowerCase();
-            row.style.display = text.includes(filter) ? "" : "none";
+document.addEventListener('DOMContentLoaded', () => {
+
+    const modal = new bootstrap.Modal(document.getElementById('userInfoModal'));
+
+    document.querySelectorAll(".user-table tbody tr").forEach(row => {
+        row.addEventListener("click", e => {
+            const user = JSON.parse(row.getAttribute("data-user"));
+
+            // 🧩 Fill user info
+            document.getElementById("modal-id").innerText = user.id;
+            document.getElementById("modal-fullname").innerText = user.fullname;
+            document.getElementById("modal-email").innerText = user.email;
+            document.getElementById("modal-phone").innerText = user.phone;
+            document.getElementById("modal-age").innerText = user.age ?? 'N/A';
+            document.getElementById("modal-sex").innerText = user.sex ?? 'N/A';
+            document.getElementById("modal-city").innerText = user.city ?? 'N/A';
+            document.getElementById("modal-role").innerText = user.role ?? 'N/A';
+
+            // 🖼️ Photos
+            const defaultImg = '/images/no-image.png'; // change this path if needed
+            document.getElementById('profilePhoto').src = user.profile_photo ?? defaultImg;
+            document.getElementById('policeClearance').src = user.police_clearance ?? defaultImg;
+            document.getElementById('brgyClearance').src = user.brgy_clearance ?? defaultImg;
+            document.getElementById('businessPermit').src = user.business_permit ?? defaultImg;
+
+            // 🧩 Update form actions
+            document.getElementById('approveForm').action = `/admin/users/${user.id}/approve`;
+            document.getElementById('disapproveForm').action = `/admin/users/${user.id}/disapprove`;
+            document.getElementById('deleteForm').action = `/admin/users/${user.id}`;
+
+            modal.show();
         });
     });
 
-    // Confirm for approve/disapprove
-    const actionForms = document.querySelectorAll('form[data-action-form]');
-    actionForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            let action = form.querySelector('button').innerText.trim();
-
-            Swal.fire({
-                title: `Are you sure you want to ${action}?`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonColor: '#3b82f6',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: `Yes, ${action}`
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        });
-    });
-
-    // Confirm for delete
-    const deleteForms = document.querySelectorAll('form[data-delete-form]');
-    deleteForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This user will be permanently deleted.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    form.submit();
-                }
-            });
-        });
-    });
-
-    @if(session('success'))
+    document.getElementById('deleteForm').addEventListener('submit', e => {
+        e.preventDefault();
         Swal.fire({
-            icon: 'success',
-            title: 'Success!',
-            text: '{{ session('success') }}',
-            timer: 2000,
-            showConfirmButton: false
+            title: 'Are you sure?',
+            text: "This user will be permanently deleted.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+        }).then(result => {
+            if (result.isConfirmed) e.target.submit();
         });
-    @endif
+    });
+
+    const searchInput = document.getElementById("searchInput");
+    searchInput.addEventListener("keyup", () => {
+        const filter = searchInput.value.toLowerCase();
+        document.querySelectorAll(".user-table tbody tr").forEach(row => {
+            row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
+        });
+    });
+
 });
 </script>
 @endsection
