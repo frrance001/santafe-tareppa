@@ -49,11 +49,6 @@
         border-color: #007bff;
         background: #f0f8ff;
     }
-
-    .submit-btn {
-        margin-top: 25px;
-        width: 100%;
-    }
 </style>
 
 <div class="payment-container">
@@ -62,44 +57,42 @@
         <p>Pay for Ride #{{ $ride->id ?? 'N/A' }} | Fare: ₱{{ number_format($ride->fare ?? 0, 2) }}</p>
     </div>
 
-    <form method="POST" action="{{ route('passenger.payment.store', $ride->id ?? 0) }}">
-        @csrf
-        <div class="payment-methods">
-            <label class="payment-option">
-                <input type="radio" name="payment_method" value="gcash" required>
-                <img src="/images/gcash.png" alt="GCash">
-                <div>GCash</div>
-            </label>
-
-            <label class="payment-option">
-                <input type="radio" name="payment_method" value="paypal">
-                <img src="/images/paypal.png" alt="PayPal">
-                <div>PayPal</div>
-            </label>
-
-            <label class="payment-option">
-                <input type="radio" name="payment_method" value="credit_card">
-                <img src="/images/credit.png" alt="Credit/Debit">
-                <div>Credit/Debit</div>
-            </label>
-
-            <label class="payment-option">
-                <input type="radio" name="payment_method" value="paymaya">
-                <img src="/images/paymaya.png" alt="PayMaya">
-                <div>PayMaya</div>
-            </label>
+    <div class="payment-methods">
+        <div class="payment-option" data-url="https://www.gcash.com/">
+            <img src="/images/gcash.png" alt="GCash">
+            <div>GCash</div>
         </div>
 
-        <button type="submit" class="btn btn-primary submit-btn">Proceed to Payment</button>
-    </form>
+        <div class="payment-option" data-url="https://www.paypal.com/">
+            <img src="/images/paypal.png" alt="PayPal">
+            <div>PayPal</div>
+        </div>
+
+        <div class="payment-option" data-url="https://www.visa.com/payments/">
+            <img src="/images/credit.png" alt="Credit/Debit">
+            <div>Credit/Debit</div>
+        </div>
+
+        <div class="payment-option" data-url="https://www.paymaya.com/">
+            <img src="/images/paymaya.png" alt="PayMaya">
+            <div>PayMaya</div>
+        </div>
+    </div>
 </div>
 
 <script>
-    // Highlight selected payment option
-    document.querySelectorAll('.payment-option input').forEach(input => {
-        input.addEventListener('change', function() {
+    document.querySelectorAll('.payment-option').forEach(option => {
+        option.addEventListener('click', function() {
+            // Highlight selected option
             document.querySelectorAll('.payment-option').forEach(opt => opt.classList.remove('active'));
-            this.closest('.payment-option').classList.add('active');
+            this.classList.add('active');
+
+            // Redirect to payment link
+            const url = this.dataset.url;
+            if(url) {
+                window.location.href = url;
+            }
         });
     });
-</script> @endsection 
+</script>
+@endsection

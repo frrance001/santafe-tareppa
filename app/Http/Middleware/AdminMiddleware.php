@@ -17,9 +17,13 @@ class AdminMiddleware
     }
 }
 // Replace this temporarily
-Route::middleware(['auth'])->group(function () {
-    Route::get('/admin/complaints', [ComplaintController::class, 'index'])->name('admin.complaints');
+
+
+    Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
+    Route::get('/users', [AdminController::class, 'index'])->name('admin.users.index');
+    Route::get('/complaints', [AdminController::class, 'complaints'])->name('admin.complaints.index');
+    Route::get('/complaints/{id}', [AdminController::class, 'showComplaint'])->name('admin.complaints.show');
+    Route::patch('/complaints/resolve/{id}', [AdminController::class, 'resolveComplaint'])->name('admin.complaints.resolve');
 });
 
-    
 

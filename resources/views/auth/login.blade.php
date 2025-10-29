@@ -26,6 +26,7 @@
       position: relative;
     }
 
+    /* ✅ Title */
     .sakay-title {
       position: absolute;
       top: 40px;
@@ -44,6 +45,7 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* ✅ Login Card */
     .login-card {
       position: relative;
       z-index: 2;
@@ -113,11 +115,10 @@
       position: relative;
     }
 
-    /* ✅ Ride Logo Container */
+    /* ✅ Ride Logo Animation */
     .logo-container { position: relative; display: inline-block; }
     .ride-logo { width: 50px; height: 50px; object-fit: contain; animation: rideForward 2s ease-in-out infinite; }
 
-    /* ✅ Smoke Effect */
     .smoke { position: absolute; bottom: 5px; left: -12px; width: 12px; height: 12px; background: rgba(180, 180, 180, 0.6); border-radius: 50%; filter: blur(2px); opacity: 0; }
     .smoke1 { animation: smokeTrail 2s infinite ease-out; }
     .smoke2 { animation: smokeTrail 2s infinite ease-out 0.5s; }
@@ -138,9 +139,47 @@
     }
 
     .toggle-password { position: absolute; right: 16px; top: 70%; transform: translateY(-50%); color: #6b7280; cursor: pointer; }
+
+    /* ✅ Loading Screen */
+    #loading-screen {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: #fff;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex-direction: column;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+
+    #loading-screen img {
+      width: 100px;
+      height: 100px;
+      animation: pulse 1.5s infinite ease-in-out;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.2); opacity: 0.7; }
+    }
+
+    #loading-text {
+      margin-top: 15px;
+      color: #1e3a8a;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
   </style>
 </head>
 <body>
+
+  <!-- ✅ Loading Screen -->
+  <div id="loading-screen" style="display: none;">
+    <img src="{{ asset('images/log.png') }}" alt="Loading...">
+    <div id="loading-text">Loading Dashboard...</div>
+  </div>
 
   <!-- Title -->
   <h1 class="sakay-title">Santafe Tareppa</h1>
@@ -161,37 +200,34 @@
       Login
     </h2>
 
-    <!-- Error messages handled via SweetAlert2 -->
-
     <form method="POST" action="{{ route('login') }}" id="loginForm">
       @csrf
-<div class="mb-3">
-  <label for="role" class="form-label">Select Role</label>
-  <select name="role" id="role" class="form-control" required>
-    <option value="passenger">Passenger</option>
-    <option value="driver">Driver</option>
-    <option value="admin">Admin</option>
-  </select>
-</div>
+      <div class="mb-3">
+        <label for="role" class="form-label">Select Role</label>
+        <select name="role" id="role" class="form-control" required>
+          <option value="passenger">Passenger</option>
+          <option value="driver">Driver</option>
+          <option value="admin">Admin</option>
+        </select>
+      </div>
 
-<div class="mb-3">
-  <label for="email" class="form-label">Email address</label>
-  <input name="email" type="email" id="email" class="form-control" placeholder="Enter your email" required autofocus>
-</div>
+      <div class="mb-3">
+        <label for="email" class="form-label">Email address</label>
+        <input name="email" type="email" id="email" class="form-control" placeholder="Enter your email" required autofocus>
+      </div>
 
-<!-- Hidden password for passenger & driver -->
-<div class="mb-4 position-relative" id="passwordField">
-  <label for="password" class="form-label">Password</label>
-  <input name="password" type="password" id="password" class="form-control" placeholder="Enter your password">
-  <i class="bi bi-eye toggle-password" id="togglePassword"></i>
-</div>
-
+      <div class="mb-4 position-relative" id="passwordField">
+        <label for="password" class="form-label">Password</label>
+        <input name="password" type="password" id="password" class="form-control" placeholder="Enter your password">
+        <i class="bi bi-eye toggle-password" id="togglePassword"></i>
+      </div>
 
       <button type="submit" id="loginBtn" class="btn btn-login w-100">
         <i class="bi bi-box-arrow-in-right me-1"></i> Login
       </button>
     </form>
   </div>
+
 <script>
   // ✅ Toggle password visibility
   const togglePassword = document.getElementById('togglePassword');
@@ -206,50 +242,31 @@
   // ✅ Hide password field for Passenger & Driver
   const roleSelect = document.getElementById('role');
   const passwordField = document.getElementById('passwordField');
-
-  // Hide by default if role != admin
   if (roleSelect.value !== 'admin') {
     passwordField.style.display = 'none';
   }
-
   roleSelect.addEventListener('change', () => {
-    if (roleSelect.value === 'admin') {
-      passwordField.style.display = 'block';
-    } else {
-      passwordField.style.display = 'none';
-    }
+    passwordField.style.display = roleSelect.value === 'admin' ? 'block' : 'none';
   });
 
-  // ✅ Block right-click & Inspect shortcuts
+  // ✅ Disable inspect shortcuts
   document.addEventListener('contextmenu', e => e.preventDefault());
-  document.addEventListener('keydown', function(e) {
-    if (e.keyCode === 123) e.preventDefault(); // F12
-    if (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J')) e.preventDefault(); // Ctrl+Shift+I/J
-    if (e.ctrlKey && e.key.toLowerCase() === 'u') e.preventDefault(); // Ctrl+U
+  document.addEventListener('keydown', e => {
+    if (e.keyCode === 123 || 
+        (e.ctrlKey && e.shiftKey && ['I', 'J'].includes(e.key.toUpperCase())) ||
+        (e.ctrlKey && e.key.toLowerCase() === 'u')) e.preventDefault();
   });
 
-  // ✅ Limit login attempts (max 3)
-  let loginAttempts = 0;
-  const maxAttempts = 3;
+  // ✅ Loading screen on successful login
   const loginForm = document.getElementById('loginForm');
-  const loginBtn = document.getElementById('loginBtn');
+  const loadingScreen = document.getElementById('loading-screen');
 
   loginForm.addEventListener('submit', function(e) {
-    loginAttempts++;
-    if (loginAttempts > maxAttempts) {
-      e.preventDefault();
-      Swal.fire({
-        icon: 'error',
-        title: 'Too Many Attempts',
-        text: 'You have exceeded 3 login attempts. Please try again later.',
-      });
-      loginBtn.disabled = true;
-      loginBtn.innerText = "Locked";
-      return false;
-    }
+    // Show loading only after form validation
+    loadingScreen.style.display = 'flex';
   });
 
-  // ✅ SweetAlert2 for server-side feedback
+  // ✅ SweetAlert2 for messages
   @if(session('error'))
     Swal.fire({ icon: 'error', title: 'Oops...', text: '{{ session('error') }}' });
   @endif

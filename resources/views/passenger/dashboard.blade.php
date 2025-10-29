@@ -68,15 +68,18 @@
         border-radius: 12px;
         z-index: 1;
     }
+
+    .ride-row:hover {
+        cursor: pointer;
+        background-color: rgba(255, 235, 59, 0.2);
+    }
 </style>
 
-{{-- Leaflet CSS --}}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-{{-- SweetAlert2 --}}
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container my-5">
-    <h1 class="animated-welcome text-center">Welcome, Passenger!</h1>
+    <h1 class="animated-welcome text-center">Welcome, {{ Auth::user()->fullname ?? 'Passenger' }}!</h1>
 
     <div class="glass-box mb-5">
         <h3 class="mb-3">Your Location</h3>
@@ -94,13 +97,15 @@
                         <th>Pickup</th>
                         <th>Drop-off</th>
                         <th>Status</th>
-                        <th>Date</th>
+                        <th>Date & Time</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach($rides as $ride)
-                        <tr>
+                        <tr class="ride-row" 
+                            data-pickup="{{ $ride->pickup_lat }},{{ $ride->pickup_lng }}" 
+                            data-dropoff="{{ $ride->dropoff_lat }},{{ $ride->dropoff_lng }}">
                             <td>{{ $ride->pickup_location }}</td>
                             <td>{{ $ride->dropoff_location }}</td>
                             <td>
@@ -115,9 +120,24 @@
                                 @endif
                             </td>
                             <td>
-                                <span id="ride-date-{{ $ride->id }}">
-                                    {{ $ride->created_at->format('M d, Y h:i A') }}
-                                </span>
+                                @php
+                                    $createdAt = $ride->created_at
+                                        ? $ride->created_at->timezone('Asia/Manila')->format('M d, Y h:i A')
+                                        : 'N/A';
+                                    $completedAt = $ride->completed_at
+                                        ? $ride->completed_at->timezone('Asia/Manila')->format('M d, Y h:i A')
+                                        : null;
+                                @endphp
+
+                                <div>
+                                    <small class="text-muted d-block">🕓 Booked:</small>
+                                    <span>{{ $createdAt }}</span>
+
+                                    @if($ride->status === 'completed' && $completedAt)
+                                        <small class="text-success d-block mt-1">✅ Completed:</small>
+                                        <span class="text-success fw-bold">{{ $completedAt }}</span>
+                                    @endif
+                                </div>
                             </td>
                             <td>
                                 @if($ride->status === 'completed')
@@ -134,56 +154,51 @@
     </div>
 </div>
 
-{{-- Leaflet JS --}}
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
     const geoapifyKey = "da1d5d28dc354b6ea277eae05b50312b";
 
-    // ✅ Use Geoapify Light Map
+    // Initialize map
     var map = L.map('map').setView([11.1951, 123.6929], 13);
     L.tileLayer(`https://maps.geoapify.com/v1/tile/osm-bright/{z}/{x}/{y}.png?apiKey=${geoapifyKey}`, {
         attribution: '&copy; <a href="https://www.geoapify.com/">Geoapify</a>',
         maxZoom: 20
     }).addTo(map);
 
-    var marker = null;
+    var userMarker = null;
+    var pickupMarker = null;
+    var dropoffMarker = null;
+
     const userEmail = "{{ Auth::user()->email ?? '' }}";
+    if (!userEmail) return;
 
-    if (!userEmail) {
-        alert("❌ No logged-in user detected.");
-        return;
-    }
-
-    // ✅ Live location tracking
+    // Track current location
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(showPosition, handleError);
         navigator.geolocation.watchPosition(showPosition);
-    } else {
-        alert("❌ Your browser doesn't support GPS.");
     }
 
     function showPosition(position) {
-        var lat = position.coords.latitude;
-        var lng = position.coords.longitude;
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
 
         map.setView([lat, lng], 15);
-        if (marker) {
-            marker.setLatLng([lat, lng]).bindPopup("Your Location").openPopup();
+
+        if (userMarker) {
+            userMarker.setLatLng([lat, lng]).bindPopup("Your Location").openPopup();
         } else {
-            marker = L.marker([lat, lng]).addTo(map).bindPopup("Your Location").openPopup();
+            userMarker = L.marker([lat, lng]).addTo(map).bindPopup("Your Location").openPopup();
         }
 
         updateUserLocation(userEmail, lat, lng);
     }
 
     function handleError() {
-        alert("⚠️ GPS access denied. Showing default location.");
         map.setView([11.1951, 123.6929], 13);
         L.marker([11.1951, 123.6929]).addTo(map).bindPopup("Default Location").openPopup();
     }
 
-    // ✅ Send coordinates to backend
     function updateUserLocation(email, lat, lng) {
         fetch("{{ route('update.location') }}", {
             method: "POST",
@@ -192,10 +207,30 @@ document.addEventListener("DOMContentLoaded", function () {
                 "X-CSRF-TOKEN": "{{ csrf_token() }}"
             },
             body: JSON.stringify({ email, latitude: lat, longitude: lng })
-        }).catch(err => console.error("Location update failed:", err));
+        }).catch(err => console.error(err));
     }
 
-    // ✅ SweetAlert2 delete confirmation
+    // Show pickup & drop-off markers when clicking a ride
+    document.querySelectorAll('.ride-row').forEach(row => {
+        row.addEventListener('click', () => {
+            const [pickupLat, pickupLng] = row.dataset.pickup.split(',').map(Number);
+            const [dropLat, dropLng] = row.dataset.dropoff.split(',').map(Number);
+
+            if (pickupMarker) map.removeLayer(pickupMarker);
+            if (dropoffMarker) map.removeLayer(dropoffMarker);
+
+            pickupMarker = L.marker([pickupLat, pickupLng]).addTo(map).bindPopup('Pickup Location').openPopup();
+            dropoffMarker = L.marker([dropLat, dropLng]).addTo(map).bindPopup('Drop-off Location');
+
+            // Fit map bounds to show both pickup & drop-off
+            map.fitBounds([
+                [pickupLat, pickupLng],
+                [dropLat, dropLng]
+            ], {padding: [50, 50]});
+        });
+    });
+
+    // Delete ride
     document.querySelectorAll('.delete-ride').forEach(button => {
         button.addEventListener('click', function () {
             const rideId = this.getAttribute('data-id');
@@ -220,18 +255,7 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    // ✅ Real-time clock (updates every second)
-    setInterval(() => {
-        document.querySelectorAll('[id^="ride-date-"]').forEach(span => {
-            let now = new Date();
-            span.innerText = now.toLocaleString('en-US', {
-                month: 'short', day: '2-digit', year: 'numeric',
-                hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true
-            });
-        });
-    }, 1000);
-
-    @if (session('success'))
+    @if(session('success'))
         Swal.fire({
             icon: 'success',
             title: 'Deleted!',

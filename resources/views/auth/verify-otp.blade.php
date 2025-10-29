@@ -52,9 +52,15 @@
     }
 
     .otp-card p {
-      font-size: 0.95rem;
-      color: #e0e0e0;
-      margin-bottom: 25px;
+  font-size: 0.95rem;
+  color: #000; /* changed from #e0e0e0 to black */
+  margin-bottom: 10px;
+}
+
+    #timer {
+      font-weight: 600;
+      color: #ff4d4d;
+      margin-bottom: 20px;
     }
 
     .otp-inputs {
@@ -72,7 +78,7 @@
       font-size: 1.5rem;
       border: none;
       outline: none;
-      color: #000; /* changed to black */
+      color: #000;
       background-color: rgba(255, 255, 255, 0.9);
       font-weight: 600;
       transition: all 0.2s ease;
@@ -129,6 +135,7 @@
   <div class="otp-card">
     <h4>Verify OTP</h4>
     <p>Enter the 6-digit code sent to your email.</p>
+    <p id="timer">Time remaining: 05:00</p>
 
     <form action="{{ route('otp.verify.post') }}" method="POST" id="otpForm">
       @csrf
@@ -143,7 +150,7 @@
 
       <input type="hidden" name="otp" id="otpValue">
 
-      <button type="submit" class="btn-verify">Verify</button>
+      <button type="submit" class="btn-verify" id="verifyBtn">Verify</button>
 
       <a href="{{ route('login') }}" class="back-link">← Back to Login</a>
     </form>
@@ -153,21 +160,40 @@
     // Combine OTP digits into one input before submitting
     const inputs = document.querySelectorAll('.otp-inputs input');
     const otpValue = document.getElementById('otpValue');
+    const verifyBtn = document.getElementById('verifyBtn');
 
     inputs.forEach((input, index) => {
       input.addEventListener('input', () => {
-        if (input.value.length === 1 && index < inputs.length - 1) {
-          inputs[index + 1].focus();
-        }
+        if (input.value.length === 1 && index < inputs.length - 1) inputs[index + 1].focus();
         otpValue.value = Array.from(inputs).map(i => i.value).join('');
       });
-
       input.addEventListener('keydown', (e) => {
-        if (e.key === "Backspace" && !input.value && index > 0) {
-          inputs[index - 1].focus();
-        }
+        if (e.key === "Backspace" && !input.value && index > 0) inputs[index - 1].focus();
       });
     });
+
+    // OTP countdown timer (5 minutes)
+    let time = 300; // seconds
+    const timerEl = document.getElementById('timer');
+    const countdown = setInterval(() => {
+      let minutes = Math.floor(time / 60).toString().padStart(2, '0');
+      let seconds = (time % 60).toString().padStart(2, '0');
+      timerEl.textContent = `Time remaining: ${minutes}:${seconds}`;
+      time--;
+
+      if (time < 0) {
+        clearInterval(countdown);
+        timerEl.textContent = "⏰ OTP expired!";
+        verifyBtn.disabled = true;
+        inputs.forEach(i => i.disabled = true);
+        Swal.fire({
+          icon: 'warning',
+          title: 'OTP Expired',
+          text: 'Your OTP has expired. Please request a new one.',
+          confirmButtonColor: '#d33'
+        });
+      }
+    }, 1000);
 
     // SweetAlert for session messages
     @if(session('error'))
