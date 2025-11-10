@@ -275,3 +275,19 @@ Route::get('/passenger/payment/failed', [PaymentController::class, 'failed'])->n
 
 Route::delete('/passenger/ride/{id}', [RideController::class, 'destroy'])
     ->name('passenger.ride.destroy');
+
+
+//location
+Route::post('/update-location', [App\Http\Controllers\LocationController::class, 'update'])
+    ->middleware('auth')
+    ->name('update.location');
+
+use App\Http\Controllers\Auth\OtpLoginController;
+
+Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('send.otp');
+Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('verify.otp');
+
+
+
+Route::post('/login', [LoginController::class, 'login'])->name('login');
+
