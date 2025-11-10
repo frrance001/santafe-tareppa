@@ -82,7 +82,7 @@
       transition: transform 0.2s ease, box-shadow 0.3s ease;
       border: none;
     }
-<<<<<<< HEAD
+
     .btn-login:hover {
       transform: scale(1.05);
       box-shadow: 0 6px 18px rgba(0,0,0,0.2);
@@ -131,10 +131,9 @@
       100% { opacity: 0; transform: scale(1.3) translateX(-30px) translateY(-24px); }
     }
 
-=======
     .btn-login:hover { transform: scale(1.05); box-shadow: 0 6px 18px rgba(0,0,0,0.2); }
     .exit-button { position: absolute; top: 15px; right: 15px; font-size: 14px; }
->>>>>>> 0bf178cf647042af6d1f2d4518d2190091b1b3fa
+
     .toggle-password { position: absolute; right: 16px; top: 70%; transform: translateY(-50%); color: #6b7280; cursor: pointer; }
 
     /* ✅ Loading Screen */
@@ -172,7 +171,6 @@
 </head>
 <body>
 
-<<<<<<< HEAD
   <!-- ✅ Loading Screen -->
   <div id="loading-screen" style="display: none;">
     <img src="{{ asset('images/log.png') }}" alt="Loading...">
@@ -180,8 +178,7 @@
   </div>
 
   <!-- Title -->
-=======
->>>>>>> 0bf178cf647042af6d1f2d4518d2190091b1b3fa
+
   <h1 class="sakay-title">Santafe Tareppa</h1>
 
   <div class="login-card">
@@ -191,11 +188,11 @@
 
     <h2 class="text-center fw-bold text-primary mb-4">Login</h2>
 
-<<<<<<< HEAD
+
     <form method="POST" action="{{ route('login') }}" id="loginForm">
-=======
+
     <form id="loginForm" method="POST" action="{{ route('login') }}">
->>>>>>> 0bf178cf647042af6d1f2d4518d2190091b1b3fa
+
       @csrf
       <div class="mb-3">
         <label for="role" class="form-label">Select Role</label>
@@ -223,7 +220,7 @@
     </form>
   </div>
 
-<<<<<<< HEAD
+
 <script>
   // ✅ Toggle password visibility
   const togglePassword = document.getElementById('togglePassword');
@@ -280,7 +277,7 @@
   @endif
 </script>
 
-=======
+
   <script>
     const roleSelect = document.getElementById('role');
     const passwordField = document.getElementById('passwordField');
@@ -373,6 +370,6 @@
       togglePassword.classList.toggle('bi-eye-slash');
     });
   </script>
->>>>>>> 0bf178cf647042af6d1f2d4518d2190091b1b3fa
+
 </body>
 </html>
