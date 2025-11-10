@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Register</title>
+  <title>Driver Registration</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- Tailwind CSS -->
@@ -13,11 +13,10 @@
 
   <style>
     body {
-      background: #f3f4f6; /* gray-100 background */
+      background: #f3f4f6; 
       font-family: 'Poppins', sans-serif;
     }
 
-    /* Logo drive-in animation */
     @keyframes driveIn {
       0% { opacity: 0; transform: translateX(-150px) rotate(-10deg) scale(0.8); }
       60% { opacity: 1; transform: translateX(10px) rotate(5deg) scale(1.05); }
@@ -31,7 +30,7 @@
     }
 
     @keyframes float {
-      0%,100% { transform: translateY(0); }
+      0%, 100% { transform: translateY(0); }
       50% { transform: translateY(-6px); }
     }
 
@@ -46,14 +45,14 @@
       animation: smoke 2s linear infinite;
       z-index: 1;
     }
-    .smoke:nth-child(1){ animation-delay:0s; }
-    .smoke:nth-child(2){ animation-delay:0.5s; left:-25px;width:12px;height:12px; }
-    .smoke:nth-child(3){ animation-delay:1s; left:-20px;width:18px;height:18px; }
+    .smoke:nth-child(1){animation-delay:0s;}
+    .smoke:nth-child(2){animation-delay:0.5s;left:-25px;width:12px;height:12px;}
+    .smoke:nth-child(3){animation-delay:1s;left:-20px;width:18px;height:18px;}
   </style>
 </head>
 <body class="min-h-screen flex items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
 
-  <div class="w-full max-w-2xl bg-white border border-gray-300 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-gray-900">
+  <div class="w-full max-w-2xl bg-white border border-gray-300 rounded-2xl p-8 sm:p-10 shadow-2xl space-y-6 text-gray-900">
 
     <!-- Logo -->
     <div class="flex justify-center">
@@ -123,7 +122,7 @@
       </div>
 
       <!-- City -->
-      <div>
+      <div class="sm:col-span-2">
         <label class="block text-sm font-medium mb-1">City</label>
         <input type="text" name="city" placeholder="City" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
       </div>
@@ -136,21 +135,21 @@
 
       <div class="sm:col-span-2">
         <label class="block text-sm font-medium mb-1">Business Permit</label>
-        <input type="file" name="business_permit" accept=".jpg,.jpeg,.png,.pdf" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
+        <input type="file" name="business_permit" accept=".jpg,.jpeg,.png" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
       </div>
 
       <div class="sm:col-span-2">
         <label class="block text-sm font-medium mb-1">Barangay Clearance</label>
-        <input type="file" name="barangay_clearance" accept=".jpg,.jpeg,.png,.pdf" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
+        <input type="file" name="barangay_clearance" accept=".jpg,.jpeg,.png" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
       </div>
 
       <div class="sm:col-span-2">
         <label class="block text-sm font-medium mb-1">Police Clearance</label>
-        <input type="file" name="police_clearance" accept=".jpg,.jpeg,.png,.pdf" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
+        <input type="file" name="police_clearance" accept=".jpg,.jpeg,.png" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
       </div>
 
       <!-- Terms -->
-      <div class="sm:col-span-2 flex items-start space-x-2 mt-2">
+      <div class="sm:col-span-2 flex items-start space-x-2 mt-4">
         <input id="terms" type="checkbox" class="mt-1" required>
         <label for="terms" class="text-sm text-gray-700">
           I agree to the 
@@ -164,13 +163,35 @@
           Submit
         </button>
       </div>
-
     </form>
   </div>
 
-  <!-- SweetAlert Scripts -->
+  <!-- SweetAlert Notifications -->
+  @if(session('success'))
   <script>
-    // Terms popup
+    Swal.fire({ icon: 'success', title: 'Success!', text: "{{ session('success') }}", confirmButtonColor: '#16a34a' });
+  </script>
+  @endif
+
+  @if(session('error'))
+  <script>
+    Swal.fire({ icon: 'error', title: 'Oops...', text: "{{ session('error') }}", confirmButtonColor: '#dc2626' });
+  </script>
+  @endif
+
+  @if($errors->any())
+  <script>
+    Swal.fire({
+      icon: 'warning',
+      title: 'Validation Errors',
+      html: `{!! implode('<br>', $errors->all()) !!}`,
+      confirmButtonColor: '#f59e0b'
+    });
+  </script>
+  @endif
+
+  <!-- Terms Popup -->
+  <script>
     document.getElementById('showTerms').addEventListener('click', function(e){
       e.preventDefault();
       Swal.fire({
@@ -192,25 +213,7 @@
         confirmButtonColor: '#2563eb'
       });
     });
-
-    // Session notifications
-    @if(session('success'))
-      Swal.fire({ icon: 'success', title: 'Success!', text: "{{ session('success') }}", confirmButtonColor: '#16a34a' });
-    @endif
-
-    @if(session('error'))
-      Swal.fire({ icon: 'error', title: 'Oops...', text: "{{ session('error') }}", confirmButtonColor: '#dc2626' });
-    @endif
-
-    // Validation errors
-    @if ($errors->any())
-      Swal.fire({
-        icon: 'warning',
-        title: 'Validation Errors',
-        html: `{!! implode('<br>', $errors->all()) !!}`,
-        confirmButtonColor: '#f59e0b'
-      });
-    @endif
   </script>
+
 </body>
 </html>
