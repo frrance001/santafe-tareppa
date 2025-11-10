@@ -1,7 +1,5 @@
-
-
 # Block access to system files
-<FilesMatch "(^\.|composer\.json|artisan|server\.php|.env|.env.*|.git|.htaccess|.htpasswd|readme|license)">
+<FilesMatch "(^\.|composer\.json|artisan|server\.php|\.env|\.env.*|\.git|\.htaccess|\.htpasswd|readme|license)">
     Order allow,deny
     Deny from all
 </FilesMatch>
@@ -10,9 +8,11 @@
 Options -Indexes
 
 # Redirect all traffic to HTTPS
-RewriteEngine On
-RewriteCond %{HTTPS} !=on
-RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteCond %{HTTPS} !=on
+    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+</IfModule>
 
 # Security headers
 <IfModule mod_headers.c>
@@ -23,10 +23,7 @@ RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
     Header set Permissions-Policy "geolocation=(), camera=(), microphone=()"
 </IfModule>
 
-
-
-
-
+# Laravel Rewrite Rules
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
