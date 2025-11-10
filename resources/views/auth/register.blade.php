@@ -11,7 +11,7 @@
   <!-- SweetAlert2 -->
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<<<<<<< HEAD
+
     <style>
         body {
             background: #e5e7eb;
@@ -50,7 +50,7 @@
         .smoke:nth-child(2){animation-delay:0.5s;left:-25px;width:12px;height:12px;}
         .smoke:nth-child(3){animation-delay:1s;left:-20px;width:18px;height:18px;}
     </style>
-=======
+
   <style>
     body {
       background: #f3f4f6; /* gray-100 background */
@@ -122,11 +122,11 @@
     .smoke:nth-child(2) { animation-delay: 0.5s; left: -25px; width: 12px; height: 12px; }
     .smoke:nth-child(3) { animation-delay: 1s; left: -20px; width: 18px; height: 18px; }
   </style>
->>>>>>> 0bf178cf647042af6d1f2d4518d2190091b1b3fa
+
 </head>
 <body class="min-h-screen flex items-center justify-center px-4 py-10 sm:px-6 lg:px-8">
 
-<<<<<<< HEAD
+
     <div class="w-full max-w-lg bg-gray-100 border border-gray-300 rounded-xl p-8 shadow-xl space-y-6 text-gray-900">
         
         <!-- Logo -->
@@ -173,7 +173,7 @@
 
             <label class="block text-sm font-medium">Profile Photo</label>
             <input type="file" name="photo" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
-=======
+
   <!-- Main Container -->
   <div class="w-full max-w-2xl bg-white border border-gray-300 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 text-gray-900">
 
@@ -250,7 +250,7 @@
         <label class="block text-sm font-medium mb-1">City</label>
         <input type="text" name="city" placeholder="City" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
       </div>
->>>>>>> 0bf178cf647042af6d1f2d4518d2190091b1b3fa
+
 
       <!-- File Uploads (full width) -->
       <div class="sm:col-span-2">
@@ -268,7 +268,7 @@
         <input type="file" name="barangay_clearance" accept=".jpg,.jpeg,.png" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
       </div>
 
-<<<<<<< HEAD
+
             <!-- ✅ Terms and Conditions -->
             <div class="flex items-start space-x-2 mt-4">
                 <input id="terms" type="checkbox" class="mt-1" required>
@@ -296,7 +296,7 @@
             Swal.fire({ icon: 'error', title: 'Oops...', text: "{{ session('error') }}", confirmButtonColor: '#dc2626' });
         </script>
     @endif
-=======
+
       <div class="sm:col-span-2">
         <label class="block text-sm font-medium mb-1">Police Clearance</label>
         <input type="file" name="police_clearance" accept=".jpg,.jpeg,.png" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
@@ -322,7 +322,7 @@
       });
     </script>
   @endif
->>>>>>> 0bf178cf647042af6d1f2d4518d2190091b1b3fa
+
 
   @if(session('error'))
     <script>
@@ -335,7 +335,7 @@
     </script>
   @endif
 
-<<<<<<< HEAD
+
     <!-- Terms and Conditions Popup -->
     <script>
         document.getElementById('showTerms').addEventListener('click', function(e){
@@ -361,7 +361,7 @@
         });
     </script>
 
-=======
+
   @if ($errors->any())
     <script>
       Swal.fire({
@@ -372,6 +372,6 @@
       });
     </script>
   @endif
->>>>>>> 0bf178cf647042af6d1f2d4518d2190091b1b3fa
+
 </body>
 </html>
