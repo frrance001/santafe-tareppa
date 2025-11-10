@@ -1,29 +1,3 @@
-# Block access to system files
-<FilesMatch "(^\.|composer\.json|artisan|server\.php|\.env|\.env.*|\.git|\.htaccess|\.htpasswd|readme|license)">
-    Order allow,deny
-    Deny from all
-</FilesMatch>
-
-# Prevent directory listing
-Options -Indexes
-
-# Redirect all traffic to HTTPS
-<IfModule mod_rewrite.c>
-    RewriteEngine On
-    RewriteCond %{HTTPS} !=on
-    RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
-</IfModule>
-
-# Security headers
-<IfModule mod_headers.c>
-    Header set X-Content-Type-Options "nosniff"
-    Header set X-Frame-Options "SAMEORIGIN"
-    Header set X-XSS-Protection "1; mode=block"
-    Header set Referrer-Policy "no-referrer-when-downgrade"
-    Header set Permissions-Policy "geolocation=(), camera=(), microphone=()"
-</IfModule>
-
-# Laravel Rewrite Rules
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
@@ -31,17 +5,26 @@ Options -Indexes
 
     RewriteEngine On
 
-    # Handle Authorization Header
-    RewriteCond %{HTTP:Authorization} .
-    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
-
     # Redirect Trailing Slashes...
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_URI} (.+)/$
     RewriteRule ^ %1 [L,R=301]
 
-    # Send Requests To Front Controller...
+    # Handle Authorization Header
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule .* - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    # Send Requests To Front Controller
     RewriteCond %{REQUEST_FILENAME} !-d
     RewriteCond %{REQUEST_FILENAME} !-f
     RewriteRule ^ index.php [L]
 </IfModule>
+
+# Block access to sensitive files
+<FilesMatch "(^\.|composer\.json|artisan|server\.php|.env|.git)">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Prevent directory listing
+Options -Indexes
