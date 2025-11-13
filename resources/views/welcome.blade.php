@@ -14,7 +14,6 @@
 
     /* Animations */
     @keyframes fadeInUp { 0%{opacity:0;transform:translateY(40px);} 100%{opacity:1;transform:translateY(0);} }
-
     .page-section { display:none; opacity:0; transition:opacity 0.5s; }
     .active-section { display:block; opacity:1; }
     .animate-fadeInUp { animation: fadeInUp 1s ease forwards; }
@@ -25,28 +24,29 @@
       display: flex; flex-direction: column; align-items: center; justify-content: center;
       z-index: 9999; display: none;
     }
-
     #loadingScreen img { width: 100px; height: 100px; animation: bounce 1.2s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
 
-    /* Smooth running tricycle animation */
+    /* Tricycle Animation */
     @keyframes tricycleRun {
-      0% { transform: translateX(-20%) rotate(0deg); }
-      25% { transform: translateX(25%) rotate(5deg); }
-      50% { transform: translateX(50%) rotate(-5deg); }
-      75% { transform: translateX(75%) rotate(3deg); }
+      0%   { transform: translateX(-20%) rotate(0deg); }
+      25%  { transform: translateX(25%) rotate(2deg); }
+      50%  { transform: translateX(50%) rotate(-2deg); }
+      75%  { transform: translateX(75%) rotate(1deg); }
       100% { transform: translateX(120%) rotate(0deg); }
     }
 
     @keyframes bounceSmall {
       0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-5px); }
+      25% { transform: translateY(-4px); }
+      50% { transform: translateY(-8px); }
+      75% { transform: translateY(-4px); }
     }
 
     .animate-tricycle {
       display: inline-block;
-      animation: tricycleRun 5s linear infinite, bounceSmall 0.5s ease-in-out infinite;
       position: relative;
+      animation: tricycleRun 6s linear infinite, bounceSmall 0.6s ease-in-out infinite;
     }
   </style>
 </head>
@@ -68,19 +68,44 @@
       <span class="font-heading font-bold text-lg md:text-xl text-[#008cff]">SANTAFE TAREPPA</span>
     </div>
 
-    <!-- Navigation -->
-    <nav class="hidden md:flex space-x-6 font-semibold text-gray-700">
-      <a href="#" onclick="showSection('home')" class="hover:text-[#008cff] transition">Home</a>
-      <a href="#" onclick="showSection('about')" class="hover:text-[#008cff] transition">About</a>
-      <a href="#" onclick="showSection('services')" class="hover:text-[#008cff] transition">Services</a>
-      <a href="#" onclick="showSection('contact')" class="hover:text-[#008cff] transition">Contact</a>
-    </nav>
-
-    <!-- Buttons -->
-    <div class="hidden md:flex space-x-2">
-      <a href="{{ route('login') }}" id="loginBtn" class="px-4 py-2 bg-[#06b6d4] text-white rounded hover:bg-[#0591a7] transition">Login</a>
-      <a href="{{ route('register') }}" id="registerBtn" class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded hover:bg-[#008cff] hover:text-white transition">Become a Driver</a>
+    <!-- Hamburger Button (Mobile) -->
+    <div class="md:hidden flex items-center">
+      <button id="hamburgerBtn" class="focus:outline-none">
+        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" 
+             viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" 
+                d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+      </button>
     </div>
+
+    <!-- Desktop Navigation & Buttons -->
+    <div id="navMenu" class="hidden md:flex md:items-center md:space-x-6">
+      <nav class="flex flex-col md:flex-row md:space-x-6 font-semibold text-gray-700 md:mr-4">
+        <a href="#" onclick="showSection('home')" class="hover:text-[#008cff] transition py-2 md:py-0">Home</a>
+        <a href="#" onclick="showSection('about')" class="hover:text-[#008cff] transition py-2 md:py-0">About</a>
+        <a href="#" onclick="showSection('services')" class="hover:text-[#008cff] transition py-2 md:py-0">Services</a>
+        <a href="#" onclick="showSection('contact')" class="hover:text-[#008cff] transition py-2 md:py-0">Contact</a>
+      </nav>
+      <div class="flex flex-col md:flex-row md:space-x-2 mt-2 md:mt-0">
+        <a href="{{ route('login') }}" id="loginBtn" 
+           class="px-4 py-2 bg-[#06b6d4] text-white rounded hover:bg-[#0591a7] transition mb-2 md:mb-0 text-center">Login</a>
+        <a href="{{ route('register') }}" id="registerBtn" 
+           class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded hover:bg-[#008cff] hover:text-white transition text-center">Become a Driver</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobileMenu" class="md:hidden hidden bg-white shadow-md w-full">
+    <nav class="flex flex-col px-4 py-2 space-y-2 font-semibold text-gray-700">
+      <a href="#" onclick="showSection('home'); toggleMobileMenu();" class="hover:text-[#008cff] transition">Home</a>
+      <a href="#" onclick="showSection('about'); toggleMobileMenu();" class="hover:text-[#008cff] transition">About</a>
+      <a href="#" onclick="showSection('services'); toggleMobileMenu();" class="hover:text-[#008cff] transition">Services</a>
+      <a href="#" onclick="showSection('contact'); toggleMobileMenu();" class="hover:text-[#008cff] transition">Contact</a>
+      <a href="{{ route('login') }}" onclick="toggleMobileMenu();" class="px-4 py-2 bg-[#06b6d4] text-white rounded hover:bg-[#0591a7] transition text-center">Login</a>
+      <a href="{{ route('register') }}" onclick="toggleMobileMenu();" class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded hover:bg-[#008cff] hover:text-white transition text-center">Become a Driver</a>
+    </nav>
   </div>
 </header>
 
@@ -94,7 +119,6 @@
       <p class="text-base sm:text-lg md:text-xl mb-8">The smarter way to book tricycles and send deliveries in Santa Fe.</p>
     </div>
     <div class="md:w-1/2 flex justify-center relative overflow-hidden h-60">
-      <!-- Tricycle Animation -->
       <img src="{{ asset('images/log.png') }}" alt="Tricycle Logo" class="w-40 md:w-60 animate-tricycle">
     </div>
   </div>
@@ -144,13 +168,21 @@
   &copy; {{ date('Y') }} SANTAFE TAREPPA. All rights reserved.
 </footer>
 
-<!-- Scripts -->
 <script>
+  // Section Navigation
   function showSection(id){
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
     document.getElementById(id).classList.add('active-section');
     window.scrollTo({top:0, behavior:'smooth'});
   }
+
+  // Hamburger toggle
+  const hamburgerBtn = document.getElementById('hamburgerBtn');
+  const mobileMenu = document.getElementById('mobileMenu');
+  function toggleMobileMenu() {
+    mobileMenu.classList.toggle('hidden');
+  }
+  hamburgerBtn.addEventListener('click', toggleMobileMenu);
 
   // Loading Screen
   const loadingScreen = document.getElementById('loadingScreen');

@@ -102,7 +102,18 @@
     color: #ffffff;
 }
 
-/* ✅ Responsive design without hamburger */
+/* ✅ Responsive design */
+@media (max-width: 1024px) {
+    .sidebar {
+        width: 200px;
+        padding: 20px 15px;
+    }
+    .passenger-profile { width: 60px; height: 60px; margin-bottom: 10px; }
+    .sidebar .welcome { font-size: 14px; margin-bottom: 20px; }
+    .sidebar ul li a, .sidebar ul li form button { font-size: 14px; padding: 8px 12px; }
+    .sidebar ul li a i, .sidebar ul li form button i { font-size: 16px; }
+}
+
 @media (max-width: 768px) {
     .sidebar {
         width: 100%;
@@ -110,16 +121,14 @@
         position: relative;
         padding: 10px 15px;
         flex-direction: row;
-        overflow-x: auto;  /* horizontal scroll if links exceed width */
+        overflow-x: auto;
         white-space: nowrap;
         box-shadow: none;
         border-radius: 0;
         align-items: center;
     }
 
-    .sidebar .welcome {
-        display: none;
-    }
+    .sidebar .welcome { display: none; }
 
     .sidebar ul {
         display: flex;
@@ -130,7 +139,7 @@
 
     .sidebar ul li {
         margin-bottom: 0;
-        flex-shrink: 0;  /* prevent shrinking */
+        flex-shrink: 0;
     }
 
     .sidebar ul li a,
@@ -145,70 +154,79 @@
         font-size: 16px;
     }
 }
+
+/* Mobile touch scroll shadow */
+.sidebar::-webkit-scrollbar {
+    height: 6px;
+}
+.sidebar::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.3);
+    border-radius: 3px;
+}
 </style>
 
 <div class="sidebar">
 
-   @if(Auth::check() && Auth::user()->role === 'Passenger')
-    @php
-        $profile = Auth::user()->profile_picture ?? null;
+@if(Auth::check() && Auth::user()->role === 'Passenger')
+@php
+    $profile = Auth::user()->profile_picture ?? null;
 
-        if ($profile) {
-            if (Str::startsWith($profile, ['http://', 'https://'])) {
-                $profileUrl = $profile;
-            } else {
-                $profileUrl = asset('storage/profile_pictures/' . $profile);
-            }
+    if ($profile) {
+        if (Str::startsWith($profile, ['http://', 'https://'])) {
+            $profileUrl = $profile;
         } else {
-            $profileUrl = asset('images/default-profile.png');
+            $profileUrl = asset('storage/profile_pictures/' . $profile);
         }
-    @endphp
+    } else {
+        $profileUrl = asset('images/default-profile.png');
+    }
+@endphp
 
-    <img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
+<img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
 
-    <div class="welcome">
-        Welcome, <strong>{{ Auth::user()->email }}</strong>
-    </div>
+<div class="welcome">
+    Welcome, <strong>{{ Auth::user()->email }}</strong>
+</div>
 @endif
 
-    <ul>
-        <li class="{{ request()->routeIs('passenger.dashboard') ? 'active' : '' }}">
-            <a href="{{ route('passenger.dashboard') }}">
-                <i class="bi bi-speedometer2"></i> Dashboard
-            </a>
-        </li>
+<ul>
+    <li class="{{ request()->routeIs('passenger.dashboard') ? 'active' : '' }}">
+        <a href="{{ route('passenger.dashboard') }}">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+    </li>
 
-        <li class="{{ request()->routeIs('passenger.view.drivers') ? 'active' : '' }}">
-            <a href="{{ route('passenger.view.drivers') }}">
-                <i class="bi bi-geo-alt"></i> View Available Riders
-            </a>
-        </li>
+    <li class="{{ request()->routeIs('passenger.view.drivers') ? 'active' : '' }}">
+        <a href="{{ route('passenger.view.drivers') }}">
+            <i class="bi bi-geo-alt"></i> View Available Riders
+        </a>
+    </li>
 
-        <li class="{{ request()->routeIs('passenger.waiting') ? 'active' : '' }}">
-            <a href="{{ route('passenger.waiting') }}">
-                <i class="bi bi-clock-history"></i> Waiting for Driver
-            </a>
-        </li>
+    <li class="{{ request()->routeIs('passenger.waiting') ? 'active' : '' }}">
+        <a href="{{ route('passenger.waiting') }}">
+            <i class="bi bi-clock-history"></i> Waiting for Driver
+        </a>
+    </li>
 
-        <li class="{{ request()->routeIs('passenger.progress') ? 'active' : '' }}">
-            <a href="{{ route('passenger.progress') }}">
-                <i class="bi bi-map"></i> Ride Progress
-            </a>
-        </li>
+    <li class="{{ request()->routeIs('passenger.progress') ? 'active' : '' }}">
+        <a href="{{ route('passenger.progress') }}">
+            <i class="bi bi-map"></i> Ride Progress
+        </a>
+    </li>
 
-        <li class="{{ request()->routeIs('passenger.payment.create') ? 'active' : '' }}">
-            <a href="{{ route('passenger.payment.create') }}">
-                <i class="bi bi-credit-card"></i> GCash Payment
-            </a>
-        </li>
+    <li class="{{ request()->routeIs('passenger.payment.create') ? 'active' : '' }}">
+        <a href="{{ route('passenger.payment.create') }}">
+            <i class="bi bi-credit-card"></i> GCash Payment
+        </a>
+    </li>
 
-        <li>
-            <form method="POST" action="{{ route('logout') }}">
-                @csrf
-                <button type="submit">
-                    <i class="bi bi-box-arrow-right"></i> Logout
-                </button>
-            </form>
-        </li>
-    </ul>
+    <li>
+        <form method="POST" action="{{ route('logout') }}">
+            @csrf
+            <button type="submit">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        </form>
+    </li>
+</ul>
 </div>
