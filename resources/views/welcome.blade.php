@@ -79,7 +79,7 @@
       <a href="#" onclick="showSection('services')" class="hover:text-[#008cff]">Services</a>
       <a href="#" onclick="showSection('contact')" class="hover:text-[#008cff]">Contact</a>
       <a href="{{ route('login') }}" class="mt-2 px-4 py-2 bg-[#06b6d4] text-white rounded">Login</a>
-      <a href="{{ route('Become A Driver') }}" class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded">Register</a>
+      <a href="{{ route('register') }}" class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded">Become a Driver</a>
     </nav>
   </div>
 </header>
