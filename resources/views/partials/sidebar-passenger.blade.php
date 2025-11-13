@@ -1,12 +1,12 @@
-<!-- Mobile Toggle Button -->
+<!-- ✅ Mobile Toggle Button -->
 <button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">
     ☰
 </button>
 
-<!-- Sidebar -->
+<!-- ✅ Sidebar -->
 <div class="sidebar">
-    <div>
-        <!-- ✅ Logo/Profile -->
+    <div class="sidebar-content">
+        <!-- ✅ Profile Section -->
         @if(Auth::check() && Auth::user()->role === 'Passenger')
             @php
                 $profile = Auth::user()->profile_picture ?? null;
@@ -27,11 +27,12 @@
             </div>
 
             <div class="welcome">
-                Welcome,<br>{{ Auth::user()->email }}
+                Welcome,<br><span>{{ Auth::user()->email }}</span>
             </div>
         @endif
 
-        <ul>
+        <!-- ✅ Navigation Menu -->
+        <ul class="menu">
             <li class="{{ request()->routeIs('passenger.dashboard') ? 'active' : '' }}">
                 <a href="{{ route('passenger.dashboard') }}">
                     <i class="bi bi-speedometer2"></i> Dashboard
@@ -60,8 +61,8 @@
         </ul>
     </div>
 
-    <!-- Logout button at the bottom -->
-    <form method="POST" action="{{ route('logout') }}" class="logout-form mt-4">
+    <!-- ✅ Logout Button -->
+    <form method="POST" action="{{ route('logout') }}" class="logout-form">
         @csrf
         <button type="submit">
             <i class="bi bi-box-arrow-right"></i> Logout
@@ -69,12 +70,12 @@
     </form>
 </div>
 
-<!-- Styles -->
+<!-- ✅ Styles -->
 <style>
 :root {
     --sidebar-bg: linear-gradient(to bottom, #38bdf8, #60a5fa, #93c5fd);
     --text-light: #fff;
-    --text-muted: rgba(255,255,255,0.8);
+    --text-muted: rgba(255, 255, 255, 0.8);
     --transition-speed: 0.3s;
 }
 
@@ -85,8 +86,7 @@ body {
 
 /* Sidebar */
 .sidebar {
-    width: 250px; /* desktop default */
-    max-width: 80vw;
+    width: 250px;
     height: 100vh;
     background: var(--sidebar-bg);
     color: var(--text-light);
@@ -97,66 +97,78 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    transition: transform var(--transition-speed) ease, width 0.3s ease;
+    transition: transform var(--transition-speed) ease, width var(--transition-speed) ease;
     z-index: 1000;
 }
 
-/* Logo/Profile */
-.sidebar .logo {
-    text-align: center;
-    margin-bottom: 20px;
+.sidebar-content {
+    flex: 1;
 }
 
-.sidebar .logo img {
+/* Profile */
+.logo {
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.logo img {
     width: 80px;
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    border: 3px solid rgba(255,255,255,0.7);
+    border: 3px solid rgba(255, 255, 255, 0.7);
     background: white;
 }
 
-.sidebar .welcome {
-    margin-bottom: 25px;
-    font-size: 16px;
-    font-weight: bold;
+.welcome {
     text-align: center;
+    font-weight: bold;
+    margin-bottom: 25px;
+    font-size: 15px;
+}
+.welcome span {
+    font-weight: normal;
+    font-size: 14px;
+    color: var(--text-muted);
 }
 
-/* Sidebar menu */
-.sidebar ul {
+/* Menu */
+.menu {
     list-style: none;
-    padding-left: 0;
+    padding: 0;
     margin: 0;
-    flex-grow: 1;
 }
 
-.sidebar ul li {
-    margin: 10px 0;
+.menu li {
+    margin: 8px 0;
 }
 
-.sidebar ul li a {
-    color: #fff;
+.menu li a {
+    color: white;
     text-decoration: none;
     display: flex;
     align-items: center;
     gap: 10px;
     padding: 10px 15px;
     border-radius: 8px;
-    transition: background-color 0.3s ease, transform 0.2s;
+    transition: background 0.3s, transform 0.2s;
 }
 
-.sidebar ul li a:hover {
-    background-color: rgba(255, 255, 255, 0.25);
+.menu li a:hover {
+    background: rgba(255, 255, 255, 0.25);
     transform: translateX(5px);
 }
 
-.sidebar ul li.active a {
-    background-color: rgba(255, 255, 255, 0.4);
+.menu li.active a {
+    background: rgba(255, 255, 255, 0.4);
     font-weight: bold;
 }
 
 /* Logout button */
+.logout-form {
+    margin-top: auto;
+}
+
 .logout-form button {
     width: 100%;
     background-color: #0ea5e9;
@@ -173,7 +185,7 @@ body {
     background-color: #0284c7;
 }
 
-/* Mobile toggle */
+/* ✅ Mobile toggle button */
 .sidebar-toggle {
     display: none;
     position: fixed;
@@ -185,50 +197,39 @@ body {
     color: white;
     padding: 8px 12px;
     border-radius: 5px;
-    font-size: 18px;
+    font-size: 20px;
     cursor: pointer;
 }
 
-/* Responsive for tablets */
-@media (max-width: 1024px) {
-    .sidebar {
-        width: 220px;
-    }
-}
-
-/* Responsive for mobile */
+/* ✅ Responsive Styles */
 @media (max-width: 768px) {
     .sidebar {
-        width: 70vw; /* occupy 70% of screen width */
+        width: 70vw;
         transform: translateX(-100%);
     }
-
     .sidebar.active {
         transform: translateX(0);
+        box-shadow: 4px 0 10px rgba(0,0,0,0.3);
     }
-
     .sidebar-toggle {
         display: block;
     }
 }
 
-/* Extra small mobiles */
+/* ✅ Extra small mobiles */
 @media (max-width: 480px) {
     .sidebar {
-        width: 85vw; /* nearly full screen on small mobiles */
+        width: 85vw;
         padding: 15px;
     }
-
-    .sidebar .logo img {
+    .logo img {
         width: 60px;
         height: 60px;
     }
-
-    .sidebar ul li a {
-        padding: 8px 12px;
+    .menu li a {
         font-size: 14px;
+        padding: 8px 12px;
     }
-
     .logout-form button {
         padding: 10px;
         font-size: 14px;
@@ -236,7 +237,7 @@ body {
 }
 </style>
 
-<!-- Optional: Collapse sidebar when a menu item is clicked (mobile) -->
+<!-- ✅ Auto-collapse sidebar on mobile click -->
 <script>
 document.querySelectorAll('.sidebar ul li a').forEach(link => {
     link.addEventListener('click', () => {
