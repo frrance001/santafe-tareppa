@@ -21,16 +21,26 @@
             margin: 0;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f8f9fa;
+            transition: padding-left 0.3s ease;
+        }
+
+        /* Sidebar Overlay for Mobile */
+        body.sidebar-open::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.4);
+            z-index: 1040;
         }
 
         .topbar {
             background-color: var(--dark-bg);
-            color: white;
+            color: #212529;
             padding: 12px 20px;
             display: none;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
 
         .topbar .menu-toggle {
@@ -48,9 +58,13 @@
             top: 0;
             left: 0;
             padding: 30px 20px;
-            z-index: 1000;
+            z-index: 1050;
             transition: transform 0.3s ease;
-            box-shadow: 2px 0 15px rgba(0, 0, 0, 0.2);
+            box-shadow: 2px 0 15px rgba(0,0,0,0.2);
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
         }
 
         .sidebar .welcome {
@@ -85,7 +99,7 @@
         }
 
         .sidebar ul li a:hover {
-            background-color: rgba(255, 255, 255, 0.1);
+            background-color: rgba(255,255,255,0.1);
             padding-left: 22px;
         }
 
@@ -98,7 +112,7 @@
         .main-content {
             margin-left: var(--sidebar-width);
             padding: 40px 30px;
-            transition: margin-left 0.3s ease;
+            transition: margin-left 0.3s ease, padding 0.3s ease;
             animation: fadeIn 0.5s ease-in-out;
         }
 
@@ -107,7 +121,7 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Rich Text Styles */
+        /* Responsive Typography */
         .main-content h1, .main-content h2, .main-content h3, .main-content h4 {
             font-weight: 700;
             color: #212529;
@@ -137,69 +151,27 @@
             text-decoration: none;
         }
 
-        .main-content ul, .main-content ol {
-            margin-bottom: 1rem;
-            padding-left: 2rem;
-        }
-
-        .main-content li {
-            margin-bottom: 0.5rem;
-        }
-
-        .main-content blockquote {
-            padding: 12px 20px;
-            margin: 20px 0;
-            background-color: #e9ecef;
-            border-left: 5px solid var(--primary);
-            font-style: italic;
-            color: #495057;
-        }
-
-        .main-content code {
-            background-color: #f1f3f5;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-family: monospace;
-            font-size: 14px;
-            color: #d63384;
-        }
-
-        .main-content pre {
-            background-color: #f8f9fa;
-            padding: 15px;
-            border-radius: 8px;
-            overflow-x: auto;
-            font-size: 14px;
-            color: #fcfbfb;
-        }
-
-        .main-content hr {
-            margin: 2rem 0;
-            border: none;
-            border-top: 1px solid #dee2e6;
-        }
-
-        /* Responsive */
+        /* Responsive Design */
         @media (max-width: 768px) {
-            .topbar {
-                display: flex;
-            }
+            .topbar { display: flex; }
 
             .sidebar {
                 transform: translateX(-100%);
-                position: fixed;
-                height: 100%;
                 width: 230px;
-            }
-
-            .sidebar.active {
-                transform: translateX(0);
             }
 
             .main-content {
                 margin-left: 0;
                 padding: 25px 20px;
             }
+
+            .sidebar ul li a { font-size: 14px; }
+        }
+
+        @media (max-width: 576px) {
+            .main-content h1 { font-size: 1.5rem; }
+            .main-content h2 { font-size: 1.3rem; }
+            .main-content p { font-size: 14px; }
         }
     </style>
 </head>
@@ -226,10 +198,36 @@
     @yield('scripts')
 
     <script>
+        // Sidebar toggle for mobile
         function toggleSidebar() {
-            document.getElementById('sidebar').classList.toggle('active');
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('active');
+            document.body.classList.toggle('sidebar-open', sidebar.classList.contains('active'));
         }
-    </script>
 
+        // Close sidebar when clicking outside on mobile
+        document.addEventListener('click', function(e) {
+            const sidebar = document.getElementById('sidebar');
+            if (window.innerWidth <= 768 && sidebar.classList.contains('active')) {
+                if (!sidebar.contains(e.target) && !e.target.closest('.menu-toggle')) {
+                    sidebar.classList.remove('active');
+                    document.body.classList.remove('sidebar-open');
+                }
+            }
+        });
+
+        // Adjust main content margin on window resize
+        window.addEventListener('resize', function() {
+            const sidebar = document.getElementById('sidebar');
+            const main = document.querySelector('.main-content');
+            if(window.innerWidth > 768) {
+                main.style.marginLeft = 'var(--sidebar-width)';
+                sidebar.classList.remove('active');
+                document.body.classList.remove('sidebar-open');
+            } else {
+                main.style.marginLeft = '0';
+            }
+        });
+    </script>
 </body>
 </html>
