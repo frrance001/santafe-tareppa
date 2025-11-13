@@ -14,7 +14,6 @@
 
     /* Animations */
     @keyframes fadeInUp { 0%{opacity:0;transform:translateY(40px);} 100%{opacity:1;transform:translateY(0);} }
-    @keyframes rideStraight { 0% { transform: translateX(-150%); } 100% { transform: translateX(150%); } }
 
     .page-section { display:none; opacity:0; transition:opacity 0.5s; }
     .active-section { display:block; opacity:1; }
@@ -29,18 +28,38 @@
 
     #loadingScreen img { width: 100px; height: 100px; animation: bounce 1.2s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+
+    /* Smooth running tricycle animation */
+    @keyframes tricycleRun {
+      0% { transform: translateX(-20%) rotate(0deg); }
+      25% { transform: translateX(25%) rotate(5deg); }
+      50% { transform: translateX(50%) rotate(-5deg); }
+      75% { transform: translateX(75%) rotate(3deg); }
+      100% { transform: translateX(120%) rotate(0deg); }
+    }
+
+    @keyframes bounceSmall {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-5px); }
+    }
+
+    .animate-tricycle {
+      display: inline-block;
+      animation: tricycleRun 5s linear infinite, bounceSmall 0.5s ease-in-out infinite;
+      position: relative;
+    }
   </style>
 </head>
 
 <body class="text-gray-800">
 
-<!-- ✅ Loading Screen -->
+<!-- Loading Screen -->
 <div id="loadingScreen">
   <img src="{{ asset('images/log.png') }}" alt="Loading...">
   <p class="mt-4 text-[#008cff] font-semibold text-lg">Loading, please wait...</p>
 </div>
 
-<!-- ✅ Header with Mobile Menu -->
+<!-- Header -->
 <header class="bg-white shadow fixed w-full z-50">
   <div class="container mx-auto px-4 py-4 flex justify-between items-center">
     <!-- Logo -->
@@ -49,15 +68,8 @@
       <span class="font-heading font-bold text-lg md:text-xl text-[#008cff]">SANTAFE TAREPPA</span>
     </div>
 
-    <!-- Hamburger -->
-    <button id="menuToggle" class="md:hidden text-[#008cff] focus:outline-none">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
-      </svg>
-    </button>
-
     <!-- Navigation -->
-    <nav id="navMenu" class="hidden md:flex space-x-6 font-semibold text-gray-700">
+    <nav class="hidden md:flex space-x-6 font-semibold text-gray-700">
       <a href="#" onclick="showSection('home')" class="hover:text-[#008cff] transition">Home</a>
       <a href="#" onclick="showSection('about')" class="hover:text-[#008cff] transition">About</a>
       <a href="#" onclick="showSection('services')" class="hover:text-[#008cff] transition">Services</a>
@@ -70,21 +82,9 @@
       <a href="{{ route('register') }}" id="registerBtn" class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded hover:bg-[#008cff] hover:text-white transition">Become a Driver</a>
     </div>
   </div>
-
-  <!-- ✅ Mobile Dropdown -->
-  <div id="mobileMenu" class="md:hidden hidden bg-gray-50 border-t border-gray-200">
-    <nav class="flex flex-col items-center py-3 space-y-2 font-medium">
-      <a href="#" onclick="showSection('home')" class="hover:text-[#008cff]">Home</a>
-      <a href="#" onclick="showSection('about')" class="hover:text-[#008cff]">About</a>
-      <a href="#" onclick="showSection('services')" class="hover:text-[#008cff]">Services</a>
-      <a href="#" onclick="showSection('contact')" class="hover:text-[#008cff]">Contact</a>
-      <a href="{{ route('login') }}" class="mt-2 px-4 py-2 bg-[#06b6d4] text-white rounded">Login</a>
-      <a href="{{ route('register') }}" class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded">Become a Driver</a>
-    </nav>
-  </div>
 </header>
 
-<!-- ✅ Home Section -->
+<!-- Home Section -->
 <section id="home" class="page-section active-section pt-32 pb-20 bg-[#008cff] text-white text-center md:text-left">
   <div class="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
     <div class="md:w-1/2 mb-8 md:mb-0">
@@ -93,13 +93,14 @@
       </h1>
       <p class="text-base sm:text-lg md:text-xl mb-8">The smarter way to book tricycles and send deliveries in Santa Fe.</p>
     </div>
-    <div class="md:w-1/2 flex justify-center">
-      <img src="{{ asset('images/log.png') }}" alt="Rider" class="w-40 md:w-60 animate-fadeInUp">
+    <div class="md:w-1/2 flex justify-center relative overflow-hidden h-60">
+      <!-- Tricycle Animation -->
+      <img src="{{ asset('images/log.png') }}" alt="Tricycle Logo" class="w-40 md:w-60 animate-tricycle">
     </div>
   </div>
 </section>
 
-<!-- ✅ About Section -->
+<!-- About Section -->
 <section id="about" class="page-section py-20 bg-white text-center">
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">About TAREPPA</h2>
@@ -107,7 +108,7 @@
   </div>
 </section>
 
-<!-- ✅ Services Section -->
+<!-- Services Section -->
 <section id="services" class="page-section py-20 bg-gray-50 text-center">
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-10 text-[#008cff]">Our Services</h2>
@@ -128,7 +129,7 @@
   </div>
 </section>
 
-<!-- ✅ Contact Section -->
+<!-- Contact Section -->
 <section id="contact" class="page-section py-20 bg-white text-center">
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">Contact Us</h2>
@@ -138,23 +139,18 @@
   </div>
 </section>
 
-<!-- ✅ Footer -->
+<!-- Footer -->
 <footer class="bg-[#008cff] text-white py-4 text-center text-sm">
   &copy; {{ date('Y') }} SANTAFE TAREPPA. All rights reserved.
 </footer>
 
-<!-- ✅ Scripts -->
+<!-- Scripts -->
 <script>
   function showSection(id){
     document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
     document.getElementById(id).classList.add('active-section');
     window.scrollTo({top:0, behavior:'smooth'});
   }
-
-  // Toggle mobile menu
-  const menuToggle = document.getElementById('menuToggle');
-  const mobileMenu = document.getElementById('mobileMenu');
-  menuToggle.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
 
   // Loading Screen
   const loadingScreen = document.getElementById('loadingScreen');

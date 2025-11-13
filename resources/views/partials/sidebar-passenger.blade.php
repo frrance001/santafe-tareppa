@@ -1,140 +1,150 @@
 <style>
-    :root {
-        /* 🎨 Sky-blue gradient theme */
-        --sidebar-bg: linear-gradient(180deg, #56ccf2, #2f80ed);
-        --sidebar-hover: rgba(255, 255, 255, 0.15); 
-        --sidebar-active: rgba(255, 255, 255, 0.3); 
-        --text-light: #ffffff;
-        --text-muted: #d0e7ff;
-        --transition-speed: 0.3s;
-    }
+:root {
+    /* 🎨 Sky-blue gradient theme */
+    --sidebar-bg: linear-gradient(180deg, #56ccf2, #2f80ed);
+    --sidebar-hover: rgba(255, 255, 255, 0.15); 
+    --sidebar-active: rgba(255, 255, 255, 0.3); 
+    --text-light: #ffffff;
+    --text-muted: #d0e7ff;
+    --transition-speed: 0.3s;
+}
 
+.sidebar {
+    width: 250px;
+    height: 100vh;
+    background: var(--sidebar-bg);
+    color: var(--text-light);
+    position: fixed;
+    top: 0;
+    left: 0;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 1000;
+    transition: all var(--transition-speed) ease;
+    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.25);
+    border-radius: 0 20px 20px 0;
+    overflow-y: auto;
+}
+
+.passenger-profile {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 15px;
+    border: 2px solid #fff;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.sidebar .welcome {
+    margin-bottom: 30px;
+    font-size: 16px;
+    color: var(--text-light);
+    font-weight: 600;
+    text-align: center;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    flex-grow: 1;
+    width: 100%;
+}
+
+.sidebar ul li {
+    margin-bottom: 14px;
+}
+
+.sidebar ul li a,
+.sidebar ul li form button {
+    color: var(--text-light);
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    font-size: 15px;
+    cursor: pointer;
+    transition: all var(--transition-speed) ease;
+    width: 100%;
+    text-align: left;
+}
+
+.sidebar ul li a:hover,
+.sidebar ul li form button:hover {
+    background-color: var(--sidebar-hover);
+    transform: translateX(5px);
+}
+
+.sidebar ul li.active a {
+    background-color: var(--sidebar-active);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: 0 0 10px rgba(255,255,255,0.3);
+}
+
+.sidebar ul li a i,
+.sidebar ul li form button i {
+    font-size: 18px;
+    color: var(--text-muted);
+    transition: color var(--transition-speed);
+}
+
+.sidebar ul li a:hover i,
+.sidebar ul li form button:hover i {
+    color: #ffffff;
+}
+
+/* ✅ Responsive design without hamburger */
+@media (max-width: 768px) {
     .sidebar {
-        width: 250px;
-        height: 100vh;
-        background: var(--sidebar-bg);
-        color: var(--text-light);
-        position: fixed;
-        top: 0;
-        left: 0;
-        padding: 24px 20px;
-        display: flex;
-        flex-direction: column;
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 10px 15px;
+        flex-direction: row;
+        overflow-x: auto;  /* horizontal scroll if links exceed width */
+        white-space: nowrap;
+        box-shadow: none;
+        border-radius: 0;
         align-items: center;
-        z-index: 1000;
-        transition: all var(--transition-speed) ease;
-        box-shadow: 2px 0 15px rgba(0, 0, 0, 0.25);
-        border-radius: 0 20px 20px 0;
-    }
-
-    .passenger-profile {
-        width: 80px;
-        height: 80px;
-        border-radius: 50%;
-        object-fit: cover;
-        margin-bottom: 15px;
-        border: 2px solid #fff;
-        box-shadow: 0 4px 10px rgba(0,0,0,0.3);
     }
 
     .sidebar .welcome {
-        margin-bottom: 30px;
-        font-size: 16px;
-        color: var(--text-light);
-        font-weight: 600;
-        text-align: center;
-        text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
+        display: none;
     }
 
     .sidebar ul {
-        list-style: none;
-        padding: 0;
-        margin: 0;
-        flex-grow: 1;
-        width: 100%;
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+        flex-wrap: nowrap;
     }
 
     .sidebar ul li {
-        margin-bottom: 14px;
+        margin-bottom: 0;
+        flex-shrink: 0;  /* prevent shrinking */
     }
 
     .sidebar ul li a,
     .sidebar ul li form button {
-        color: var(--text-light);
-        text-decoration: none;
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        padding: 10px 16px;
-        border-radius: 12px;
-        background: transparent;
-        border: none;
-        font-size: 15px;
-        cursor: pointer;
-        transition: all var(--transition-speed) ease;
-        width: 100%;
-        text-align: left;
-    }
-
-    .sidebar ul li a:hover,
-    .sidebar ul li form button:hover {
-        background-color: var(--sidebar-hover);
-        transform: translateX(5px);
-    }
-
-    .sidebar ul li.active a {
-        background-color: var(--sidebar-active);
-        color: #fff;
-        font-weight: 600;
-        box-shadow: 0 0 10px rgba(255,255,255,0.3);
+        padding: 8px 12px;
+        font-size: 14px;
+        white-space: nowrap;
     }
 
     .sidebar ul li a i,
     .sidebar ul li form button i {
-        font-size: 18px;
-        color: var(--text-muted);
-        transition: color var(--transition-speed);
+        font-size: 16px;
     }
-
-    .sidebar ul li a:hover i,
-    .sidebar ul li form button:hover i {
-        color: #ffffff;
-    }
-
-    @media (max-width: 768px) {
-        .sidebar {
-            width: 100%;
-            height: auto;
-            position: relative;
-            padding: 10px 15px;
-            flex-direction: row;
-            overflow-x: auto;
-            white-space: nowrap;
-            box-shadow: none;
-            border-radius: 0;
-        }
-
-        .sidebar .welcome {
-            display: none;
-        }
-
-        .sidebar ul {
-            display: flex;
-            flex-direction: row;
-            gap: 10px;
-        }
-
-        .sidebar ul li {
-            margin-bottom: 0;
-        }
-
-        .sidebar ul li a,
-        .sidebar ul li form button {
-            padding: 8px 12px;
-            font-size: 14px;
-            white-space: nowrap;
-        }
-    }
+}
 </style>
 
 <div class="sidebar">
@@ -144,20 +154,16 @@
         $profile = Auth::user()->profile_picture ?? null;
 
         if ($profile) {
-            // If already a full URL (starts with http)
             if (Str::startsWith($profile, ['http://', 'https://'])) {
                 $profileUrl = $profile;
             } else {
-                // If only filename stored → load from storage
                 $profileUrl = asset('storage/profile_pictures/' . $profile);
             }
         } else {
-            // Default fallback image
             $profileUrl = asset('images/default-profile.png');
         }
     @endphp
 
-    <!-- Passenger profile picture -->
     <img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
 
     <div class="welcome">
