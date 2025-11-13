@@ -1,16 +1,12 @@
 <style>
     :root {
+        /* 🎨 Sky-blue gradient theme */
         --sidebar-bg: linear-gradient(180deg, #56ccf2, #2f80ed);
-        --sidebar-hover: rgba(255, 255, 255, 0.15);
-        --sidebar-active: rgba(255, 255, 255, 0.3);
+        --sidebar-hover: rgba(255, 255, 255, 0.15); 
+        --sidebar-active: rgba(255, 255, 255, 0.3); 
         --text-light: #ffffff;
         --text-muted: #d0e7ff;
         --transition-speed: 0.3s;
-    }
-
-    body {
-        margin: 0;
-        font-family: 'Inter', sans-serif;
     }
 
     .sidebar {
@@ -26,12 +22,11 @@
         flex-direction: column;
         align-items: center;
         z-index: 1000;
-        transition: transform var(--transition-speed) ease;
+        transition: all var(--transition-speed) ease;
         box-shadow: 2px 0 15px rgba(0, 0, 0, 0.25);
         border-radius: 0 20px 20px 0;
     }
 
-    /* Profile */
     .passenger-profile {
         width: 80px;
         height: 80px;
@@ -51,7 +46,6 @@
         text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
     }
 
-    /* Navigation links */
     .sidebar ul {
         list-style: none;
         padding: 0;
@@ -107,124 +101,108 @@
         color: #ffffff;
     }
 
-    /* Sidebar toggle button */
-    .sidebar-toggle {
-        display: none;
-        position: fixed;
-        top: 15px;
-        left: 15px;
-        background-color: #2f80ed;
-        border: none;
-        color: white;
-        padding: 8px 12px;
-        border-radius: 6px;
-        font-size: 20px;
-        cursor: pointer;
-        z-index: 1100;
-    }
-
-    /* Overlay when sidebar is active */
-    .overlay {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.4);
-        z-index: 900;
-    }
-
-    .overlay.active {
-        display: block;
-    }
-
-    /* Responsive behavior */
-    @media (max-width: 992px) {
+    @media (max-width: 768px) {
         .sidebar {
-            transform: translateX(-100%);
+            width: 100%;
+            height: auto;
+            position: relative;
+            padding: 10px 15px;
+            flex-direction: row;
+            overflow-x: auto;
+            white-space: nowrap;
+            box-shadow: none;
+            border-radius: 0;
         }
 
-        .sidebar.active {
-            transform: translateX(0);
+        .sidebar .welcome {
+            display: none;
         }
 
-        .sidebar-toggle {
-            display: block;
+        .sidebar ul {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
         }
-    }
 
-    @media (min-width: 993px) {
-        .content {
-            margin-left: 250px;
-            padding: 20px;
+        .sidebar ul li {
+            margin-bottom: 0;
+        }
+
+        .sidebar ul li a,
+        .sidebar ul li form button {
+            padding: 8px 12px;
+            font-size: 14px;
+            white-space: nowrap;
         }
     }
 </style>
 
-<!-- Sidebar Toggle -->
-<button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-<div class="overlay" onclick="toggleSidebar()"></div>
-
-<!-- Sidebar -->
 <div class="sidebar">
+
    @if(Auth::check() && Auth::user()->role === 'Passenger')
-        @php
-            $profile = Auth::user()->profile_picture ?? null;
+    @php
+        $profile = Auth::user()->profile_picture ?? null;
 
-            if ($profile) {
-                if (Str::startsWith($profile, ['http://', 'https://'])) {
-                    $profileUrl = $profile;
-                } else {
-                    $profileUrl = asset('storage/profile_pictures/' . $profile);
-                }
+        if ($profile) {
+            // If already a full URL (starts with http)
+            if (Str::startsWith($profile, ['http://', 'https://'])) {
+                $profileUrl = $profile;
             } else {
-                $profileUrl = asset('images/default-profile.png');
+                // If only filename stored → load from storage
+                $profileUrl = asset('storage/profile_pictures/' . $profile);
             }
-        @endphp
+        } else {
+            // Default fallback image
+            $profileUrl = asset('images/default-profile.png');
+        }
+    @endphp
 
-        <img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
-        <div class="welcome">Welcome, <strong>{{ Auth::user()->email }}</strong></div>
-    @endif
+    <!-- Passenger profile picture -->
+    <img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
+
+    <div class="welcome">
+        Welcome, <strong>{{ Auth::user()->email }}</strong>
+    </div>
+@endif
 
     <ul>
         <li class="{{ request()->routeIs('passenger.dashboard') ? 'active' : '' }}">
-            <a href="{{ route('passenger.dashboard') }}"><i class="bi bi-speedometer2"></i> Dashboard</a>
+            <a href="{{ route('passenger.dashboard') }}">
+                <i class="bi bi-speedometer2"></i> Dashboard
+            </a>
         </li>
 
         <li class="{{ request()->routeIs('passenger.view.drivers') ? 'active' : '' }}">
-            <a href="{{ route('passenger.view.drivers') }}"><i class="bi bi-geo-alt"></i> View Available Riders</a>
+            <a href="{{ route('passenger.view.drivers') }}">
+                <i class="bi bi-geo-alt"></i> View Available Riders
+            </a>
         </li>
 
         <li class="{{ request()->routeIs('passenger.waiting') ? 'active' : '' }}">
-            <a href="{{ route('passenger.waiting') }}"><i class="bi bi-clock-history"></i> Waiting for Driver</a>
+            <a href="{{ route('passenger.waiting') }}">
+                <i class="bi bi-clock-history"></i> Waiting for Driver
+            </a>
         </li>
 
         <li class="{{ request()->routeIs('passenger.progress') ? 'active' : '' }}">
-            <a href="{{ route('passenger.progress') }}"><i class="bi bi-map"></i> Ride Progress</a>
+            <a href="{{ route('passenger.progress') }}">
+                <i class="bi bi-map"></i> Ride Progress
+            </a>
         </li>
 
         <li class="{{ request()->routeIs('passenger.payment.create') ? 'active' : '' }}">
-            <a href="{{ route('passenger.payment.create') }}"><i class="bi bi-credit-card"></i> GCash Payment</a>
+            <a href="{{ route('passenger.payment.create') }}">
+                <i class="bi bi-credit-card"></i> GCash Payment
+            </a>
         </li>
 
         <li>
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
-                <button type="submit"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                <button type="submit">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
             </form>
         </li>
     </ul>
 </div>
-
-<!-- Main Page Content -->
-<div class="content">
-    @yield('content')
-</div>
-
-<script>
-    function toggleSidebar() {
-        document.querySelector('.sidebar').classList.toggle('active');
-        document.querySelector('.overlay').classList.toggle('active');
-    }
-</script>
