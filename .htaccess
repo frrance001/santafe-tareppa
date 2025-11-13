@@ -1,10 +1,69 @@
+# ======================================================
+# 🔒 Laravel Root Security (.htaccess)
+# ======================================================
 <IfModule mod_rewrite.c>
     RewriteEngine On
 
-        # Redirect all requests to the public folder
-        RewriteRule ^(.*)$ public/$1 [L]
-<IfModule>
-<Filesmatch "^(\.env|\.git|composer\.json|artisan|server\.php|storage|vendor)">
+    # Redirect all requests to the public folder
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# ======================================================
+# 🚫 Protect Sensitive Files & Folders
+# ======================================================
+<FilesMatch "(^\.|composer\.json|composer\.lock|artisan|server\.php|.env|.env.*|.git|.htaccess|storage|vendor|node_modules)">
     Order allow,deny
     Deny from all
-<Filesmatch>
+</FilesMatch>
+
+# ======================================================
+# 🧱 Prevent Access to Config, Logs, and Cache
+# ======================================================
+<DirectoryMatch "(app|bootstrap|config|database|resources|routes|storage|tests|vendor)">
+    Order allow,deny
+    Deny from all
+</DirectoryMatch>
+
+# ======================================================
+# 🚫 Disable Directory Listing
+# ======================================================
+Options -Indexes
+
+# ======================================================
+# 🧰 Security Headers
+# ======================================================
+<IfModule mod_headers.c>
+    # Prevent MIME type sniffing
+    Header set X-Content-Type-Options "nosniff"
+    # Prevent clickjacking
+    Header set X-Frame-Options "SAMEORIGIN"
+    # Prevent some XSS attacks
+    Header set X-XSS-Protection "1; mode=block"
+    # Enforce HTTPS (optional)
+    Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+    # Hide server info
+    Header unset X-Powered-By
+</IfModule>
+
+# ======================================================
+# 🧨 Block Dangerous File Extensions
+# ======================================================
+<FilesMatch "\.(bak|config|sql|fla|psd|ini|log|sh|inc|swp|dist|pem|key)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# ======================================================
+# 🧯 Disable PHP Execution in Storage, Bootstrap, and Vendor
+# ======================================================
+<Directory "/home/yourusername/bantayan-911.com/storage">
+    php_flag engine off
+</Directory>
+
+<Directory "/home/yourusername/bantayan-911.com/bootstrap">
+    php_flag engine off
+</Directory>
+
+<Directory "/home/yourusername/bantayan-911.com/vendor">
+    php_flag engine off
+</Directory>
