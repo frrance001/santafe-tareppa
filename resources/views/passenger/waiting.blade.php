@@ -32,6 +32,7 @@
         color: #333;
         margin: 0 auto;
         max-width: 900px;
+        transition: all 0.3s ease-in-out;
     }
 
     h2 {
@@ -54,6 +55,7 @@
         margin-bottom: 15px;
         padding: 20px;
         transition: transform 0.3s, box-shadow 0.3s;
+        word-wrap: break-word;
     }
 
     .list-group-item:hover {
@@ -71,26 +73,50 @@
         font-weight: 500;
     }
 
-    /* Responsive Design */
+    /* ✅ Responsive Enhancements */
+    @media (max-width: 992px) {
+        .glass-container {
+            max-width: 95%;
+            padding: 25px;
+        }
+
+        h2 {
+            font-size: 1.75rem;
+        }
+    }
+
     @media (max-width: 768px) {
         .glass-container {
             padding: 20px;
-            width: 90%;
+            width: 95%;
+            border-radius: 16px;
         }
 
         .list-group-item {
-            font-size: 14px;
-            padding: 15px;
+            font-size: 15px;
+            padding: 16px;
+            margin-bottom: 12px;
         }
 
         h2 {
             font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        p {
+            margin-bottom: 6px;
         }
     }
 
-    @media (max-width: 480px) {
+    @media (max-width: 576px) {
+        body {
+            font-size: 14px;
+        }
+
         .glass-container {
             padding: 15px;
+            width: 95%;
+            border-radius: 14px;
         }
 
         h2 {
@@ -100,6 +126,17 @@
         .list-group-item {
             padding: 12px;
             border-radius: 10px;
+            font-size: 14px;
+        }
+
+        .alert {
+            font-size: 13px;
+            padding: 10px;
+        }
+
+        p {
+            font-size: 13.5px;
+            margin-bottom: 5px;
         }
     }
 </style>

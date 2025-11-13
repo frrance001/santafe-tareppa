@@ -7,6 +7,7 @@
         background-size: cover;
         position: relative;
         color: #fff;
+        font-family: 'Poppins', sans-serif;
     }
 
     body::before {
@@ -23,35 +24,122 @@
     .glass-card {
         background: rgba(238, 242, 243, 0.985);
         backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
         border-radius: 15px;
         border: 1px solid rgba(246, 252, 254, 0.93);
-        color: #fff;
+        color: #000;
+        padding: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-3px);
     }
 
     .modal-content {
-        background: rgba(18, 203, 203, 0.74);
+        background: rgba(18, 203, 203, 0.85);
         backdrop-filter: blur(10px);
-        -webkit-backdrop-filter: blur(10px);
         color: #fff;
+        border-radius: 12px;
         border: 1px solid rgba(45, 166, 209, 0.822);
-    }
-
-    h5, p, label {
-        color: #fff;
-    }
-
-    .btn-success, .btn-danger {
-        box-shadow: 0 2px 6px rgba(0,0,0,0.3);
     }
 
     h2 {
         color: #ffc107;
         font-weight: bold;
+        text-align: center;
+    }
+
+    h5, p, label {
+        color: #000;
     }
 
     .badge {
         font-size: 0.9rem;
+    }
+
+    .btn-success, .btn-danger, .btn-secondary {
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    }
+
+    .alert {
+        border-radius: 10px;
+    }
+
+    /* ==============================
+       📱 RESPONSIVE DESIGN SECTION
+       ============================== */
+    @media (max-width: 992px) {
+        h2 {
+            font-size: 1.8rem;
+        }
+        .glass-card {
+            padding: 1rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 0 10px;
+        }
+
+        h2 {
+            font-size: 1.6rem;
+        }
+
+        .glass-card {
+            padding: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .modal-dialog {
+            max-width: 90%;
+        }
+
+        .modal-body p {
+            font-size: 0.9rem;
+        }
+
+        .modal-footer {
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+
+    @media (max-width: 576px) {
+        h2 {
+            font-size: 1.4rem;
+        }
+
+        .glass-card {
+            padding: 0.8rem;
+            border-radius: 10px;
+        }
+
+        .card-title {
+            font-size: 1rem;
+        }
+
+        .modal-body p {
+            font-size: 0.85rem;
+        }
+
+        .badge {
+            font-size: 0.75rem;
+        }
+
+        .btn {
+            font-size: 0.85rem;
+            padding: 6px 12px;
+        }
+
+        p, strong, span {
+            display: block;
+            word-break: break-word;
+        }
     }
 </style>
 
@@ -59,18 +147,18 @@
     <h2 class="mb-4">Ride Progress</h2>
 
     @if(session('success'))
-        <div class="alert alert-success">{{ session('success') }}</div>
+        <div class="alert alert-success text-center">{{ session('success') }}</div>
     @endif
 
     @if(!$ride)
-        <div class="alert alert-warning">You have no active ride at the moment.</div>
+        <div class="alert alert-warning text-center">You have no active ride at the moment.</div>
     @else
         <!-- Only show ride status if NOT already rated -->
         @if(!$ride->rating)
             <button type="button" class="w-100 border-0 bg-transparent p-0" data-bs-toggle="modal" data-bs-target="#driverModal">
                 <div class="card shadow-sm glass-card">
-                    <div class="card-body">
-                        <h5 class="card-title">Ride Status:
+                    <div class="card-body text-center text-md-start">
+                        <h5 class="card-title mb-3">Ride Status:
                             <span id="ride-status" class="badge 
                                 @if($ride?->status == 'waiting') bg-secondary 
                                 @elseif($ride?->status == 'accepted') bg-primary 
@@ -82,8 +170,6 @@
                             </span>
                         </h5>
 
-                        <hr>
-
                         <p><strong>Pickup Location:</strong> <span id="pickup">{{ $ride?->pickup_location ?? 'N/A' }}</span></p>
                         <p><strong>Drop-off Location:</strong> <span id="dropoff">{{ $ride?->dropoff_location ?? 'N/A' }}</span></p>
                         <p><strong>Requested At:</strong> <span id="requested">{{ $ride?->created_at?->format('F j, Y - h:i A') ?? 'N/A' }}</span></p>
@@ -91,16 +177,16 @@
                 </div>
             </button>
         @else
-            <div class="alert alert-info">✅ You already rated this ride.</div>
+            <div class="alert alert-info text-center">✅ You already rated this ride.</div>
         @endif
     @endif
 </div>
 
 <!-- Modal to show driver info -->
 <div class="modal fade" id="driverModal" tabindex="-1" aria-labelledby="driverModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content glass-card">
-            <div class="modal-header">
+            <div class="modal-header border-0">
                 <h5 class="modal-title" id="driverModalLabel">Driver Information</h5>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
@@ -114,17 +200,15 @@
                     <p>No driver has been assigned to this ride yet.</p>
                 @endif
             </div>
-            <div class="modal-footer d-flex justify-content-between">
+            <div class="modal-footer border-0 d-flex justify-content-between flex-wrap">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 
-                <!-- Show rate/report only if completed AND not yet rated -->
                 @if($ride?->driver && $ride?->status === 'completed' && !$ride->rating)
-                    <div>
-                        <a href="{{ route('passenger.rate', $ride->id) }}" class="btn btn-success me-2">Rate Driver</a>
-                      @if(auth()->check() && auth()->user()->role === 'passenger')
-    <a href="{{ route('passenger.report', ['driver' => $driver->id]) }}">Report Driver</a>
-@endif
-
+                    <div class="w-100 w-md-auto d-flex flex-column flex-md-row gap-2">
+                        <a href="{{ route('passenger.rate', $ride->id) }}" class="btn btn-success flex-fill">Rate Driver</a>
+                        @if(auth()->check() && auth()->user()->role === 'passenger')
+                            <a href="{{ route('passenger.report', ['driver' => $ride->driver->id]) }}" class="btn btn-danger flex-fill">Report Driver</a>
+                        @endif
                     </div>
                 @endif
             </div>
@@ -140,19 +224,21 @@
             .then(res => res.json())
             .then(data => {
                 if (data.success) {
-                    // update badge text + style
                     let badge = document.getElementById("ride-status");
-                    if (!badge) return; // stop if already rated
+                    if (!badge) return;
+
                     badge.textContent = data.status.charAt(0).toUpperCase() + data.status.slice(1);
-                    badge.className = "badge"; // reset
+                    badge.className = "badge";
 
-                    if (data.status === "waiting") badge.classList.add("bg-secondary");
-                    else if (data.status === "accepted") badge.classList.add("bg-primary");
-                    else if (data.status === "in_progress") badge.classList.add("bg-warning","text-dark");
-                    else if (data.status === "completed") badge.classList.add("bg-success");
-                    else if (data.status === "cancelled") badge.classList.add("bg-danger");
+                    const colors = {
+                        waiting: "bg-secondary",
+                        accepted: "bg-primary",
+                        in_progress: "bg-warning text-dark",
+                        completed: "bg-success",
+                        cancelled: "bg-danger"
+                    };
+                    badge.className = `badge ${colors[data.status] || 'bg-secondary'}`;
 
-                    // update driver info if assigned
                     if (data.driver) {
                         document.getElementById("driver-info").innerHTML = `
                             <p><strong>Name:</strong> ${data.driver.fullname ?? 'N/A'}</p>
