@@ -1,232 +1,248 @@
+<!-- Mobile Toggle Button -->
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">
+    ☰
+</button>
+
+<!-- Sidebar -->
+<div class="sidebar">
+    <div>
+        <!-- ✅ Logo/Profile -->
+        @if(Auth::check() && Auth::user()->role === 'Passenger')
+            @php
+                $profile = Auth::user()->profile_picture ?? null;
+
+                if ($profile) {
+                    if (Str::startsWith($profile, ['http://', 'https://'])) {
+                        $profileUrl = $profile;
+                    } else {
+                        $profileUrl = asset('storage/profile_pictures/' . $profile);
+                    }
+                } else {
+                    $profileUrl = asset('images/default-profile.png');
+                }
+            @endphp
+
+            <div class="logo">
+                <img src="{{ $profileUrl }}" alt="Passenger Profile">
+            </div>
+
+            <div class="welcome">
+                Welcome,<br>{{ Auth::user()->email }}
+            </div>
+        @endif
+
+        <ul>
+            <li class="{{ request()->routeIs('passenger.dashboard') ? 'active' : '' }}">
+                <a href="{{ route('passenger.dashboard') }}">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="{{ request()->routeIs('passenger.view.drivers') ? 'active' : '' }}">
+                <a href="{{ route('passenger.view.drivers') }}">
+                    <i class="bi bi-geo-alt"></i> View Available Riders
+                </a>
+            </li>
+            <li class="{{ request()->routeIs('passenger.waiting') ? 'active' : '' }}">
+                <a href="{{ route('passenger.waiting') }}">
+                    <i class="bi bi-clock-history"></i> Waiting for Driver
+                </a>
+            </li>
+            <li class="{{ request()->routeIs('passenger.progress') ? 'active' : '' }}">
+                <a href="{{ route('passenger.progress') }}">
+                    <i class="bi bi-map"></i> Ride Progress
+                </a>
+            </li>
+            <li class="{{ request()->routeIs('passenger.payment.create') ? 'active' : '' }}">
+                <a href="{{ route('passenger.payment.create') }}">
+                    <i class="bi bi-credit-card"></i> GCash Payment
+                </a>
+            </li>
+        </ul>
+    </div>
+
+    <!-- Logout button at the bottom -->
+    <form method="POST" action="{{ route('logout') }}" class="logout-form mt-4">
+        @csrf
+        <button type="submit">
+            <i class="bi bi-box-arrow-right"></i> Logout
+        </button>
+    </form>
+</div>
+
+<!-- Styles -->
 <style>
 :root {
-    /* 🎨 Sky-blue gradient theme */
-    --sidebar-bg: linear-gradient(180deg, #56ccf2, #2f80ed);
-    --sidebar-hover: rgba(255, 255, 255, 0.15); 
-    --sidebar-active: rgba(255, 255, 255, 0.3); 
-    --text-light: #ffffff;
-    --text-muted: #d0e7ff;
+    --sidebar-bg: linear-gradient(to bottom, #38bdf8, #60a5fa, #93c5fd);
+    --text-light: #fff;
+    --text-muted: rgba(255,255,255,0.8);
     --transition-speed: 0.3s;
 }
 
+body {
+    margin: 0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* Sidebar */
 .sidebar {
-    width: 250px;
+    width: 250px; /* desktop default */
+    max-width: 80vw;
     height: 100vh;
     background: var(--sidebar-bg);
     color: var(--text-light);
     position: fixed;
     top: 0;
     left: 0;
-    padding: 24px 20px;
+    padding: 20px;
     display: flex;
     flex-direction: column;
-    align-items: center;
+    justify-content: space-between;
+    transition: transform var(--transition-speed) ease, width 0.3s ease;
     z-index: 1000;
-    transition: all var(--transition-speed) ease;
-    box-shadow: 2px 0 15px rgba(0, 0, 0, 0.25);
-    border-radius: 0 20px 20px 0;
-    overflow-y: auto;
 }
 
-.passenger-profile {
+/* Logo/Profile */
+.sidebar .logo {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.sidebar .logo img {
     width: 80px;
     height: 80px;
     border-radius: 50%;
     object-fit: cover;
-    margin-bottom: 15px;
-    border: 2px solid #fff;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    border: 3px solid rgba(255,255,255,0.7);
+    background: white;
 }
 
 .sidebar .welcome {
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     font-size: 16px;
-    color: var(--text-light);
-    font-weight: 600;
+    font-weight: bold;
     text-align: center;
-    text-shadow: 1px 1px 3px rgba(0,0,0,0.2);
 }
 
+/* Sidebar menu */
 .sidebar ul {
     list-style: none;
-    padding: 0;
+    padding-left: 0;
     margin: 0;
     flex-grow: 1;
-    width: 100%;
 }
 
 .sidebar ul li {
-    margin-bottom: 14px;
+    margin: 10px 0;
 }
 
-.sidebar ul li a,
-.sidebar ul li form button {
-    color: var(--text-light);
+.sidebar ul li a {
+    color: #fff;
     text-decoration: none;
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 10px 16px;
-    border-radius: 12px;
-    background: transparent;
-    border: none;
-    font-size: 15px;
-    cursor: pointer;
-    transition: all var(--transition-speed) ease;
-    width: 100%;
-    text-align: left;
+    gap: 10px;
+    padding: 10px 15px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, transform 0.2s;
 }
 
-.sidebar ul li a:hover,
-.sidebar ul li form button:hover {
-    background-color: var(--sidebar-hover);
+.sidebar ul li a:hover {
+    background-color: rgba(255, 255, 255, 0.25);
     transform: translateX(5px);
 }
 
 .sidebar ul li.active a {
-    background-color: var(--sidebar-active);
-    color: #fff;
-    font-weight: 600;
-    box-shadow: 0 0 10px rgba(255,255,255,0.3);
+    background-color: rgba(255, 255, 255, 0.4);
+    font-weight: bold;
 }
 
-.sidebar ul li a i,
-.sidebar ul li form button i {
+/* Logout button */
+.logout-form button {
+    width: 100%;
+    background-color: #0ea5e9;
+    border: none;
+    color: white;
+    padding: 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background-color 0.3s ease;
+}
+
+.logout-form button:hover {
+    background-color: #0284c7;
+}
+
+/* Mobile toggle */
+.sidebar-toggle {
+    display: none;
+    position: fixed;
+    top: 15px;
+    left: 15px;
+    z-index: 1100;
+    background-color: #38bdf8;
+    border: none;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 5px;
     font-size: 18px;
-    color: var(--text-muted);
-    transition: color var(--transition-speed);
+    cursor: pointer;
 }
 
-.sidebar ul li a:hover i,
-.sidebar ul li form button:hover i {
-    color: #ffffff;
-}
-
-/* ✅ Responsive design */
+/* Responsive for tablets */
 @media (max-width: 1024px) {
     .sidebar {
-        width: 200px;
-        padding: 20px 15px;
+        width: 220px;
     }
-    .passenger-profile { width: 60px; height: 60px; margin-bottom: 10px; }
-    .sidebar .welcome { font-size: 14px; margin-bottom: 20px; }
-    .sidebar ul li a, .sidebar ul li form button { font-size: 14px; padding: 8px 12px; }
-    .sidebar ul li a i, .sidebar ul li form button i { font-size: 16px; }
 }
 
+/* Responsive for mobile */
 @media (max-width: 768px) {
     .sidebar {
-        width: 100%;
-        height: auto;
-        position: relative;
-        padding: 10px 15px;
-        flex-direction: row;
-        overflow-x: auto;
-        white-space: nowrap;
-        box-shadow: none;
-        border-radius: 0;
-        align-items: center;
+        width: 70vw; /* occupy 70% of screen width */
+        transform: translateX(-100%);
     }
 
-    .sidebar .welcome { display: none; }
-
-    .sidebar ul {
-        display: flex;
-        flex-direction: row;
-        gap: 10px;
-        flex-wrap: nowrap;
+    .sidebar.active {
+        transform: translateX(0);
     }
 
-    .sidebar ul li {
-        margin-bottom: 0;
-        flex-shrink: 0;
+    .sidebar-toggle {
+        display: block;
+    }
+}
+
+/* Extra small mobiles */
+@media (max-width: 480px) {
+    .sidebar {
+        width: 85vw; /* nearly full screen on small mobiles */
+        padding: 15px;
     }
 
-    .sidebar ul li a,
-    .sidebar ul li form button {
+    .sidebar .logo img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .sidebar ul li a {
         padding: 8px 12px;
         font-size: 14px;
-        white-space: nowrap;
     }
 
-    .sidebar ul li a i,
-    .sidebar ul li form button i {
-        font-size: 16px;
+    .logout-form button {
+        padding: 10px;
+        font-size: 14px;
     }
-}
-
-/* Mobile touch scroll shadow */
-.sidebar::-webkit-scrollbar {
-    height: 6px;
-}
-.sidebar::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.3);
-    border-radius: 3px;
 }
 </style>
 
-<div class="sidebar">
-
-@if(Auth::check() && Auth::user()->role === 'Passenger')
-@php
-    $profile = Auth::user()->profile_picture ?? null;
-
-    if ($profile) {
-        if (Str::startsWith($profile, ['http://', 'https://'])) {
-            $profileUrl = $profile;
-        } else {
-            $profileUrl = asset('storage/profile_pictures/' . $profile);
+<!-- Optional: Collapse sidebar when a menu item is clicked (mobile) -->
+<script>
+document.querySelectorAll('.sidebar ul li a').forEach(link => {
+    link.addEventListener('click', () => {
+        if (window.innerWidth <= 768) {
+            document.querySelector('.sidebar').classList.remove('active');
         }
-    } else {
-        $profileUrl = asset('images/default-profile.png');
-    }
-@endphp
-
-<img src="{{ $profileUrl }}" alt="Passenger Profile" class="passenger-profile">
-
-<div class="welcome">
-    Welcome, <strong>{{ Auth::user()->email }}</strong>
-</div>
-@endif
-
-<ul>
-    <li class="{{ request()->routeIs('passenger.dashboard') ? 'active' : '' }}">
-        <a href="{{ route('passenger.dashboard') }}">
-            <i class="bi bi-speedometer2"></i> Dashboard
-        </a>
-    </li>
-
-    <li class="{{ request()->routeIs('passenger.view.drivers') ? 'active' : '' }}">
-        <a href="{{ route('passenger.view.drivers') }}">
-            <i class="bi bi-geo-alt"></i> View Available Riders
-        </a>
-    </li>
-
-    <li class="{{ request()->routeIs('passenger.waiting') ? 'active' : '' }}">
-        <a href="{{ route('passenger.waiting') }}">
-            <i class="bi bi-clock-history"></i> Waiting for Driver
-        </a>
-    </li>
-
-    <li class="{{ request()->routeIs('passenger.progress') ? 'active' : '' }}">
-        <a href="{{ route('passenger.progress') }}">
-            <i class="bi bi-map"></i> Ride Progress
-        </a>
-    </li>
-
-    <li class="{{ request()->routeIs('passenger.payment.create') ? 'active' : '' }}">
-        <a href="{{ route('passenger.payment.create') }}">
-            <i class="bi bi-credit-card"></i> GCash Payment
-        </a>
-    </li>
-
-    <li>
-        <form method="POST" action="{{ route('logout') }}">
-            @csrf
-            <button type="submit">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </button>
-        </form>
-    </li>
-</ul>
-</div>
+    });
+});
+</script>
