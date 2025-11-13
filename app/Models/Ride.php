@@ -10,18 +10,21 @@ use Illuminate\Database\Eloquent\Model;
 class Ride extends Model
 {
     use HasFactory;
-   protected $fillable = [
-    'user_id',
-    'driver_id',
-    'pickup_location',
-    'dropoff_location',
-    'phone_number',
-    'driver_id',
-    'status',
-    'rating',
-    'feedback',
-];
-
+  
+    protected $fillable = [
+        'pickup_location',
+        'dropoff_location',
+        'status',
+        'driver_id',
+        'user_id',
+        'phone_number',
+        'pickup_lat',
+        'pickup_lng',
+        'dropoff_lat',
+        'dropoff_lng',
+        'rating',
+        'feedback',
+    ];
 
 
    // Optional relationships

@@ -27,7 +27,7 @@
                             <td>{{ $ride->dropoff_location }}</td>
                             <td>
                                 @if($ride->rating)
-                                    {{ $ride->rating }} ⭐
+                                    {{ $ride->ratin }} ⭐
                                 @else
                                     <span class="text-muted">Not rated</span>
                                 @endif

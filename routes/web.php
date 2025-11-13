@@ -13,6 +13,7 @@ use App\Http\Controllers\Passenger\PaymentController;
 use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LocationController;
+use App\Http\Controllers\Passenger\DashboardController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -63,15 +64,15 @@ Route::prefix('admin')->middleware(['auth'])->group(function () {
     Route::delete('/users/{id}', [UserController::class, 'destroy'])->name('admin.users.destroy');
 });
 
+Route::middleware(['auth', 'passenger'])->prefix('passenger')->name('passenger.')->group(function () {
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/update-location', [DashboardController::class, 'updateLocation'])->name('update.location');
+    Route::delete('/ride/{id}', [DashboardController::class, 'destroyRide'])->name('ride.destroy');
+});
 
 Route::get('/driver/dashboard', function () {
     return view('driver.dashboard');
 })->name('driver.dashboard')->middleware('auth');
-
-Route::prefix('passenger')->middleware('auth')->group(function () {
-    Route::get('/dashboard', function () {
-        return view('passenger.dashboard');
-    })->name('passenger.dashboard');
 
     Route::get('/request', function () {
         return view('passenger.request');
@@ -92,7 +93,6 @@ Route::prefix('passenger')->middleware('auth')->group(function () {
     })->name('passenger.rate');
 
 
-});
 
 Route::prefix('passenger')->middleware('auth')->group(function () {
     Route::get('/request', [RideController::class, 'create'])->name('passenger.request');
@@ -106,7 +106,7 @@ Route::middleware('auth')->prefix('driver')->name('driver.')->group(function () 
 
 // Passenger routes
 Route::middleware('auth')->prefix('passenger')->name('passenger.')->group(function () {
-    Route::get('/dashboard', fn() => view('passenger.dashboard'))->name('dashboard');
+ 
     Route::get('/request', [PassengerRideController::class, 'create'])->name('request');
     Route::post('/request', [PassengerRideController::class, 'store'])->name('request.store');
     Route::get('/rides', [PassengerRideController::class, 'index'])->name('rides.index');
@@ -116,10 +116,7 @@ Route::middleware('auth')->prefix('driver')->name('driver.')->group(function () 
     Route::get('/accept-rides', [DriverRideController::class, 'index'])->name('accept-rides');
     Route::post('/accept-rides/{id}', [DriverRideController::class, 'accept'])->name('accept-rides.accept');
 });
-Route::middleware('auth')->prefix('passenger')->name('passenger.')->group(function () {
-    Route::get('/dashboard', [PassengerRideController::class, 'dashboard'])->name('dashboard');
-    // other routes...
-});
+
 
 Route::post('/driver/accept-rides/{id}/accept', [App\Http\Controllers\Driver\RideController::class, 'accept'])
     ->name('driver.accept-rides.accept')
@@ -182,14 +179,20 @@ Route::middleware('auth')->group(function () {
     Route::get('/passenger/rides', [\App\Http\Controllers\Passenger\RideController::class, 'index'])->name('passenger.rides');
 });
 
+Route::middleware(['auth', 'passenger'])->group(function () {
+    Route::get('/passenger/report/{driver}', [PassengerRideController::class, 'report'])
+         ->name('passenger.report');
+});
 
     // Request a driver (this is the route causing the issue)
     Route::post('/passenger/request-driver/{id}', [\App\Http\Controllers\Passenger\RideController::class, 'requestDriver'])->name('passenger.request.driver');
 //
 Route::get('/passenger/progress', [PassengerRideController::class, 'progress'])->name('passenger.progress');
-//
+Route::middleware(['auth', 'passenger'])->prefix('passenger')->name('passenger.')->group(function () {
+    Route::get('/report/{driver}', [ReportController::class, 'create'])->name('report');
+    Route::post('/report/submit', [ReportController::class, 'submit'])->name('report.submit');
+});
 
-Route::get('/passenger/report/{driver}', [PassengerRideController::class, 'report'])->name('passenger.report');
 //
 Route::middleware('auth')->group(function () {
     Route::get('/passenger/rate/{ride}', [\App\Http\Controllers\Passenger\RideController::class, 'rate'])->name('passenger.rate');

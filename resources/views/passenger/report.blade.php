@@ -6,15 +6,16 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <div class="container my-5">
-    <h3>Report Driver: {{ $driver->fullname }}</h3>
+    <h3>Report Driver: {{ $driver->fullname ?? 'Unknown Driver' }}</h3>
 
     <form id="reportForm" action="{{ route('passenger.report.submit') }}" method="POST">
         @csrf
-        <input type="hidden" name="driver_id" value="{{ $driver->id }}">
+        {{-- Pass driver ID safely via hidden input --}}
+        <input type="hidden" name="driver_id" value="{{ $driver->id ?? '' }}">
         
         <div class="mb-3">
             <label for="description" class="form-label">Report Description:</label>
-            <textarea name="description" id="description" class="form-control" rows="4" required></textarea>
+            <textarea name="description" id="description" class="form-control" rows="4" required>{{ old('description') }}</textarea>
         </div>
 
         <button type="submit" class="btn btn-danger">Submit Report</button>

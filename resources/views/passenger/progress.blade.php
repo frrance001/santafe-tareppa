@@ -121,7 +121,10 @@
                 @if($ride?->driver && $ride?->status === 'completed' && !$ride->rating)
                     <div>
                         <a href="{{ route('passenger.rate', $ride->id) }}" class="btn btn-success me-2">Rate Driver</a>
-                        <a href="{{ route('passenger.report', $ride->driver_id) }}" class="btn btn-danger">Report Driver</a>
+                      @if(auth()->check() && auth()->user()->role === 'passenger')
+    <a href="{{ route('passenger.report', ['driver' => $driver->id]) }}">Report Driver</a>
+@endif
+
                     </div>
                 @endif
             </div>

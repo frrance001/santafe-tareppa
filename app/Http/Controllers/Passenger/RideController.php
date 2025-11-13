@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use App\Models\Ride;
 use App\Models\User;
 use App\Models\Report;
+use App\Models\Rating;
+
 use Illuminate\Support\Facades\Auth;
 
 class RideController extends Controller
@@ -71,15 +73,22 @@ class RideController extends Controller
         return view('passenger.rides.index', compact('rides'));
     }
 
-    public function dashboard()
-    {
-        $rides = Ride::where('user_id', Auth::id())
-                    ->latest()
-                    ->get();
+public function dashboard()
+{
+    $user = Auth::user();
 
-        return view('passenger.dashboard', compact('rides'));
+    // Ensure the user is a passenger
+    if (!$user || $user->role !== 'Passenger') {
+        abort(403, 'Access denied');
     }
 
+    // Fetch rides for this passenger
+    $rides = Ride::where('user_id', $user->id)
+                 ->latest()
+                 ->get();
+
+    return view('passenger.dashboard', compact('rides'));
+}
     public function waiting()
     {
         $rides = Ride::where('user_id', Auth::id())
@@ -147,51 +156,54 @@ class RideController extends Controller
         return view('passenger.rate', compact('ride'));
     }
 
-    public function rateSubmit(Request $request, $rideId)
-    {
-        $request->validate([
-            'rating' => 'required|integer|min:1|max:5',
-            'feedback' => 'nullable|string|max:1000',
-        ]);
+  public function rateSubmit(Request $request, $rideId)
+{
+    $request->validate([
+        'rating'   => 'required|integer|min:1|max:5',
+        'feedback' => 'nullable|string|max:1000',
+    ]);
 
-        $ride = Ride::where('id', $rideId)
-            ->where('user_id', auth()->id())
-            ->firstOrFail();
+    $ride = Ride::where('id', $rideId)
+        ->where('user_id', auth()->id())  // make sure the ride belongs to the passenger
+        ->where('status', 'completed')    // only completed rides
+        ->firstOrFail();
 
-        $ride->rating = $request->rating;
-        $ride->feedback = $request->feedback;
-        $ride->save();
+    // Store rating in ratings table with polymorphic columns
+    Rating::create([
+        'rater_id'      => auth()->id(),       // passenger submitting the rating
+        'score'         => $request->rating,
+        'comment'       => $request->feedback,
+        'rateable_id'   => $ride->id,          // the ride being rated
+        'rateable_type' => Ride::class,        // fully qualified class name
+    ]);
 
-        return redirect()->route('passenger.dashboard')->with('success', 'Thank you for rating your driver!');
-    }
-
-    public function report($driverId)
-    {
-        $driver = User::where('id', $driverId)
-                      ->where('role', 'driver')
-                      ->firstOrFail();
-
-        return view('passenger.report-driver', compact('driver'));
-    }
-
-    public function submitReport(Request $request, $driverId)
-    {
-        $request->validate([
-            'reason' => 'required|string|max:1000',
-        ]);
-
-        $driver = User::where('id', $driverId)
-                      ->where('role', 'driver')
-                      ->firstOrFail();
-
-        Report::create([
-            'passenger_id' => auth()->id(),
-            'driver_id'    => $driver->id,
-            'reason'       => $request->reason,
-        ]);
-
-        return redirect()->route('passenger.dashboard')->with('success', 'Report submitted successfully.');
-    }
-    
+    return redirect()->route('passenger.dashboard')
+                     ->with('success', 'Thank you for rating your driver!');
 }
 
+public function report($driverId)
+{
+    // Fetch driver by ID only, no role check
+    $driver = User::findOrFail($driverId);
+
+    return view('passenger.report-driver', compact('driver'));
+}
+
+public function submitReport(Request $request)
+{
+    $request->validate([
+        'driver_id' => 'required|exists:users,id',
+        'reason'    => 'required|string|max:1000',
+    ]);
+
+    $driverId = $request->driver_id;
+
+    Report::create([
+        'passenger_id' => auth()->id(),
+        'driver_id'    => $driverId,
+        'reason'       => $request->reason,
+    ]);
+
+    return redirect()->route('passenger.dashboard')->with('success', 'Report submitted successfully.');
+}
+}

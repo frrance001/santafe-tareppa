@@ -10,173 +10,121 @@
         </div>
     </div>
 @else
-<div class="container-fluid py-4">
-    <div class="row g-4">
-        <!-- Left Panel: Ride Requests -->
-        <div class="col-lg-4 col-md-5">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Available Ride Requests</h5>
-                </div>
-                <div class="card-body p-0">
-                    @if($rides->isEmpty())
-                        <p class="text-center my-3">No ride requests available.</p>
-                    @else
-                        <ul class="list-group list-group-flush" id="rideList">
-                            @foreach($rides as $ride)
-                                <li class="list-group-item ride-item d-flex flex-column justify-content-between mb-2 rounded shadow-sm"
-                                    id="ride-{{ $ride->id }}"
-                                    style="cursor: pointer;"
-                                    data-bs-id="{{ $ride->id }}"
-                                    data-pickup-lat="{{ $ride->pickup_lat }}"
-                                    data-pickup-lng="{{ $ride->pickup_lng }}"
-                                    data-dropoff-lat="{{ $ride->dropoff_lat }}"
-                                    data-dropoff-lng="{{ $ride->dropoff_lng }}">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
-                                            <strong class="text-primary">{{ $ride->user->fullname ?? 'N/A' }}</strong><br>
-                                            <small class="text-muted">From: {{ $ride->pickup_location }}</small><br>
-                                            <small class="text-muted">To: {{ $ride->dropoff_location }}</small>
-                                        </div>
-                                        <span class="badge bg-info">{{ ucfirst($ride->status) }}</span>
-                                    </div>
-                                </li>
-                            @endforeach
-                        </ul>
-                    @endif
-                </div>
-            </div>
+<div class="container py-4">
+    <div class="card border-0 shadow-sm mb-4">
+        <div class="card-header bg-primary text-white">
+            <h4 class="mb-0">🚗 Available Ride Requests</h4>
         </div>
 
-        <!-- Right Panel: Map Only -->
-        <div class="col-lg-8 col-md-7">
-            <div class="card shadow-sm h-100">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Ride Map</h5>
+        <div class="card-body">
+            @if($rides->isEmpty())
+                <div class="text-center text-muted py-5">
+                    <h5>No ride requests available</h5>
                 </div>
-                <div class="card-body">
-                    <div id="rideMap" class="rounded shadow mb-3" style="height: 450px;"></div>
+            @else
+                <div class="list-group" id="rideList">
+                    @foreach($rides as $ride)
+                        <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 border-0 shadow-sm rounded ride-item"
+                             id="ride-{{ $ride->id }}"
+                             data-bs-id="{{ $ride->id }}">
+                            <div class="d-flex w-100 justify-content-between align-items-center">
+                                <div>
+                                    <h5 class="mb-1 text-primary">{{ $ride->user->fullname ?? 'N/A' }}</h5>
+                                    <p class="mb-1 text-muted small">
+                                        <strong>From:</strong> {{ $ride->pickup_location }}<br>
+                                        <strong>To:</strong> {{ $ride->dropoff_location }}
+                                    </p>
+                                </div>
+                                <span class="badge bg-info">{{ ucfirst($ride->status) }}</span>
+                            </div>
 
-                    <form id="acceptForm" method="POST" action="">
-                        @csrf
-                        <button type="submit" class="btn btn-success w-100 fw-bold">Accept Ride</button>
-                    </form>
+                            <form class="accept-form mt-3 text-end" data-id="{{ $ride->id }}">
+                                @csrf
+                                <button type="submit" class="btn btn-success btn-sm px-4 fw-semibold">
+                                    Accept Ride
+                                </button>
+                            </form>
+                        </div>
+                    @endforeach
                 </div>
-            </div>
+            @endif
         </div>
     </div>
 </div>
-
-<!-- Leaflet CSS & JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const acceptForm = document.getElementById('acceptForm');
-    let selectedRideId = null;
+    document.querySelectorAll('.accept-form').forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            const rideId = this.dataset.id;
 
-    // Initialize map
-    const map = L.map('rideMap').setView([10.3157, 123.8854], 12);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(map);
+            fetch(`/driver/accept-rides/${rideId}/accept`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(async res => {
+                let data;
+                try { data = await res.json(); }
+                catch(e) { data = { success: true, message: 'Ride accepted successfully!' }; }
+                return data;
+            })
+            .then(data => {
+                if (data.success) {
+                    Swal.fire('✅ Ride Accepted!', data.message, 'success');
+                    const rideItem = document.getElementById(`ride-${rideId}`);
+                    if (rideItem) {
+                        rideItem.classList.add('fade-out');
+                        setTimeout(() => rideItem.remove(), 400);
+                    }
 
-    let pickupMarker = null;
-    let dropoffMarker = null;
-    let routeLine = null;
-
-    const greenIcon = new L.Icon({ iconUrl: 'https://maps.google.com/mapfiles/ms/icons/green-dot.png', iconSize: [32,32], iconAnchor: [16,32] });
-    const redIcon = new L.Icon({ iconUrl: 'https://maps.google.com/mapfiles/ms/icons/red-dot.png', iconSize: [32,32], iconAnchor: [16,32] });
-
-    function drawRoute(pLat, pLng, dLat, dLng) {
-        if(routeLine) map.removeLayer(routeLine);
-        routeLine = L.polyline([[pLat,pLng],[dLat,dLng]], { color:'blue', weight:5, opacity:0.6 }).addTo(map);
-        map.fitBounds(routeLine.getBounds(), { padding:[50,50] });
-    }
-
-    // Ride item click
-    document.querySelectorAll('.ride-item').forEach(item => {
-        item.addEventListener('click', () => {
-            document.querySelectorAll('.ride-item').forEach(el => el.classList.remove('active'));
-            item.classList.add('active');
-
-            selectedRideId = item.dataset.bsId;
-
-            const pLat = parseFloat(item.dataset.pickupLat);
-            const pLng = parseFloat(item.dataset.pickupLng);
-            const dLat = parseFloat(item.dataset.dropoffLat);
-            const dLng = parseFloat(item.dataset.dropoffLng);
-
-            if(pickupMarker) map.removeLayer(pickupMarker);
-            if(dropoffMarker) map.removeLayer(dropoffMarker);
-
-            pickupMarker = L.marker([pLat,pLng], { icon: greenIcon }).addTo(map).bindPopup("Pickup Location").openPopup();
-            dropoffMarker = L.marker([dLat,dLng], { icon: redIcon }).addTo(map).bindPopup("Drop-off Location");
-
-            drawRoute(pLat, pLng, dLat, dLng);
+                    if (document.querySelectorAll('.ride-item').length === 0) {
+                        document.getElementById('rideList').innerHTML = 
+                            '<div class="text-center text-muted py-5"><h5>No ride requests available</h5></div>';
+                    }
+                } else {
+                    Swal.fire('❌ Failed', data.message || 'Something went wrong.', 'error');
+                }
+            })
+            .catch(() => Swal.fire('❌ Error', 'Could not accept ride.', 'error'));
         });
-    });
-
-    // Accept ride AJAX
-    acceptForm.addEventListener('submit', function(e){
-        e.preventDefault();
-        if(!selectedRideId){
-            Swal.fire('Please select a ride first!');
-            return;
-        }
-
-        fetch(`/driver/accept-rides/${selectedRideId}/accept`, {
-            method:'POST',
-            headers: { 
-                'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                'Content-Type':'application/json'
-            },
-            body: JSON.stringify({})
-        })
-        .then(async res => { 
-            let data; 
-            try { data = await res.json(); } 
-            catch(e) { data = { success:true, message:'Ride accepted successfully!' }; }
-            return data;
-        })
-        .then(data => {
-            if(data.success){
-                Swal.fire('✅ Ride Accepted!', data.message, 'success');
-                const rideItem = document.getElementById(`ride-${selectedRideId}`);
-                if(rideItem) {
-                    rideItem.classList.add('fade-out');
-                    setTimeout(() => rideItem.remove(), 400);
-                }
-                selectedRideId = null;
-                if(pickupMarker) map.removeLayer(pickupMarker);
-                if(dropoffMarker) map.removeLayer(dropoffMarker);
-                if(routeLine) map.removeLayer(routeLine);
-
-                // If no more rides, show message
-                if(document.querySelectorAll('.ride-item').length === 0) {
-                    document.getElementById('rideList').innerHTML = '<p class="text-center my-3">No ride requests available.</p>';
-                }
-            } else {
-                Swal.fire('❌ Failed', data.message || 'Something went wrong.', 'error');
-            }
-        })
-        .catch(() => { Swal.fire('❌ Error', 'Could not accept ride.', 'error'); });
     });
 });
 </script>
 
 <style>
-.ride-item.active {
-    background-color: #e0f7fa !important;
-    border-left: 4px solid #00796b;
+.ride-item {
+    transition: all 0.3s ease;
+    background-color: #ffffff;
 }
+
+.ride-item:hover {
+    background-color: #f8f9fa;
+    transform: translateY(-2px);
+}
+
 .fade-out {
     animation: fadeOut 0.4s forwards;
 }
+
 @keyframes fadeOut {
     to { opacity: 0; transform: translateX(-20px); }
+}
+
+.btn-success {
+    border-radius: 20px;
+}
+
+.card-header h4 {
+    font-weight: 600;
+    letter-spacing: 0.5px;
 }
 </style>
 @endif

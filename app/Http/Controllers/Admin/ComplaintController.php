@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Complaint;
 use Illuminate\Http\Request;
+use App\Models\Rating;
 
 class ComplaintController extends Controller
 {
@@ -15,17 +16,16 @@ class ComplaintController extends Controller
     {
         $q = $request->query('q');
 
-        $complaints = Complaint::with(['passenger', 'driver', 'rating'])
-            ->when($q, function ($qb) use ($q) {
-                $qb->where('message', 'like', "%{$q}%")
-                    ->orWhereHas('passenger', fn($p) => $p->where('name', 'like', "%{$q}%"))
-                    ->orWhereHas('driver', fn($d) => $d->where('name', 'like', "%{$q}%"));
+        $ratings = Rating::with('rater') // eager load rater
+            ->when($q, function($query) use ($q) {
+                $query->where('comment', 'like', "%{$q}%")
+                      ->orWhereHas('rater', fn($r) => $r->where('name', 'like', "%{$q}%"));
             })
             ->latest()
             ->paginate(15)
             ->withQueryString();
 
-        return view('admin.complaints.index', compact('complaints'));
+        return view('admin.complaints.index', compact('ratings'));
     }
 
     /**
@@ -55,4 +55,5 @@ class ComplaintController extends Controller
 
         return back()->with('success', 'Complaint status updated.');
     }
+    
 }
