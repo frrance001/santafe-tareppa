@@ -222,7 +222,7 @@ body {
         width: 85vw;
         padding: 15px;
     }
-    .logo img {
+    .logo img {09
         width: 60px;
         height: 60px;
     }
