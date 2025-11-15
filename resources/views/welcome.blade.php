@@ -218,7 +218,7 @@
       
       <!-- Programmer -->
       <div class="bg-gray-50 p-6 rounded-lg shadow flex flex-col items-center">
-        <img src="{{ asset('images/team/ef.png') }}" alt="France Fernandez" class="w-24 h-24 rounded-full mb-4 object-cover shadow-md">
+        <img src="{{ asset('images/ef.png') }}" alt="France Fernandez" class="w-24 h-24 rounded-full mb-4 object-cover shadow-md">
         <h3 class="text-xl font-bold mb-1 text-[#008cff]">Programmer</h3>
         <p class="text-gray-700">France Fernandez</p>
       </div>
