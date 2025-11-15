@@ -10,6 +10,7 @@
         </div>
     </div>
 @else
+<meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="container py-4">
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
@@ -26,7 +27,7 @@
                     @foreach($rides as $ride)
                         <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 border-0 shadow-sm rounded ride-item"
                              id="ride-{{ $ride->id }}"
-                             data-bs-id="{{ $ride->id }}">
+                             data-ride-id="{{ $ride->id }}">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div>
                                     <h5 class="mb-1 text-primary">{{ $ride->user->fullname ?? 'N/A' }}</h5>
@@ -38,7 +39,7 @@
                                 <span class="badge bg-info status-badge">{{ ucfirst($ride->status) }}</span>
                             </div>
 
-                            <form class="accept-form mt-3 text-end" data-id="{{ $ride->id }}">
+                            <form class="accept-form mt-3 text-end" data-ride-id="{{ $ride->id }}">
                                 @csrf
                                 <button type="submit" class="btn btn-success btn-sm px-4 fw-semibold">
                                     Accept Ride
@@ -56,16 +57,21 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+
     document.querySelectorAll('.accept-form').forEach(form => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            const rideId = this.dataset.id;
+            const rideId = this.dataset.rideId;
 
-            fetch(`/driver/rides/${rideId}/accept`, {  // ✔ FIXED ROUTE
+            if (!rideId) return;
+
+            fetch(`/driver/rides/${rideId}/accept`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
-                    'Content-Type': 'application/json'
+                    'X-CSRF-TOKEN': csrfToken,
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
                 },
                 body: JSON.stringify({})
             })
@@ -76,15 +82,20 @@ document.addEventListener('DOMContentLoaded', function () {
 
                     // Update status badge instantly
                     const badge = document.querySelector(`#ride-${rideId} .status-badge`);
-                    badge.textContent = 'In Progress';
-                    badge.classList.remove('bg-info');
-                    badge.classList.add('bg-warning');
+                    if (badge) {
+                        badge.textContent = 'In Progress';
+                        badge.classList.remove('bg-info');
+                        badge.classList.add('bg-warning');
+                    }
 
-                    // Remove from list
+                    // Fade out and remove item
                     const rideItem = document.getElementById(`ride-${rideId}`);
-                    rideItem.classList.add('fade-out');
-                    setTimeout(() => rideItem.remove(), 400);
+                    if (rideItem) {
+                        rideItem.classList.add('fade-out');
+                        setTimeout(() => rideItem.remove(), 400);
+                    }
 
+                    // If no rides left
                     if (document.querySelectorAll('.ride-item').length === 0) {
                         document.getElementById('rideList').innerHTML =
                             '<div class="text-center text-muted py-5"><h5>No ride requests available</h5></div>';
@@ -93,7 +104,10 @@ document.addEventListener('DOMContentLoaded', function () {
                     Swal.fire('❌ Failed', data.message || 'Something went wrong.', 'error');
                 }
             })
-            .catch(() => Swal.fire('❌ Error', 'Could not accept ride.', 'error'));
+            .catch(err => {
+                console.error(err);
+                Swal.fire('❌ Error', 'Could not accept ride.', 'error');
+            });
         });
     });
 });
