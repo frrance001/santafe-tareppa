@@ -5,63 +5,121 @@
     body {
         margin: 0;
         padding: 0;
-        background: #ffffff;
-        color: #000;
+        background: #f0f4f8;
+        color: #1f2937;
+        font-family: 'Inter', sans-serif;
     }
 
     .glass-container {
-        background: #ffffff;
+        background: rgba(255, 255, 255, 0.95);
         border-radius: 16px;
-        padding: 30px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
     }
 
-    h1, h3 { color: #1e3a8a; font-weight: bold; }
+    h1, h3 {
+        background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        font-weight: 700;
+    }
 
-    table { background-color: #fff; color: #000; }
-    th { background-color: #1e3a8a !important; color: #fff; }
-    td { vertical-align: middle; }
-    tr:hover { background-color: #f3f4f6; cursor: pointer; }
+    table {
+        background-color: #fff;
+        color: #1f2937;
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    }
 
-    .btn { font-weight: bold; border-radius: 8px; }
-    .btn-danger { background-color: #ef4444; border: none; color: #fff; }
-    .btn-primary { background-color: #3b82f6; border: none; color: #fff; }
-    .btn-success { background-color: #10b981; border: none; color: #fff; }
-    .btn-warning { background-color: #f59e0b; border: none; color: #fff; }
-    .btn:hover { opacity: 0.9; }
+    th {
+        background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+        color: #fff !important;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    td {
+        vertical-align: middle;
+        font-size: 0.95rem;
+    }
+
+    tr:hover {
+        background-color: #e0f2fe;
+        cursor: pointer;
+        transition: background 0.3s ease;
+    }
+
+    .btn {
+        font-weight: 600;
+        border-radius: 8px;
+        padding: 6px 16px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+        color: #fff;
+        border: none;
+    }
+
+    .btn-primary:hover {
+        background: linear-gradient(90deg, #0ea5e9, #3b82f6);
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-success { background-color: #10b981; color: #fff; border: none; }
+    .btn-warning { background-color: #f59e0b; color: #fff; border: none; }
+    .btn-danger { background-color: #ef4444; color: #fff; border: none; }
+
+    .btn-success:hover,
+    .btn-warning:hover,
+    .btn-danger:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
 
     .search-box {
-        max-width: 300px;
-        margin-bottom: 20px;
+        max-width: 350px;
+        margin-bottom: 25px;
+        border-radius: 10px;
+        border: 1px solid #cbd5e1;
+        padding: 10px 14px;
+        box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
 
     /* Modal Glass Style */
     .modal-content {
         background: rgba(255, 255, 255, 0.97);
-        backdrop-filter: blur(12px);
+        backdrop-filter: blur(14px);
         border-radius: 16px;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
     }
 
     .driver-photo {
-        width: 120px;
-        height: 120px;
+        width: 130px;
+        height: 130px;
         object-fit: cover;
         border-radius: 12px;
-        border: 2px solid #e5e7eb;
+        border: 2px solid #cbd5e1;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
     }
 
     .photo-gallery {
         display: flex;
         flex-wrap: wrap;
-        gap: 15px;
-        margin-top: 15px;
+        gap: 20px;
+        margin-top: 20px;
     }
 
     .photo-label {
         font-weight: 600;
-        color: #1e3a8a;
+        color: #0ea5e9;
         margin-top: 10px;
+        display: block;
     }
 
     .photo-card {
@@ -112,7 +170,7 @@
 <div class="modal fade" id="userInfoModal" tabindex="-1" aria-labelledby="userInfoModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
-      <div class="modal-header bg-primary text-white">
+      <div class="modal-header" style="background: linear-gradient(90deg,#38bdf8,#0ea5e9); color: #fff;">
         <h5 class="modal-title" id="userInfoModalLabel">Driver Information</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
@@ -180,14 +238,13 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-
     const modal = new bootstrap.Modal(document.getElementById('userInfoModal'));
 
     document.querySelectorAll(".user-table tbody tr").forEach(row => {
         row.addEventListener("click", e => {
             const user = JSON.parse(row.getAttribute("data-user"));
 
-            // 🧩 Fill user info
+            // Fill user info
             document.getElementById("modal-id").innerText = user.id;
             document.getElementById("modal-fullname").innerText = user.fullname;
             document.getElementById("modal-email").innerText = user.email;
@@ -197,14 +254,14 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById("modal-city").innerText = user.city ?? 'N/A';
             document.getElementById("modal-role").innerText = user.role ?? 'N/A';
 
-            // 🖼️ Photos
-            const defaultImg = '/images/no-image.png'; // change this path if needed
-            document.getElementById('profilePhoto').src = user.profile_photo ?? defaultImg;
+            // Photos
+            const defaultImg = '/images/no-image.png';
+            document.getElementById('profilePhoto').src = user.photo ?? defaultImg;
             document.getElementById('policeClearance').src = user.police_clearance ?? defaultImg;
-            document.getElementById('brgyClearance').src = user.brgy_clearance ?? defaultImg;
+            document.getElementById('brgyClearance').src = user.barangay_clearance ?? defaultImg;
             document.getElementById('businessPermit').src = user.business_permit ?? defaultImg;
 
-            // 🧩 Update form actions
+            // Update form actions
             document.getElementById('approveForm').action = `/admin/users/${user.id}/approve`;
             document.getElementById('disapproveForm').action = `/admin/users/${user.id}/disapprove`;
             document.getElementById('deleteForm').action = `/admin/users/${user.id}`;
@@ -235,7 +292,6 @@ document.addEventListener('DOMContentLoaded', () => {
             row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
         });
     });
-
 });
 </script>
 @endsection
