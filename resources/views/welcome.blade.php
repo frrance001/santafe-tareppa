@@ -10,48 +10,66 @@
 
   <style>
     body { font-family: 'Inter', sans-serif; overflow-x: hidden; }
-    h1,h2,h3,.font-heading { font-family: 'Poppins', sans-serif; }
+    h1,h2,h3 { font-family: 'Poppins', sans-serif; }
 
-    /* Animations */
-    @keyframes fadeInUp { 0%{opacity:0;transform:translateY(40px);} 100%{opacity:1;transform:translateY(0);} }
-    .page-section { display:none; opacity:0; transition:opacity 0.5s; }
-    .active-section { display:block; opacity:1; }
-    .animate-fadeInUp { animation: fadeInUp 1s ease forwards; }
+    /* Page Fade-in Animation */
+    .page-section {
+      display: none;
+      opacity: 0;
+      transition: opacity 0.5s ease;
+    }
+    .active-section {
+      display: block;
+      opacity: 1;
+    }
 
     /* Loading Screen */
     #loadingScreen {
-      position: fixed; inset: 0; background: rgba(255,255,255,0.95);
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      z-index: 9999; display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.95);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      display: none;
     }
-    #loadingScreen img { width: 100px; height: 100px; animation: bounce 1.2s infinite; }
-    @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
+    #loadingScreen img {
+      animation: bounce 1.2s infinite;
+      width: 90px;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
 
     /* Tricycle Animation */
     @keyframes tricycleRun {
       0%   { transform: translateX(-20%) rotate(0deg); }
-      25%  { transform: translateX(25%) rotate(2deg); }
-      50%  { transform: translateX(50%) rotate(-2deg); }
-      75%  { transform: translateX(75%) rotate(1deg); }
+      50%  { transform: translateX(50%) rotate(2deg); }
       100% { transform: translateX(120%) rotate(0deg); }
     }
-
     @keyframes bounceSmall {
-      0%, 100% { transform: translateY(0); }
-      25% { transform: translateY(-4px); }
-      50% { transform: translateY(-8px); }
-      75% { transform: translateY(-4px); }
+      0%,100% { transform: translateY(0); }
+      50% { transform: translateY(-6px); }
+    }
+    .animate-tricycle {
+      animation: tricycleRun 6s linear infinite, bounceSmall 0.6s ease-in-out infinite;
     }
 
-    .animate-tricycle {
-      display: inline-block;
-      position: relative;
-      animation: tricycleRun 6s linear infinite, bounceSmall 0.6s ease-in-out infinite;
+    /* Mobile Sidebar */
+    #mobileMenu {
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+    }
+    #mobileMenu.open {
+      transform: translateX(0);
     }
   </style>
 </head>
 
-<body class="text-gray-800">
+<body class="text-gray-800 bg-gray-50">
 
 <!-- Loading Screen -->
 <div id="loadingScreen">
@@ -62,141 +80,144 @@
 <!-- Header -->
 <header class="bg-white shadow fixed w-full z-50">
   <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+
     <!-- Logo -->
     <div class="flex items-center space-x-2">
-      <img src="{{ asset('images/log.png') }}" class="h-10 w-10 rounded-full shadow-lg" alt="Logo">
-      <span class="font-heading font-bold text-lg md:text-xl text-[#008cff]">SANTAFE TAREPPA</span>
+      <img src="{{ asset('images/log.png') }}" class="h-10 w-10 rounded-full shadow-md" alt="Logo">
+      <span class="font-bold text-xl text-[#008cff]">SANTAFE TAREPPA</span>
     </div>
 
-    <!-- Hamburger Button (Mobile) -->
-    <div class="md:hidden flex items-center">
-      <button id="hamburgerBtn" class="focus:outline-none">
-        <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" 
-             viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-          <path stroke-linecap="round" stroke-linejoin="round" 
-                d="M4 6h16M4 12h16M4 18h16"></path>
-        </svg>
-      </button>
-    </div>
+    <!-- Mobile Hamburger -->
+    <button id="hamburgerBtn" class="md:hidden focus:outline-none">
+      <svg class="w-7 h-7 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" 
+           viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" 
+              d="M4 6h16M4 12h16M4 18h16"></path>
+      </svg>
+    </button>
 
-    <!-- Desktop Navigation & Buttons -->
-    <div id="navMenu" class="hidden md:flex md:items-center md:space-x-6">
-      <nav class="flex flex-col md:flex-row md:space-x-6 font-semibold text-gray-700 md:mr-4">
-        <a href="#" onclick="showSection('home')" class="hover:text-[#008cff] transition py-2 md:py-0">Home</a>
-        <a href="#" onclick="showSection('about')" class="hover:text-[#008cff] transition py-2 md:py-0">About</a>
-        <a href="#" onclick="showSection('services')" class="hover:text-[#008cff] transition py-2 md:py-0">Services</a>
-        <a href="#" onclick="showSection('contact')" class="hover:text-[#008cff] transition py-2 md:py-0">Contact</a>
-      </nav>
-      <div class="flex flex-col md:flex-row md:space-x-2 mt-2 md:mt-0">
-        <a href="{{ route('login') }}" id="loginBtn" 
-           class="px-4 py-2 bg-[#06b6d4] text-white rounded hover:bg-[#0591a7] transition mb-2 md:mb-0 text-center">Login</a>
-        <a href="{{ route('register') }}" id="registerBtn" 
-           class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded hover:bg-[#008cff] hover:text-white transition text-center">Become a Driver</a>
-      </div>
-    </div>
+    <!-- Desktop Nav -->
+    <nav class="hidden md:flex items-center space-x-6 font-semibold text-gray-700">
+      <a href="#" onclick="showSection('home')" class="hover:text-[#008cff]">Home</a>
+      <a href="#" onclick="showSection('about')" class="hover:text-[#008cff]">About</a>
+      <a href="#" onclick="showSection('services')" class="hover:text-[#008cff]">Services</a>
+      <a href="#" onclick="showSection('contact')" class="hover:text-[#008cff]">Contact</a>
+      <a href="{{ route('login') }}" id="loginBtn"
+        class="px-4 py-2 bg-[#06b6d4] text-white rounded-lg hover:bg-[#0591a7] transition">Login</a>
+      <a href="{{ route('register') }}" id="registerBtn"
+        class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded-lg hover:bg-[#008cff] hover:text-white transition">
+        Become a Driver
+      </a>
+    </nav>
   </div>
 
-  <!-- Mobile Menu -->
-  <div id="mobileMenu" class="md:hidden hidden bg-white shadow-md w-full">
-    <nav class="flex flex-col px-4 py-2 space-y-2 font-semibold text-gray-700">
-      <a href="#" onclick="showSection('home'); toggleMobileMenu();" class="hover:text-[#008cff] transition">Home</a>
-      <a href="#" onclick="showSection('about'); toggleMobileMenu();" class="hover:text-[#008cff] transition">About</a>
-      <a href="#" onclick="showSection('services'); toggleMobileMenu();" class="hover:text-[#008cff] transition">Services</a>
-      <a href="#" onclick="showSection('contact'); toggleMobileMenu();" class="hover:text-[#008cff] transition">Contact</a>
-      <a href="{{ route('login') }}" onclick="toggleMobileMenu();" class="px-4 py-2 bg-[#06b6d4] text-white rounded hover:bg-[#0591a7] transition text-center">Login</a>
-      <a href="{{ route('register') }}" onclick="toggleMobileMenu();" class="px-4 py-2 border border-[#008cff] text-[#008cff] rounded hover:bg-[#008cff] hover:text-white transition text-center">Become a Driver</a>
+  <!-- Mobile Slide Menu -->
+  <div id="mobileMenu" class="fixed top-0 left-0 w-64 h-full bg-white shadow-xl z-50 p-6 md:hidden">
+    <h3 class="text-xl font-bold text-[#008cff] mb-6">Menu</h3>
+    <nav class="flex flex-col space-y-4 text-gray-700 font-semibold">
+      <a href="#" onclick="closeMenu(); showSection('home')" class="hover:text-[#008cff]">Home</a>
+      <a href="#" onclick="closeMenu(); showSection('about')" class="hover:text-[#008cff]">About</a>
+      <a href="#" onclick="closeMenu(); showSection('services')" class="hover:text-[#008cff]">Services</a>
+      <a href="#" onclick="closeMenu(); showSection('contact')" class="hover:text-[#008cff]">Contact</a>
+      <a href="{{ route('login') }}" class="bg-[#06b6d4] text-white py-2 rounded-lg text-center">Login</a>
+      <a href="{{ route('register') }}" class="border border-[#008cff] text-[#008cff] py-2 rounded-lg text-center">
+        Become a Driver
+      </a>
     </nav>
   </div>
 </header>
 
-<!-- Home Section -->
-<section id="home" class="page-section active-section pt-32 pb-20 bg-[#008cff] text-white text-center md:text-left">
+<!-- HOME -->
+<section id="home" class="page-section active-section pt-32 pb-20 bg-[#008cff] text-white">
   <div class="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
-    <div class="md:w-1/2 mb-8 md:mb-0">
-      <h1 class="text-3xl sm:text-4xl md:text-5xl font-heading font-extrabold mb-6 leading-tight">
-        Send packages hassle-free with <span class="font-heading">SANTAFE TAREPPA</span>
+
+    <div class="md:w-1/2 mb-10 md:mb-0">
+      <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
+        Send packages faster with <span class="text-yellow-300">TAREPPA</span>
       </h1>
-      <p class="text-base sm:text-lg md:text-xl mb-8">The smarter way to book tricycles and send deliveries in Santa Fe.</p>
+      <p class="text-lg mt-4">Smart, fast, and affordable tricycle booking in Santa Fe.</p>
     </div>
+
     <div class="md:w-1/2 flex justify-center relative overflow-hidden h-60">
-      <img src="{{ asset('images/log.png') }}" alt="Tricycle Logo" class="w-40 md:w-60 animate-tricycle">
+      <img src="{{ asset('images/log.png') }}" class="w-44 md:w-60 animate-tricycle">
     </div>
+
   </div>
 </section>
 
-<!-- About Section -->
+<!-- ABOUT -->
 <section id="about" class="page-section py-20 bg-white text-center">
-  <div class="container mx-auto px-6">
-    <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">About TAREPPA</h2>
-    <p class="text-gray-600 max-w-2xl mx-auto">TAREPPA is an innovative tricycle booking and fare system designed to help residents and tourists in Santa Fe connect with local drivers, track rides, and pay digitally.</p>
+  <div class="container mx-auto px-6 max-w-2xl">
+    <h2 class="text-3xl font-bold text-[#008cff] mb-4">About TAREPPA</h2>
+    <p class="text-gray-600">
+      TAREPPA helps residents and tourists easily book tricycles, send deliveries, and pay digitally with transparent pricing.
+    </p>
   </div>
 </section>
 
-<!-- Services Section -->
-<section id="services" class="page-section py-20 bg-gray-50 text-center">
+<!-- SERVICES -->
+<section id="services" class="page-section py-20 bg-gray-100 text-center">
   <div class="container mx-auto px-6">
-    <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-10 text-[#008cff]">Our Services</h2>
+    <h2 class="text-3xl font-bold text-[#008cff] mb-10">Our Services</h2>
     <div class="grid gap-6 md:grid-cols-3">
-      <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Quick Booking</h3>
-        <p class="text-gray-600">Book a tricycle with just a few taps from your device.</p>
+
+      <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+        <h3 class="text-xl font-bold text-[#008cff] mb-2">Quick Booking</h3>
+        <p class="text-gray-600">Book a tricycle with just a few taps.</p>
       </div>
-      <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Digital Payments</h3>
-        <p class="text-gray-600">Cashless convenience with integrated fare transparency.</p>
+
+      <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+        <h3 class="text-xl font-bold text-[#008cff] mb-2">Digital Payments</h3>
+        <p class="text-gray-600">Cashless and transparent fare system.</p>
       </div>
-      <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
-        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Driver Ratings</h3>
-        <p class="text-gray-600">Rate your ride to help us improve local transportation services.</p>
+
+      <div class="bg-white p-6 rounded-xl shadow hover:shadow-lg transition">
+        <h3 class="text-xl font-bold text-[#008cff] mb-2">Driver Ratings</h3>
+        <p class="text-gray-600">Help improve public transportation.</p>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- Contact Section -->
+<!-- CONTACT -->
 <section id="contact" class="page-section py-20 bg-white text-center">
   <div class="container mx-auto px-6">
-    <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">Contact Us</h2>
-    <p class="text-gray-600 mb-3">Have questions or feedback? We’re here to help.</p>
-    <p>Email: <a href="mailto:support@tareppa.com" class="text-[#008cff] hover:underline">support@tareppa.com</a></p>
-    <p>Facebook: <a href="https://facebook.com/tareppa" class="text-[#008cff] hover:underline">fb.com/tareppa</a></p>
+    <h2 class="text-3xl font-bold text-[#008cff] mb-4">Contact Us</h2>
+    <p class="text-gray-600 mb-3">Have questions? We're here to help.</p>
+    <p>Email: <a href="mailto:support@tareppa.com" class="text-[#008cff] underline">support@tareppa.com</a></p>
   </div>
 </section>
 
-<!-- Footer -->
+<!-- FOOTER -->
 <footer class="bg-[#008cff] text-white py-4 text-center text-sm">
-  &copy; {{ date('Y') }} SANTAFE TAREPPA. All rights reserved.
+  © {{ date('Y') }} SANTAFE TAREPPA. All rights reserved.
 </footer>
 
 <script>
-  // Section Navigation
-  function showSection(id){
-    document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
-    document.getElementById(id).classList.add('active-section');
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
+/* Section Navigation */
+function showSection(id) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active-section'));
+  document.getElementById(id).classList.add('active-section');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 
-  // Hamburger toggle
-  const hamburgerBtn = document.getElementById('hamburgerBtn');
-  const mobileMenu = document.getElementById('mobileMenu');
-  function toggleMobileMenu() {
-    mobileMenu.classList.toggle('hidden');
-  }
-  hamburgerBtn.addEventListener('click', toggleMobileMenu);
+/* Mobile Menu */
+const mobileMenu = document.getElementById('mobileMenu');
+document.getElementById('hamburgerBtn').onclick = () => mobileMenu.classList.toggle('open');
+function closeMenu() { mobileMenu.classList.remove('open'); }
 
-  // Loading Screen
-  const loadingScreen = document.getElementById('loadingScreen');
-  const loginBtn = document.getElementById('loginBtn');
-  const registerBtn = document.getElementById('registerBtn');
-  function showLoadingThenRedirect(button, url) {
-    button.addEventListener('click', function(e) {
-      e.preventDefault();
-      loadingScreen.style.display = 'flex';
-      setTimeout(() => { window.location.href = url; }, 1200);
-    });
-  }
-  if (loginBtn) showLoadingThenRedirect(loginBtn, "{{ route('login') }}");
-  if (registerBtn) showLoadingThenRedirect(registerBtn, "{{ route('register') }}");
+/* Loading Screen */
+const loadingScreen = document.getElementById('loadingScreen');
+function showLoadingThenRedirect(button, url) {
+  button.addEventListener('click', function(e) {
+    e.preventDefault();
+    loadingScreen.style.display = 'flex';
+    setTimeout(() => window.location.href = url, 1200);
+  });
+}
+showLoadingThenRedirect(document.getElementById('loginBtn'), "{{ route('login') }}");
+showLoadingThenRedirect(document.getElementById('registerBtn'), "{{ route('register') }}");
 </script>
 
 </body>
