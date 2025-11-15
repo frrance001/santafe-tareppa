@@ -225,6 +225,9 @@
                 @method('DELETE')
                 <button type="submit" class="btn btn-danger btn-sm">Delete</button>
             </form>
+
+            <!-- Print Button -->
+            <button type="button" class="btn btn-primary btn-sm" id="printUser">Print / Download</button>
         </div>
 
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -270,6 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Delete confirmation
     document.getElementById('deleteForm').addEventListener('submit', e => {
         e.preventDefault();
         Swal.fire({
@@ -285,12 +289,44 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Search filter
     const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("keyup", () => {
         const filter = searchInput.value.toLowerCase();
         document.querySelectorAll(".user-table tbody tr").forEach(row => {
             row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
         });
+    });
+
+    // Print / Download functionality
+    document.getElementById('printUser').addEventListener('click', () => {
+        const modalBody = document.querySelector('#userInfoModal .modal-body').innerHTML;
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>User Details</title>
+                    <style>
+                        body { font-family: 'Inter', sans-serif; padding: 20px; background: #f8fafc; color: #1f2937; }
+                        h2 { color: #0ea5e9; }
+                        ul { list-style: none; padding: 0; }
+                        li { margin-bottom: 8px; font-size: 1rem; }
+                        img { width: 150px; height: 150px; object-fit: cover; margin-right: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+                        .photo-gallery { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+                        .photo-card { text-align: center; }
+                        .photo-label { font-weight: 600; color: #0ea5e9; margin-top: 5px; }
+                    </style>
+                </head>
+                <body>
+                    <h2>User Details</h2>
+                    ${modalBody}
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
     });
 });
 </script>
