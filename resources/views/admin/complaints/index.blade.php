@@ -2,81 +2,129 @@
 
 @section('content')
 <style>
-    body {
-        background: url('/images/complaints-bg.jpg') no-repeat center center fixed;
-        background-size: cover;
-        position: relative;
-        color: #fff;
-    }
+    /* Import Google Font */
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.7);
-        z-index: -1;
+    body {
+        font-family: 'Inter', sans-serif;
+        background: #f5f5f5; /* professional light background */
+        color: #000;
     }
 
     .glass-card {
-        background: rgba(255, 255, 255, 0.08);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         border-radius: 16px;
-        padding: 25px;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
-        color: #fff;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+        transition: transform 0.3s ease;
+        color: #000;
+    }
+
+    .glass-card:hover {
+        transform: translateY(-5px);
+    }
+
+    .glass-card table {
+        background: #fff;
+        border-radius: 12px;
+        overflow: hidden;
+        border-collapse: separate;
+        border-spacing: 0;
     }
 
     .glass-card table th,
     .glass-card table td {
-        background-color: rgba(255, 255, 255, 0.05);
-        color: #fff;
+        padding: 12px 15px;
+        text-align: left;
+        font-size: 0.95rem;
+        color: #000;
+        border-bottom: 1px solid #e0e0e0;
+    }
+
+    .glass-card table th {
+        background-color: #f0f0f0;
+        font-weight: 700;
     }
 
     .table-hover tbody tr:hover {
-        background-color: rgba(255, 255, 255, 0.1);
-    }
-
-    .badge-success {
-        background-color: #22c55e;
-    }
-
-    .badge-warning {
-        background-color: #facc15;
-        color: #1f2937;
+        background-color: #f9f9f9;
     }
 
     h1 {
-        color: #facc15;
-        font-weight: bold;
+        color: #111;
+        font-weight: 700;
+        margin-bottom: 30px;
+    }
+
+    h5 {
+        color: #333;
+        font-weight: 600;
+        margin-bottom: 20px;
     }
 
     .btn-primary, .btn-success {
         font-weight: 600;
+        border-radius: 8px;
+        padding: 6px 12px;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background-color: #3b82f6;
+        color: #fff;
         border: none;
+    }
+
+    .btn-primary:hover {
+        background-color: #2563eb;
+    }
+
+    .btn-success {
+        background-color: #16a34a;
+        color: #fff;
+        border: none;
+    }
+
+    .btn-success:hover {
+        background-color: #15803d;
     }
 
     .alert {
         border-radius: 10px;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    /* Responsive Table */
+    @media (max-width: 768px) {
+        .glass-card table th,
+        .glass-card table td {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+
+        .btn-primary, .btn-success {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+        }
     }
 </style>
 
-<div class="container py-4">
-    <h1 class="text-center mb-4">Ratings & Feedback</h1>
+<div class="container py-5">
+    <h1 class="text-center">Ratings & Feedback</h1>
 
     {{-- Flash Messages --}}
     @if (session('success'))
-        <div class="alert alert-success bg-success bg-opacity-75 text-white">{{ session('success') }}</div>
+        <div class="alert alert-success mb-4">{{ session('success') }}</div>
     @endif
 
-    <div class="glass-card mt-4">
-        <h5 class="mb-3">All Ratings</h5>
+    <div class="glass-card">
+        <h5>All Ratings</h5>
         <div class="table-responsive">
-            <table class="table table-bordered table-hover rounded text-white">
-                <thead class="table-dark">
+            <table class="table table-hover">
+                <thead>
                     <tr>
                         <th>ID</th>
                         <th>Passenger</th>
@@ -94,8 +142,7 @@
                             <td>{{ $rating->rater->name ?? 'Unknown' }}</td>
                             <td>
                                 @if($rating->rateable_type === App\Models\Ride::class)
-                                    {{ $rating->rater->name ?? 'Unknown' }}
-
+                                    {{ $rating->rateable->driver->name ?? 'Unknown' }}
                                 @else
                                     N/A
                                 @endif
@@ -107,7 +154,7 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="7" class="text-center text-white">No ratings found.</td>
+                            <td colspan="7" class="text-center">No ratings found.</td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -115,7 +162,7 @@
         </div>
 
         {{-- Pagination --}}
-        <div class="mt-3 text-white">
+        <div class="mt-4 d-flex justify-content-center">
             {{ $ratings->links() }}
         </div>
     </div>
