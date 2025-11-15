@@ -35,7 +35,7 @@
                                         <strong>To:</strong> {{ $ride->dropoff_location }}
                                     </p>
                                 </div>
-                                <span class="badge bg-info">{{ ucfirst($ride->status) }}</span>
+                                <span class="badge bg-info status-badge">{{ ucfirst($ride->status) }}</span>
                             </div>
 
                             <form class="accept-form mt-3 text-end" data-id="{{ $ride->id }}">
@@ -52,7 +52,6 @@
     </div>
 </div>
 
-<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -62,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function () {
             e.preventDefault();
             const rideId = this.dataset.id;
 
-            fetch(`/driver/accept-rides/${rideId}/accept`, {
+            fetch(`/driver/rides/${rideId}/accept`, {  // ✔ FIXED ROUTE
                 method: 'POST',
                 headers: {
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
@@ -70,23 +69,24 @@ document.addEventListener('DOMContentLoaded', function () {
                 },
                 body: JSON.stringify({})
             })
-            .then(async res => {
-                let data;
-                try { data = await res.json(); }
-                catch(e) { data = { success: true, message: 'Ride accepted successfully!' }; }
-                return data;
-            })
+            .then(res => res.json())
             .then(data => {
                 if (data.success) {
                     Swal.fire('✅ Ride Accepted!', data.message, 'success');
+
+                    // Update status badge instantly
+                    const badge = document.querySelector(`#ride-${rideId} .status-badge`);
+                    badge.textContent = 'In Progress';
+                    badge.classList.remove('bg-info');
+                    badge.classList.add('bg-warning');
+
+                    // Remove from list
                     const rideItem = document.getElementById(`ride-${rideId}`);
-                    if (rideItem) {
-                        rideItem.classList.add('fade-out');
-                        setTimeout(() => rideItem.remove(), 400);
-                    }
+                    rideItem.classList.add('fade-out');
+                    setTimeout(() => rideItem.remove(), 400);
 
                     if (document.querySelectorAll('.ride-item').length === 0) {
-                        document.getElementById('rideList').innerHTML = 
+                        document.getElementById('rideList').innerHTML =
                             '<div class="text-center text-muted py-5"><h5>No ride requests available</h5></div>';
                     }
                 } else {
@@ -104,24 +104,19 @@ document.addEventListener('DOMContentLoaded', function () {
     transition: all 0.3s ease;
     background-color: #ffffff;
 }
-
 .ride-item:hover {
     background-color: #f8f9fa;
     transform: translateY(-2px);
 }
-
 .fade-out {
     animation: fadeOut 0.4s forwards;
 }
-
 @keyframes fadeOut {
     to { opacity: 0; transform: translateX(-20px); }
 }
-
 .btn-success {
     border-radius: 20px;
 }
-
 .card-header h4 {
     font-weight: 600;
     letter-spacing: 0.5px;
