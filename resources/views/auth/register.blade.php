@@ -127,6 +127,15 @@
         <input type="text" name="city" placeholder="City" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
       </div>
 
+      <!-- Availability -->
+      <div class="sm:col-span-2">
+        <label class="block text-sm font-medium mb-1">Availability</label>
+        <select name="availability" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+          <option value="1" selected>Available</option>
+          <option value="0">Unavailable</option>
+        </select>
+      </div>
+
       <!-- File Uploads -->
       <div class="sm:col-span-2">
         <label class="block text-sm font-medium mb-1">Profile Photo</label>
