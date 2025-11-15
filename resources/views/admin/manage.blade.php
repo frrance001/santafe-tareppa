@@ -56,6 +56,7 @@
         border-radius: 8px;
         padding: 6px 16px;
         transition: all 0.3s ease;
+        margin-right: 5px;
     }
 
     .btn-primary {
@@ -125,6 +126,11 @@
     .photo-card {
         text-align: center;
     }
+
+    /* External Buttons Container */
+    .user-actions {
+        margin-top: 15px;
+    }
 </style>
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -164,6 +170,27 @@
     @empty
         <div class="alert alert-warning text-center">No users found.</div>
     @endforelse
+
+    <!-- External Buttons -->
+    <div class="user-actions">
+        <form id="approveForm" action="" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+        </form>
+
+        <form id="disapproveForm" action="" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
+        </form>
+
+        <form id="deleteForm" action="" method="POST" style="display:inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+
+        <button type="button" class="btn btn-primary btn-sm" id="printUser">Print / Download</button>
+    </div>
 </div>
 
 <!-- Modal -->
@@ -207,31 +234,6 @@
             </div>
         </div>
       </div>
-
-      <div class="modal-footer justify-content-between">
-        <div>
-            <form id="approveForm" action="" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="btn btn-success btn-sm">Approve</button>
-            </form>
-
-            <form id="disapproveForm" action="" method="POST" style="display:inline;">
-                @csrf
-                <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
-            </form>
-
-            <form id="deleteForm" action="" method="POST" style="display:inline;">
-                @csrf
-                @method('DELETE')
-                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-            </form>
-
-            <!-- Print Button -->
-            <button type="button" class="btn btn-primary btn-sm" id="printUser">Print / Download</button>
-        </div>
-
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-      </div>
     </div>
   </div>
 </div>
@@ -242,10 +244,12 @@
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const modal = new bootstrap.Modal(document.getElementById('userInfoModal'));
+    let selectedUser = null;
 
     document.querySelectorAll(".user-table tbody tr").forEach(row => {
         row.addEventListener("click", e => {
             const user = JSON.parse(row.getAttribute("data-user"));
+            selectedUser = user;
 
             // Fill user info
             document.getElementById("modal-id").innerText = user.id;
@@ -264,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById('brgyClearance').src = user.barangay_clearance ?? defaultImg;
             document.getElementById('businessPermit').src = user.business_permit ?? defaultImg;
 
-            // Update form actions
+            // Update external form actions
             document.getElementById('approveForm').action = `/admin/users/${user.id}/approve`;
             document.getElementById('disapproveForm').action = `/admin/users/${user.id}/disapprove`;
             document.getElementById('deleteForm').action = `/admin/users/${user.id}`;
@@ -300,6 +304,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Print / Download functionality
     document.getElementById('printUser').addEventListener('click', () => {
+        if (!selectedUser) return;
         const modalBody = document.querySelector('#userInfoModal .modal-body').innerHTML;
         const printWindow = window.open('', '_blank', 'width=800,height=600');
         printWindow.document.write(`
