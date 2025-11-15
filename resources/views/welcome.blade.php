@@ -50,8 +50,8 @@
     /* Smoke behind wheel */
     .smoke-container {
       position: absolute;
-      bottom: 0;
-      left: 5%;
+      bottom: 10px;
+      left: 10%;
       width: 60px;
       height: 40px;
       pointer-events: none;
@@ -149,12 +149,11 @@
         Send packages hassle-free with <span class="font-heading">SANTAFE TAREPPA</span>
       </h1>
       <p class="text-base sm:text-lg md:text-xl mb-8">
-        The smarter way to book tricycles and send deliveries in Santa Fe. Our app connects riders and drivers seamlessly for efficient service.
+        The smarter way to book tricycles and send deliveries in Santa Fe. Our platform connects riders and drivers efficiently for a seamless experience with real-time tracking and secure payments.
       </p>
     </div>
 
     <div class="md:w-1/2 flex justify-center relative overflow-hidden h-60">
-
       <!-- Smoke -->
       <div class="smoke-container">
         <div class="smoke"></div>
@@ -174,9 +173,9 @@
 <!-- ABOUT -->
 <section id="about" class="py-20 bg-white text-center fade-up">
   <div class="container mx-auto px-6">
-    <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">About TAREPPA</h2>
+    <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-6 text-[#008cff]">About TAREPPA</h2>
     <p class="text-gray-600 max-w-3xl mx-auto leading-relaxed">
-      TAREPPA is a modern tricycle booking and delivery service in Santa Fe. We make transportation faster, safer, and more reliable. Customers can schedule deliveries or ride quickly with trusted local drivers. Our digital platform allows seamless cashless payments, driver ratings, and real-time booking updates.
+      TAREPPA is a modern tricycle booking and delivery service in Santa Fe, designed to make transportation faster, safer, and more reliable. Customers can schedule deliveries, track rides in real-time, and enjoy cashless, seamless payments. We empower local drivers and provide a transparent, easy-to-use platform for everyone.
     </p>
   </div>
 </section>
@@ -190,21 +189,21 @@
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Quick Booking</h3>
         <p class="text-gray-600">
-          Book a tricycle instantly through our app. No delays — just confirm, hop on, and go.
+          Book a tricycle instantly via our mobile app. Confirm, hop on, and reach your destination on time.
         </p>
       </div>
 
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Digital Payments</h3>
         <p class="text-gray-600">
-          Secure cashless transactions and fare transparency make your trip safer and faster.
+          Enjoy safe and transparent cashless payments for a faster and more convenient experience.
         </p>
       </div>
 
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Driver Ratings</h3>
         <p class="text-gray-600">
-          Rate drivers after every trip to ensure quality service. Your feedback matters.
+          Provide feedback on your driver to maintain high service standards and a trusted community.
         </p>
       </div>
     </div>
@@ -216,18 +215,28 @@
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-10 text-[#008cff]">Meet Our Team</h2>
     <div class="grid gap-6 md:grid-cols-3">
-      <div class="bg-gray-50 p-6 rounded-lg shadow">
-        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Programmer</h3>
-        <p>France Fernandez</p>
+      
+      <!-- Programmer -->
+      <div class="bg-gray-50 p-6 rounded-lg shadow flex flex-col items-center">
+        <img src="{{ asset('images/team/france_fernandez.jpg') }}" alt="France Fernandez" class="w-24 h-24 rounded-full mb-4 object-cover shadow-md">
+        <h3 class="text-xl font-bold mb-1 text-[#008cff]">Programmer</h3>
+        <p class="text-gray-700">France Fernandez</p>
       </div>
-      <div class="bg-gray-50 p-6 rounded-lg shadow">
-        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Designer</h3>
-        <p>Dave Jangzon</p>
+
+      <!-- Designer -->
+      <div class="bg-gray-50 p-6 rounded-lg shadow flex flex-col items-center">
+        <img src="{{ asset('images/team/dave_jangzon.jpg') }}" alt="Dave Jangzon" class="w-24 h-24 rounded-full mb-4 object-cover shadow-md">
+        <h3 class="text-xl font-bold mb-1 text-[#008cff]">Designer</h3>
+        <p class="text-gray-700">Dave Jangzon</p>
       </div>
-      <div class="bg-gray-50 p-6 rounded-lg shadow">
-        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Researchers</h3>
-        <p>Jennifer Escarlan, KC Joy Vilaganilao</p>
+
+      <!-- Researchers -->
+      <div class="bg-gray-50 p-6 rounded-lg shadow flex flex-col items-center">
+        <img src="{{ asset('images/team/jennifer_kc.jpg') }}" alt="Jennifer Escarlan & KC Joy Vilaganilao" class="w-24 h-24 rounded-full mb-4 object-cover shadow-md">
+        <h3 class="text-xl font-bold mb-1 text-[#008cff]">Researchers</h3>
+        <p class="text-gray-700">Jennifer Escarlan, KC Joy Vilaganilao</p>
       </div>
+
     </div>
   </div>
 </section>
@@ -237,7 +246,7 @@
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">Contact Us</h2>
     <p class="text-gray-600 max-w-2xl mx-auto leading-relaxed mb-4">
-      Have questions, suggestions, or want to partner with us? Contact us anytime — we respond quickly to all inquiries.
+      Have questions, suggestions, or want to partner with us? Contact us anytime — we respond promptly.
     </p>
     <p>Email: <a href="mailto:support@tareppa.com" class="text-[#008cff] hover:underline">support@tareppa.com</a></p>
     <p>Facebook: <a href="https://facebook.com/tareppa" class="text-[#008cff] hover:underline">fb.com/tareppa</a></p>
@@ -272,7 +281,6 @@
 
   if (loginBtn) showLoadingThenRedirect(loginBtn, "{{ route('login') }}");
   if (registerBtn) showLoadingThenRedirect(registerBtn, "{{ route('register') }}");
-
 </script>
 
 </body>
