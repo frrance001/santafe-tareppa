@@ -2,12 +2,11 @@
 
 @section('content')
 <style>
-    /* Import Google Font */
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
     body {
         font-family: 'Inter', sans-serif;
-        background: #f5f5f5; /* professional light background */
+        background: #f5f5f5;
         color: #000;
     }
 
@@ -64,51 +63,10 @@
         margin-bottom: 20px;
     }
 
-    .btn-primary, .btn-success {
-        font-weight: 600;
-        border-radius: 8px;
-        padding: 6px 12px;
-        transition: all 0.2s ease;
-    }
-
-    .btn-primary {
-        background-color: #3b82f6;
-        color: #fff;
-        border: none;
-    }
-
-    .btn-primary:hover {
-        background-color: #2563eb;
-    }
-
-    .btn-success {
-        background-color: #16a34a;
-        color: #fff;
-        border: none;
-    }
-
-    .btn-success:hover {
-        background-color: #15803d;
-    }
-
     .alert {
         border-radius: 10px;
         font-weight: 600;
         text-align: center;
-    }
-
-    /* Responsive Table */
-    @media (max-width: 768px) {
-        .glass-card table th,
-        .glass-card table td {
-            padding: 8px 10px;
-            font-size: 0.85rem;
-        }
-
-        .btn-primary, .btn-success {
-            padding: 4px 8px;
-            font-size: 0.75rem;
-        }
     }
 </style>
 
@@ -139,14 +97,19 @@
                     @forelse ($ratings as $rating)
                         <tr>
                             <td>{{ $rating->id }}</td>
+
+                            {{-- Passenger name --}}
                             <td>{{ $rating->rater->name ?? 'Unknown' }}</td>
+
+                            {{-- Driver name --}}
                             <td>
-                                @if($rating->rateable_type === App\Models\Ride::class)
+                                @if($rating->rateable_type === App\Models\Ride::class && $rating->rateable)
                                     {{ $rating->rateable->driver->name ?? 'Unknown' }}
                                 @else
                                     N/A
                                 @endif
                             </td>
+
                             <td>{{ $rating->score }}</td>
                             <td>{{ Str::limit($rating->comment, 50) }}</td>
                             <td>{{ $rating->rateable_id }}</td>
