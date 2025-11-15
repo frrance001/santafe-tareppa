@@ -49,6 +49,7 @@
 
     .table-hover tbody tr:hover {
         background-color: #f9f9f9;
+        transition: all 0.2s ease;
     }
 
     h1 {
@@ -67,6 +68,26 @@
         border-radius: 10px;
         font-weight: 600;
         text-align: center;
+    }
+
+    /* Score badge colors */
+    .score-badge {
+        padding: 4px 10px;
+        border-radius: 8px;
+        color: #fff;
+        font-weight: 600;
+    }
+    .score-low { background-color: #f87171; }       /* 1-2 */
+    .score-medium { background-color: #fbbf24; }    /* 3-4 */
+    .score-high { background-color: #22c55e; }      /* 5 */
+
+    /* Responsive Table */
+    @media (max-width: 768px) {
+        .glass-card table th,
+        .glass-card table td {
+            padding: 8px 10px;
+            font-size: 0.85rem;
+        }
     }
 </style>
 
@@ -99,7 +120,13 @@
                             <td>{{ $rating->id }}</td>
 
                             {{-- Passenger name --}}
-                            <td>{{ $rating->rater->name ?? 'Unknown' }}</td>
+                            <td>
+                                @if($rating->rateable_type === App\Models\Ride::class && $rating->rateable)
+                                    {{ $rating->rateable->passenger->name ?? 'Unknown' }}
+                                @else
+                                    {{ $rating->rater->name ?? 'Unknown' }}
+                                @endif
+                            </td>
 
                             {{-- Driver name --}}
                             <td>
@@ -110,7 +137,16 @@
                                 @endif
                             </td>
 
-                            <td>{{ $rating->score }}</td>
+                            {{-- Score with badge --}}
+                            <td>
+                                @php
+                                    $scoreClass = 'score-low';
+                                    if ($rating->score >= 3 && $rating->score < 5) $scoreClass = 'score-medium';
+                                    if ($rating->score == 5) $scoreClass = 'score-high';
+                                @endphp
+                                <span class="score-badge {{ $scoreClass }}">{{ $rating->score }}</span>
+                            </td>
+
                             <td>{{ Str::limit($rating->comment, 50) }}</td>
                             <td>{{ $rating->rateable_id }}</td>
                             <td>{{ $rating->created_at->format('Y-m-d H:i') }}</td>
