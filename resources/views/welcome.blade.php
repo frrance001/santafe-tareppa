@@ -25,47 +25,49 @@
     #loadingScreen img { width: 100px; height: 100px; animation: bounce 1.2s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
 
-    /* Straight Tricycle Animation */
+    /* ------------------ TRICYCLE & SMOKE ------------------ */
+
+    /* Straight running animation */
     @keyframes tricycleRun {
-      0%   { transform: translateX(-30%); }
+      0%   { transform: translateX(-20%); }
       100% { transform: translateX(120%); }
     }
 
     .animate-tricycle {
-      display: inline-block;
+      animation: tricycleRun 6s linear infinite;
       position: relative;
-      animation: tricycleRun 5s linear infinite;
+      z-index: 10;
     }
 
-    /* Smoke Animation */
+    /* Smoke container */
     .smoke-container {
       position: absolute;
-      bottom: 15px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 100px;
-      height: 80px;
+      left: 15%;   /* smoke starts behind tricycle */
+      bottom: 5%;
+      width: 200px;
+      height: 100px;
       pointer-events: none;
-      z-index: 1;
+      overflow: visible;
     }
 
+    /* Smoke */
     .smoke {
       position: absolute;
       bottom: 0;
-      left: -40px;
-      width: 22px;
-      height: 22px;
-      background: rgba(255,255,255,0.85);
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.8);
       border-radius: 50%;
       opacity: 0;
-      animation: smokeUp 1.5s linear infinite;
+      animation: smokeUp 1.4s linear infinite;
     }
 
     @keyframes smokeUp {
-      0% { transform: translateY(0) scale(0.5); opacity: 0.9; }
-      50% { transform: translateY(-20px) scale(1); opacity: 0.5; }
-      100% { transform: translateY(-40px) scale(1.6); opacity: 0; }
+      0%   { transform: translateY(0) scale(0.6); opacity: 0.9; }
+      50%  { transform: translateY(-20px) scale(1); opacity: 0.5; }
+      100% { transform: translateY(-40px) scale(1.4); opacity: 0; }
     }
+
   </style>
 </head>
 
@@ -87,7 +89,7 @@
       <span class="font-heading font-bold text-lg md:text-xl text-[#008cff]">SANTAFE TAREPPA</span>
     </div>
 
-    <!-- Hamburger -->
+    <!-- Hamburger Button (Mobile) -->
     <div class="md:hidden flex items-center">
       <button id="hamburgerBtn" class="focus:outline-none">
         <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" 
@@ -143,20 +145,17 @@
       </p>
     </div>
 
-    <!-- TRICYCLE + SMOKE -->
     <div class="md:w-1/2 flex justify-center relative overflow-hidden h-60">
 
-      <!-- Smoke -->
+      <!-- Smoke container -->
       <div class="smoke-container">
-        <div class="smoke" style="animation-delay: 0s;"></div>
-        <div class="smoke" style="animation-delay: 0.5s;"></div>
-        <div class="smoke" style="animation-delay: 1s;"></div>
+        <div class="smoke" style="left: 0; animation-delay: 0s;"></div>
+        <div class="smoke" style="left: 20px; animation-delay: .3s;"></div>
+        <div class="smoke" style="left: 40px; animation-delay: .6s;"></div>
       </div>
 
       <!-- Tricycle -->
-      <img src="{{ asset('images/log.png') }}" 
-           alt="Tricycle Logo" 
-           class="w-40 md:w-60 animate-tricycle relative z-10">
+      <img src="{{ asset('images/log.png') }}" alt="Tricycle Logo" class="w-40 md:w-60 animate-tricycle">
     </div>
 
   </div>
@@ -168,7 +167,11 @@
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">About TAREPPA</h2>
     <p class="text-gray-600 max-w-3xl mx-auto leading-relaxed">
       TAREPPA is a modern tricycle booking and delivery service created to make transportation in Santa Fe faster, 
-      easier, and more reliable...
+      easier, and more reliable. We connect residents, tourists, and businesses with trusted local drivers using a 
+      simple and user-friendly digital platform.  
+      <br><br>
+      Whether you're sending parcels, booking a tricycle ride, or supporting local drivers through digital payments, 
+      TAREPPA brings convenience to your daily travel and delivery needs.
     </p>
   </div>
 </section>
@@ -179,6 +182,7 @@
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-10 text-[#008cff]">Our Services</h2>
 
     <div class="grid gap-6 md:grid-cols-3">
+
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Quick Booking</h3>
         <p class="text-gray-600">
@@ -189,16 +193,17 @@
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Digital Payments</h3>
         <p class="text-gray-600">
-          Enjoy secure and cashless payments...
+          Enjoy secure and cashless payments. Fare transparency ensures you always know what you’re paying for.
         </p>
       </div>
 
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Driver Ratings</h3>
         <p class="text-gray-600">
-          Help maintain quality service by rating your driver after every trip.
+          Help maintain quality service by rating your driver after every trip or delivery.
         </p>
       </div>
+
     </div>
   </div>
 </section>
@@ -208,8 +213,10 @@
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">Contact Us</h2>
     <p class="text-gray-600 max-w-2xl mx-auto leading-relaxed mb-4">
-      Have questions, suggestions, or want to partner with us?
+      Have questions, suggestions, or want to partner with us?  
+      Our team is always ready to help you with concerns about bookings, driver accounts, or system features.
     </p>
+
     <p>Email: <a href="mailto:support@tareppa.com" class="text-[#008cff] hover:underline">support@tareppa.com</a></p>
     <p>Facebook: <a href="https://facebook.com/tareppa" class="text-[#008cff] hover:underline">fb.com/tareppa</a></p>
   </div>
@@ -221,14 +228,17 @@
 </footer>
 
 <script>
+  // Hamburger toggle
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const mobileMenu = document.getElementById('mobileMenu');
 
   function toggleMobileMenu() {
     mobileMenu.classList.toggle('hidden');
   }
+
   hamburgerBtn.addEventListener('click', toggleMobileMenu);
 
+  // Loading Screen for Login/Register
   const loadingScreen = document.getElementById('loadingScreen');
   const loginBtn = document.getElementById('loginBtn');
   const registerBtn = document.getElementById('registerBtn');
