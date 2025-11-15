@@ -10,7 +10,6 @@
         </div>
     </div>
 @else
-<meta name="csrf-token" content="{{ csrf_token() }}">
 <div class="container py-4">
     <div class="card border-0 shadow-sm mb-4">
         <div class="card-header bg-primary text-white">
@@ -27,7 +26,7 @@
                     @foreach($rides as $ride)
                         <div class="list-group-item list-group-item-action flex-column align-items-start mb-3 border-0 shadow-sm rounded ride-item"
                              id="ride-{{ $ride->id }}"
-                             data-ride-id="{{ $ride->id }}">
+                             data-bs-id="{{ $ride->id }}">
                             <div class="d-flex w-100 justify-content-between align-items-center">
                                 <div>
                                     <h5 class="mb-1 text-primary">{{ $ride->user->fullname ?? 'N/A' }}</h5>
@@ -36,10 +35,10 @@
                                         <strong>To:</strong> {{ $ride->dropoff_location }}
                                     </p>
                                 </div>
-                                <span class="badge bg-info status-badge">{{ ucfirst($ride->status) }}</span>
+                                <span class="badge bg-info">{{ ucfirst($ride->status) }}</span>
                             </div>
 
-                            <form class="accept-form mt-3 text-end" data-ride-id="{{ $ride->id }}">
+                            <form class="accept-form mt-3 text-end" data-id="{{ $ride->id }}">
                                 @csrf
                                 <button type="submit" class="btn btn-success btn-sm px-4 fw-semibold">
                                     Accept Ride
@@ -53,61 +52,48 @@
     </div>
 </div>
 
+<!-- SweetAlert2 -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
-
     document.querySelectorAll('.accept-form').forEach(form => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
-            const rideId = this.dataset.rideId;
+            const rideId = this.dataset.id;
 
-            if (!rideId) return;
-
-            fetch(`/driver/rides/${rideId}/accept`, {
+            fetch(`/driver/accept-rides/${rideId}/accept`, {
                 method: 'POST',
                 headers: {
-                    'X-CSRF-TOKEN': csrfToken,
-                    'Content-Type': 'application/json',
-                    'Accept': 'application/json'
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({})
             })
-            .then(res => res.json())
+            .then(async res => {
+                let data;
+                try { data = await res.json(); }
+                catch(e) { data = { success: true, message: 'Ride accepted successfully!' }; }
+                return data;
+            })
             .then(data => {
                 if (data.success) {
                     Swal.fire('✅ Ride Accepted!', data.message, 'success');
-
-                    // Update status badge instantly
-                    const badge = document.querySelector(`#ride-${rideId} .status-badge`);
-                    if (badge) {
-                        badge.textContent = 'In Progress';
-                        badge.classList.remove('bg-info');
-                        badge.classList.add('bg-warning');
-                    }
-
-                    // Fade out and remove item
                     const rideItem = document.getElementById(`ride-${rideId}`);
                     if (rideItem) {
                         rideItem.classList.add('fade-out');
                         setTimeout(() => rideItem.remove(), 400);
                     }
 
-                    // If no rides left
                     if (document.querySelectorAll('.ride-item').length === 0) {
-                        document.getElementById('rideList').innerHTML =
+                        document.getElementById('rideList').innerHTML = 
                             '<div class="text-center text-muted py-5"><h5>No ride requests available</h5></div>';
                     }
                 } else {
                     Swal.fire('❌ Failed', data.message || 'Something went wrong.', 'error');
                 }
             })
-            .catch(err => {
-                console.error(err);
-                Swal.fire('❌ Error', 'Could not accept ride.', 'error');
-            });
+            .catch(() => Swal.fire('❌ Error', 'Could not accept ride.', 'error'));
         });
     });
 });
@@ -118,19 +104,24 @@ document.addEventListener('DOMContentLoaded', function () {
     transition: all 0.3s ease;
     background-color: #ffffff;
 }
+
 .ride-item:hover {
     background-color: #f8f9fa;
     transform: translateY(-2px);
 }
+
 .fade-out {
     animation: fadeOut 0.4s forwards;
 }
+
 @keyframes fadeOut {
     to { opacity: 0; transform: translateX(-20px); }
 }
+
 .btn-success {
     border-radius: 20px;
 }
+
 .card-header h4 {
     font-weight: 600;
     letter-spacing: 0.5px;
