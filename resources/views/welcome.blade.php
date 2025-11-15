@@ -16,6 +16,16 @@
     }
     h1,h2,h3,.font-heading { font-family: 'Poppins', sans-serif; }
 
+    /* Text animation */
+    .fade-up { 
+      opacity: 0; 
+      transform: translateY(20px);
+      animation: fadeUp 1s forwards;
+    }
+    @keyframes fadeUp {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* Loading Screen */
     #loadingScreen {
       position: fixed; inset: 0; background: rgba(255,255,255,0.95);
@@ -25,49 +35,47 @@
     #loadingScreen img { width: 100px; height: 100px; animation: bounce 1.2s infinite; }
     @keyframes bounce { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-20px);} }
 
-    /* ------------------ TRICYCLE & SMOKE ------------------ */
-
-    /* Straight running animation */
+    /* Tricycle animation */
     @keyframes tricycleRun {
-      0%   { transform: translateX(-20%); }
+      0%   { transform: translateX(-30%); }
       100% { transform: translateX(120%); }
     }
-
     .animate-tricycle {
-      animation: tricycleRun 6s linear infinite;
+      display: inline-block;
       position: relative;
+      animation: tricycleRun 5s linear infinite;
       z-index: 10;
     }
 
-    /* Smoke container */
+    /* Smoke behind wheel */
     .smoke-container {
       position: absolute;
-      left: 15%;   /* smoke starts behind tricycle */
-      bottom: 5%;
-      width: 200px;
-      height: 100px;
+      bottom: 0;
+      left: 5%;
+      width: 60px;
+      height: 40px;
       pointer-events: none;
-      overflow: visible;
+      z-index: 1;
     }
-
-    /* Smoke */
     .smoke {
       position: absolute;
       bottom: 0;
-      width: 20px;
-      height: 20px;
-      background: rgba(255, 255, 255, 0.8);
+      width: 15px;
+      height: 15px;
+      background: rgba(255,255,255,0.8);
       border-radius: 50%;
       opacity: 0;
-      animation: smokeUp 1.4s linear infinite;
+      animation: smokeUp 1.5s linear infinite;
     }
+    .smoke:nth-child(1){ animation-delay:0s; }
+    .smoke:nth-child(2){ animation-delay:0.5s; }
+    .smoke:nth-child(3){ animation-delay:1s; }
 
     @keyframes smokeUp {
-      0%   { transform: translateY(0) scale(0.6); opacity: 0.9; }
-      50%  { transform: translateY(-20px) scale(1); opacity: 0.5; }
-      100% { transform: translateY(-40px) scale(1.4); opacity: 0; }
+      0% { transform: translateY(0) scale(0.5); opacity: 0.9; }
+      50% { transform: translateY(-20px) scale(1); opacity: 0.5; }
+      100% { transform: translateY(-40px) scale(1.6); opacity: 0; }
     }
-
   </style>
 </head>
 
@@ -89,7 +97,7 @@
       <span class="font-heading font-bold text-lg md:text-xl text-[#008cff]">SANTAFE TAREPPA</span>
     </div>
 
-    <!-- Hamburger Button (Mobile) -->
+    <!-- Hamburger -->
     <div class="md:hidden flex items-center">
       <button id="hamburgerBtn" class="focus:outline-none">
         <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" stroke-width="2" 
@@ -136,87 +144,101 @@
 <section id="home" class="pt-32 pb-20 bg-[#008cff] text-white text-center md:text-left">
   <div class="container mx-auto px-6 flex flex-col md:flex-row items-center justify-between">
     
-    <div class="md:w-1/2 mb-8 md:mb-0">
+    <div class="md:w-1/2 mb-8 md:mb-0 fade-up">
       <h1 class="text-3xl sm:text-4xl md:text-5xl font-heading font-extrabold mb-6 leading-tight">
         Send packages hassle-free with <span class="font-heading">SANTAFE TAREPPA</span>
       </h1>
       <p class="text-base sm:text-lg md:text-xl mb-8">
-        The smarter way to book tricycles and send deliveries in Santa Fe.
+        The smarter way to book tricycles and send deliveries in Santa Fe. Our app connects riders and drivers seamlessly for efficient service.
       </p>
     </div>
 
     <div class="md:w-1/2 flex justify-center relative overflow-hidden h-60">
 
-      <!-- Smoke container -->
+      <!-- Smoke -->
       <div class="smoke-container">
-        <div class="smoke" style="left: 0; animation-delay: 0s;"></div>
-        <div class="smoke" style="left: 20px; animation-delay: .3s;"></div>
-        <div class="smoke" style="left: 40px; animation-delay: .6s;"></div>
+        <div class="smoke"></div>
+        <div class="smoke"></div>
+        <div class="smoke"></div>
       </div>
 
       <!-- Tricycle -->
-      <img src="{{ asset('images/log.png') }}" alt="Tricycle Logo" class="w-40 md:w-60 animate-tricycle">
+      <img src="{{ asset('images/log.png') }}" 
+           alt="Tricycle Logo" 
+           class="w-40 md:w-60 animate-tricycle relative z-10">
     </div>
 
   </div>
 </section>
 
 <!-- ABOUT -->
-<section id="about" class="py-20 bg-white text-center">
+<section id="about" class="py-20 bg-white text-center fade-up">
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">About TAREPPA</h2>
     <p class="text-gray-600 max-w-3xl mx-auto leading-relaxed">
-      TAREPPA is a modern tricycle booking and delivery service created to make transportation in Santa Fe faster, 
-      easier, and more reliable. We connect residents, tourists, and businesses with trusted local drivers using a 
-      simple and user-friendly digital platform.  
-      <br><br>
-      Whether you're sending parcels, booking a tricycle ride, or supporting local drivers through digital payments, 
-      TAREPPA brings convenience to your daily travel and delivery needs.
+      TAREPPA is a modern tricycle booking and delivery service in Santa Fe. We make transportation faster, safer, and more reliable. Customers can schedule deliveries or ride quickly with trusted local drivers. Our digital platform allows seamless cashless payments, driver ratings, and real-time booking updates.
     </p>
   </div>
 </section>
 
 <!-- SERVICES -->
-<section id="services" class="py-20 bg-gray-50 text-center">
+<section id="services" class="py-20 bg-gray-50 text-center fade-up">
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-10 text-[#008cff]">Our Services</h2>
 
     <div class="grid gap-6 md:grid-cols-3">
-
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Quick Booking</h3>
         <p class="text-gray-600">
-          Easily book a tricycle anytime. No more waiting on the road — simply tap, confirm, and ride.
+          Book a tricycle instantly through our app. No delays — just confirm, hop on, and go.
         </p>
       </div>
 
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Digital Payments</h3>
         <p class="text-gray-600">
-          Enjoy secure and cashless payments. Fare transparency ensures you always know what you’re paying for.
+          Secure cashless transactions and fare transparency make your trip safer and faster.
         </p>
       </div>
 
       <div class="bg-white p-6 rounded-lg shadow hover:shadow-lg transition">
         <h3 class="text-xl font-bold mb-2 text-[#008cff]">Driver Ratings</h3>
         <p class="text-gray-600">
-          Help maintain quality service by rating your driver after every trip or delivery.
+          Rate drivers after every trip to ensure quality service. Your feedback matters.
         </p>
       </div>
+    </div>
+  </div>
+</section>
 
+<!-- TEAM -->
+<section id="team" class="py-20 bg-white text-center fade-up">
+  <div class="container mx-auto px-6">
+    <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-10 text-[#008cff]">Meet Our Team</h2>
+    <div class="grid gap-6 md:grid-cols-3">
+      <div class="bg-gray-50 p-6 rounded-lg shadow">
+        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Programmer</h3>
+        <p>France Fernandez</p>
+      </div>
+      <div class="bg-gray-50 p-6 rounded-lg shadow">
+        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Designer</h3>
+        <p>Dave Jangzon</p>
+      </div>
+      <div class="bg-gray-50 p-6 rounded-lg shadow">
+        <h3 class="text-xl font-bold mb-2 text-[#008cff]">Researchers</h3>
+        <p>Jennifer Escarlan, KC Joy Vilaganilao</p>
+      </div>
     </div>
   </div>
 </section>
 
 <!-- CONTACT -->
-<section id="contact" class="py-20 bg-white text-center">
+<section id="contact" class="py-20 bg-white text-center fade-up">
   <div class="container mx-auto px-6">
     <h2 class="text-2xl sm:text-3xl font-heading font-bold mb-4 text-[#008cff]">Contact Us</h2>
     <p class="text-gray-600 max-w-2xl mx-auto leading-relaxed mb-4">
-      Have questions, suggestions, or want to partner with us?  
-      Our team is always ready to help you with concerns about bookings, driver accounts, or system features.
+      Have questions, suggestions, or want to partner with us? Contact us anytime — we respond quickly to all inquiries.
     </p>
-
     <p>Email: <a href="mailto:support@tareppa.com" class="text-[#008cff] hover:underline">support@tareppa.com</a></p>
     <p>Facebook: <a href="https://facebook.com/tareppa" class="text-[#008cff] hover:underline">fb.com/tareppa</a></p>
   </div>
@@ -228,17 +250,14 @@
 </footer>
 
 <script>
-  // Hamburger toggle
   const hamburgerBtn = document.getElementById('hamburgerBtn');
   const mobileMenu = document.getElementById('mobileMenu');
 
   function toggleMobileMenu() {
     mobileMenu.classList.toggle('hidden');
   }
-
   hamburgerBtn.addEventListener('click', toggleMobileMenu);
 
-  // Loading Screen for Login/Register
   const loadingScreen = document.getElementById('loadingScreen');
   const loginBtn = document.getElementById('loginBtn');
   const registerBtn = document.getElementById('registerBtn');
@@ -253,6 +272,7 @@
 
   if (loginBtn) showLoadingThenRedirect(loginBtn, "{{ route('login') }}");
   if (registerBtn) showLoadingThenRedirect(registerBtn, "{{ route('register') }}");
+
 </script>
 
 </body>
