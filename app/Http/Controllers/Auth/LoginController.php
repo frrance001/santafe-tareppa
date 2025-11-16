@@ -58,6 +58,14 @@ class LoginController extends Controller
         }
 
         // ✅ DRIVER or PASSENGER LOGIN (OTP only — no user record needed initially)
+        // First, check if driver exists and is approved
+        if ($role === 'Driver') {
+            $user = User::where('email', $email)->where('role', 'Driver')->first();
+            if ($user && $user->status !== 'approved') {
+                return back()->with('error', 'Your account is not yet approved by the admin.');
+            }
+        }
+
         $otp = rand(100000, 999999);
 
         // Store OTP & login info in session
@@ -91,16 +99,14 @@ class LoginController extends Controller
 
             // ✅ Create user with only email, role, and password
             //    No fullname or other fields needed
-          $user = User::firstOrCreate(
-    ['email' => $email],
-    [
-        'role' => $role,
-        'password' => bcrypt(Str::random(10)),
-        'fullname' => $role . ' User', // <-- default value added
-    ]
-);
-
-        
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'role' => $role,
+                    'password' => bcrypt(Str::random(10)),
+                    'fullname' => $role . ' User', // default fullname
+                ]
+            );
 
             Auth::login($user);
             Session::forget(['otp', 'otp_email', 'otp_role']);
@@ -108,6 +114,11 @@ class LoginController extends Controller
             if ($role === 'Passenger') {
                 return redirect()->route('passenger.dashboard');
             } elseif ($role === 'Driver') {
+                // Check approval again just in case
+                if ($user->status !== 'approved') {
+                    Auth::logout();
+                    return redirect()->route('login')->with('error', 'Your account is not yet approved by the admin.');
+                }
                 return redirect()->route('driver.dashboard');
             }
         }

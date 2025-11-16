@@ -11,23 +11,21 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
+    // ✅ Only necessary fields for driver/passenger registration
     protected $fillable = [
         'fullname',
         'email',
+        'password',
         'phone',
-        'age',
         'sex',
-        'role',
-        'status',
+        'age',
+        'city',
+        'photo',
         'business_permit',
         'barangay_clearance',
-        'photo',
         'police_clearance',
-        'password',
-        'availability',
-        'is_verified',
-        'is_available',
-        'verification_code',
+        'role',
+        'status'
     ];
 
     protected $hidden = [
