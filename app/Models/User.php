@@ -39,25 +39,25 @@ class User extends Authenticatable
         return $this->hasMany(Complaint::class, 'passenger_id');
     }
 
-    // 🚗 Complaints where this user is the driver
+    //  Complaints where this user is the driver
     public function complaintsAsDriver()
     {
         return $this->hasMany(Complaint::class, 'driver_id');
     }
 
-    // ⭐ Ratings received (can be passenger or driver)
+    //  Ratings received (can be passenger or driver)
     public function ratingsReceived()
     {
         return $this->morphMany(Rating::class, 'rateable');
     }
 
-    // 📝 Ratings this user has given to others
+    //  Ratings this user has given to others
     public function ratingsGiven()
     {
         return $this->hasMany(Rating::class, 'rater_id');
     }
 
-    // ⚡ Helper to get average rating (float)
+    //  Helper to get average rating (float)
     public function averageRating(): float
     {
         return round($this->ratingsReceived()->avg('score') ?? 0, 2);
