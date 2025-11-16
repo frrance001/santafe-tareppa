@@ -127,13 +127,11 @@
         text-align: center;
     }
 
-    /* External Buttons Container */
-    .user-actions {
-        margin-top: 15px;
-    }
+    /* Status Colors */
+    .status-approved { color: #10b981; font-weight: 600; }
+    .status-pending { color: #f59e0b; font-weight: 600; }
+    .status-disapproved { color: #ef4444; font-weight: 600; }
 </style>
-
-<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <div class="container mt-5 glass-container">
     <input type="text" id="searchInput" class="form-control search-box" placeholder="Search users...">
@@ -141,64 +139,70 @@
     @forelse ($users as $role => $roleUsers)
         <h3 class="mt-4">{{ ucfirst($role) }}s</h3>
 
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped user-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>City</th>
-                        <th>Role</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($roleUsers as $user)
-                        <tr data-user='@json($user)'>
-                            <td>{{ $user->id }}</td>
-                            <td>{{ $user->fullname }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->phone }}</td>
-                            <td>{{ $user->city }}</td>
-                            <td>{{ ucfirst($user->role) }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
+        @php
+            $approvedUsers = $roleUsers->where('status', 'approved');
+            $disapprovedUsers = $roleUsers->where('status', 'disapproved');
+            $pendingUsers = $roleUsers->where('status', 'pending');
+        @endphp
+
+        @foreach (['approved' => $approvedUsers, 'pending' => $pendingUsers, 'disapproved' => $disapprovedUsers] as $status => $usersByStatus)
+            @if($usersByStatus->isNotEmpty())
+                <h5 class="mt-3 text-capitalize">{{ $status }} {{ $role }}s</h5>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-striped user-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>City</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($usersByStatus as $user)
+                                <tr data-user='@json($user)'>
+                                    <td>{{ $user->id }}</td>
+                                    <td>{{ $user->fullname }}</td>
+                                    <td>{{ $user->email }}</td>
+                                    <td>{{ $user->phone }}</td>
+                                    <td>{{ $user->city }}</td>
+                                    <td>{{ ucfirst($user->role) }}</td>
+                                    <td>
+                                        @if ($user->role === 'driver')
+                                            @if ($user->status === 'approved')
+                                                <span class="status-approved">{{ ucfirst($user->status) }}</span>
+                                            @elseif ($user->status === 'disapproved')
+                                                <span class="status-disapproved">{{ ucfirst($user->status) }}</span>
+                                            @else
+                                                <span class="status-pending">{{ ucfirst($user->status ?? 'Pending') }}</span>
+                                            @endif
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
+        @endforeach
     @empty
         <div class="alert alert-warning text-center">No users found.</div>
     @endforelse
-
-    <!-- External Buttons -->
-    <div class="user-actions">
-        <form id="approveForm" action="" method="POST" style="display:inline;">
-            @csrf
-            <button type="submit" class="btn btn-success btn-sm">Approve</button>
-        </form>
-
-        <form id="disapproveForm" action="" method="POST" style="display:inline;">
-            @csrf
-            <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
-        </form>
-
-        <form id="deleteForm" action="" method="POST" style="display:inline;">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-        </form>
-
-        <button type="button" class="btn btn-primary btn-sm" id="printUser">Print / Download</button>
-    </div>
 </div>
+
+<meta name="csrf-token" content="{{ csrf_token() }}">
 
 <!-- Modal -->
 <div class="modal fade" id="userInfoModal" tabindex="-1" aria-labelledby="userInfoModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered modal-lg">
     <div class="modal-content">
       <div class="modal-header" style="background: linear-gradient(90deg,#38bdf8,#0ea5e9); color: #fff;">
-        <h5 class="modal-title" id="userInfoModalLabel">Driver Information</h5>
+        <h5 class="modal-title" id="userInfoModalLabel">User Information</h5>
         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
       </div>
 
@@ -233,12 +237,31 @@
                 <img id="businessPermit" class="driver-photo" src="" alt="Business Permit">
             </div>
         </div>
+
+        <div class="mt-3" id="userActions">
+            <form id="approveForm" action="" method="POST" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn-success btn-sm">Approve</button>
+            </form>
+
+            <form id="disapproveForm" action="" method="POST" style="display:inline;">
+                @csrf
+                <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
+            </form>
+
+            <form id="deleteForm" action="" method="POST" style="display:inline;">
+                @csrf
+                @method('DELETE')
+                <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+            </form>
+
+            <button type="button" class="btn btn-primary btn-sm" id="printUser">Print / Download</button>
+        </div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
@@ -251,7 +274,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const user = JSON.parse(row.getAttribute("data-user"));
             selectedUser = user;
 
-            // Fill user info
             document.getElementById("modal-id").innerText = user.id;
             document.getElementById("modal-fullname").innerText = user.fullname;
             document.getElementById("modal-email").innerText = user.email;
@@ -261,23 +283,32 @@ document.addEventListener('DOMContentLoaded', () => {
             document.getElementById("modal-city").innerText = user.city ?? 'N/A';
             document.getElementById("modal-role").innerText = user.role ?? 'N/A';
 
-            // Photos
             const defaultImg = '/images/no-image.png';
             document.getElementById('profilePhoto').src = user.photo ?? defaultImg;
             document.getElementById('policeClearance').src = user.police_clearance ?? defaultImg;
             document.getElementById('brgyClearance').src = user.barangay_clearance ?? defaultImg;
             document.getElementById('businessPermit').src = user.business_permit ?? defaultImg;
 
-            // Update external form actions
             document.getElementById('approveForm').action = `/admin/users/${user.id}/approve`;
             document.getElementById('disapproveForm').action = `/admin/users/${user.id}/disapprove`;
             document.getElementById('deleteForm').action = `/admin/users/${user.id}`;
+
+            // Toggle buttons based on status
+            const approveBtn = document.getElementById('approveForm');
+            const disapproveBtn = document.getElementById('disapproveForm');
+
+            if(user.status === 'pending') {
+                approveBtn.style.display = 'inline-block';
+                disapproveBtn.style.display = 'inline-block';
+            } else {
+                approveBtn.style.display = 'none';
+                disapproveBtn.style.display = 'none';
+            }
 
             modal.show();
         });
     });
 
-    // Delete confirmation
     document.getElementById('deleteForm').addEventListener('submit', e => {
         e.preventDefault();
         Swal.fire({
@@ -293,7 +324,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Search filter
     const searchInput = document.getElementById("searchInput");
     searchInput.addEventListener("keyup", () => {
         const filter = searchInput.value.toLowerCase();
@@ -302,7 +332,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Print / Download functionality
     document.getElementById('printUser').addEventListener('click', () => {
         if (!selectedUser) return;
         const modalBody = document.querySelector('#userInfoModal .modal-body').innerHTML;

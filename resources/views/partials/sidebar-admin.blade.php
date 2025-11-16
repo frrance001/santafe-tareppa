@@ -168,12 +168,7 @@
                     <i class="bi bi-exclamation-diamond"></i> Complaints/Reports
                 </a>
             </li>
-            <li class="{{ request()->routeIs('admin.payments') ? 'active' : '' }}">
-                <a href="{{ route('admin.payments') }}">
-                    <i class="bi bi-cash-stack"></i> Monitor Payments
-                </a>
-            </li>
-        </ul>
+           
     </div>
 
     <!-- Logout button at the bottom -->
