@@ -45,10 +45,14 @@
         font-size: 0.95rem;
     }
 
-    tr:hover {
+    tr.selectable:hover {
         background-color: #e0f2fe;
-        cursor: default;
+        cursor: pointer;
         transition: background 0.3s ease;
+    }
+
+    tr.selected {
+        background-color: #bae6fd !important;
     }
 
     .btn {
@@ -91,6 +95,10 @@
         padding: 10px 14px;
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
+
+    .user-actions {
+        margin-top: 15px;
+    }
 </style>
 
 <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -98,12 +106,9 @@
 <div class="container mt-5 glass-container">
     <input type="text" id="searchInput" class="form-control search-box" placeholder="Search users...">
 
-    {{-- New Drivers (Pending Approval) --}}
-    @php
-        $newDrivers = $users['driver']->where('status', '!=', 'approved');
-    @endphp
-    @if($newDrivers->count())
-        <h3 class="mt-4">New Drivers (Pending Approval)</h3>
+    {{-- New Drivers --}}
+    @if(isset($users['driver']))
+        <h3 class="mt-4">New Drivers</h3>
         <div class="table-responsive">
             <table class="table table-bordered table-striped user-table">
                 <thead>
@@ -114,37 +119,20 @@
                         <th>Phone</th>
                         <th>City</th>
                         <th>Status</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($newDrivers as $user)
-                        <tr>
+                    @foreach ($users['driver'] as $user)
+                        @if($user->status != 'approved')
+                        <tr class="selectable" data-user='@json($user)'>
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->fullname }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->phone }}</td>
                             <td>{{ $user->city }}</td>
                             <td>{{ ucfirst($user->status ?? 'pending') }}</td>
-                            <td>
-                                <form action="{{ route('admin.users.approve', $user->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button class="btn btn-success btn-sm">Approve</button>
-                                </form>
-                                <form action="{{ route('admin.users.disapprove', $user->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button class="btn btn-warning btn-sm">Disapprove</button>
-                                </form>
-                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                                <form action="{{ route('admin.users.print', $user->id) }}" method="GET" target="_blank" style="display:inline;">
-                                    <button class="btn btn-primary btn-sm">Print / Download</button>
-                                </form>
-                            </td>
                         </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>
@@ -152,10 +140,7 @@
     @endif
 
     {{-- Approved Drivers --}}
-    @php
-        $approvedDrivers = $users['driver']->where('status', 'approved');
-    @endphp
-    @if($approvedDrivers->count())
+    @if(isset($users['driver']))
         <h3 class="mt-4">Approved Drivers</h3>
         <div class="table-responsive">
             <table class="table table-bordered table-striped user-table">
@@ -167,11 +152,11 @@
                         <th>Phone</th>
                         <th>City</th>
                         <th>Status</th>
-                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($approvedDrivers as $user)
+                    @foreach ($users['driver'] as $user)
+                        @if($user->status == 'approved')
                         <tr>
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->fullname }}</td>
@@ -179,21 +164,8 @@
                             <td>{{ $user->phone }}</td>
                             <td>{{ $user->city }}</td>
                             <td>{{ ucfirst($user->status) }}</td>
-                            <td>
-                                <form action="{{ route('admin.users.disapprove', $user->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    <button class="btn btn-warning btn-sm">Disapprove</button>
-                                </form>
-                                <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" style="display:inline;">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-danger btn-sm">Delete</button>
-                                </form>
-                                <form action="{{ route('admin.users.print', $user->id) }}" method="GET" target="_blank" style="display:inline;">
-                                    <button class="btn btn-primary btn-sm">Print / Download</button>
-                                </form>
-                            </td>
                         </tr>
+                        @endif
                     @endforeach
                 </tbody>
             </table>
@@ -201,10 +173,10 @@
     @endif
 
     {{-- Passengers --}}
-    @if(isset($users['passenger']) && $users['passenger']->count())
+    @if(isset($users['passenger']))
         <h3 class="mt-4">Passengers</h3>
         <div class="table-responsive">
-            <table class="table table-bordered table-striped user-table">
+            <table class="table table-bordered table-striped">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -212,7 +184,6 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>City</th>
-                        <th>Role</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -223,33 +194,68 @@
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->phone }}</td>
                             <td>{{ $user->city }}</td>
-                            <td>{{ ucfirst($user->role) }}</td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
     @endif
+
+    {{-- External Buttons --}}
+    <div class="user-actions">
+        <form id="approveForm" action="" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+        </form>
+
+        <form id="disapproveForm" action="" method="POST" style="display:inline;">
+            @csrf
+            <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
+        </form>
+
+        <form id="deleteForm" action="" method="POST" style="display:inline;">
+            @csrf
+            @method('DELETE')
+            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+        </form>
+
+        <button type="button" class="btn btn-primary btn-sm" id="printUser">Print / Download</button>
+    </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
+    let selectedUser = null;
+
+    // Selectable user rows (drivers only)
+    document.querySelectorAll(".user-table tbody tr.selectable").forEach(row => {
+        row.addEventListener("click", () => {
+            document.querySelectorAll(".user-table tbody tr").forEach(r => r.classList.remove('selected'));
+            row.classList.add('selected');
+            selectedUser = JSON.parse(row.getAttribute('data-user'));
+
+            // Update external form actions
+            document.getElementById('approveForm').action = `/admin/users/${selectedUser.id}/approve`;
+            document.getElementById('disapproveForm').action = `/admin/users/${selectedUser.id}/disapprove`;
+            document.getElementById('deleteForm').action = `/admin/users/${selectedUser.id}`;
+        });
+    });
+
     // Delete confirmation
-    document.querySelectorAll('form[action*="destroy"]').forEach(form => {
-        form.addEventListener('submit', e => {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This user will be permanently deleted.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!'
-            }).then(result => {
-                if (result.isConfirmed) e.target.submit();
-            });
+    document.getElementById('deleteForm').addEventListener('submit', e => {
+        e.preventDefault();
+        if (!selectedUser) return;
+        Swal.fire({
+            title: 'Are you sure?',
+            text: "This user will be permanently deleted.",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ef4444',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Yes, delete it!'
+        }).then(result => {
+            if (result.isConfirmed) e.target.submit();
         });
     });
 
@@ -260,6 +266,40 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll(".user-table tbody tr").forEach(row => {
             row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
         });
+    });
+
+    // Print / Download
+    document.getElementById('printUser').addEventListener('click', () => {
+        if (!selectedUser) return;
+        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        printWindow.document.write(`
+            <html>
+                <head>
+                    <title>User Details</title>
+                    <style>
+                        body { font-family: 'Inter', sans-serif; padding: 20px; background: #f8fafc; color: #1f2937; }
+                        h2 { color: #0ea5e9; }
+                        ul { list-style: none; padding: 0; }
+                        li { margin-bottom: 8px; font-size: 1rem; }
+                    </style>
+                </head>
+                <body>
+                    <h2>User Details</h2>
+                    <ul>
+                        <li><strong>ID:</strong> ${selectedUser.id}</li>
+                        <li><strong>Full Name:</strong> ${selectedUser.fullname}</li>
+                        <li><strong>Email:</strong> ${selectedUser.email}</li>
+                        <li><strong>Phone:</strong> ${selectedUser.phone}</li>
+                        <li><strong>City:</strong> ${selectedUser.city}</li>
+                        <li><strong>Status:</strong> ${selectedUser.status ?? 'pending'}</li>
+                    </ul>
+                </body>
+            </html>
+        `);
+        printWindow.document.close();
+        printWindow.focus();
+        printWindow.print();
+        printWindow.close();
     });
 });
 </script>
