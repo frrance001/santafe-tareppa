@@ -4,8 +4,8 @@ namespace App\Http\Controllers\Passenger;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Ride;
 use Illuminate\Support\Facades\Auth;
+use App\Models\Ride;
 
 class DashboardController extends Controller
 {
@@ -14,10 +14,8 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $user = Auth::user();
-
-        // Get passenger rides
-        $rides = Ride::where('passenger_id', $user->id)
+        // Get only rides for the logged-in passenger
+        $rides = Ride::where('passenger_id', Auth::id())
                      ->orderBy('created_at', 'desc')
                      ->get();
 
@@ -30,12 +28,10 @@ class DashboardController extends Controller
     public function updateLocation(Request $request)
     {
         $request->validate([
-            'email' => 'required|email',
             'latitude' => 'required|numeric',
             'longitude' => 'required|numeric',
         ]);
 
-        // Optionally, update the passenger record with latest location
         $user = Auth::user();
         $user->latitude = $request->latitude;
         $user->longitude = $request->longitude;
@@ -49,6 +45,7 @@ class DashboardController extends Controller
      */
     public function destroyRide($id)
     {
+        // Make sure passenger can only delete their own rides
         $ride = Ride::where('id', $id)
                     ->where('passenger_id', Auth::id())
                     ->firstOrFail();

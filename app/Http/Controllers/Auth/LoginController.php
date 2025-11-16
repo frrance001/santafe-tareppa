@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 
 class LoginController extends Controller
@@ -19,7 +20,9 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    // Handle login submission
+    // ================================================
+    // 🚀 MAIN LOGIN FUNCTION
+    // ================================================
     public function login(Request $request)
     {
         $request->validate([
@@ -30,7 +33,7 @@ class LoginController extends Controller
         $role = ucfirst(strtolower($request->input('role')));
         $email = $request->input('email');
 
-        // Throttle login attempts
+        // Throttle protection
         $throttleKey = Str::lower($email) . '|' . $request->ip();
         if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
             $seconds = RateLimiter::availableIn($throttleKey);
@@ -39,36 +42,58 @@ class LoginController extends Controller
             ])->onlyInput('email');
         }
 
-        // ✅ ADMIN LOGIN (with password)
+        // ======================================================
+        // 🛑 ADMIN LOGIN (password required)
+        // ======================================================
         if ($role === 'Admin') {
+
             $request->validate(['password' => 'required']);
 
-            if (Auth::attempt([
-                'email' => $email,
-                'password' => $request->password,
-                'role' => 'Admin'
-            ])) {
-                RateLimiter::clear($throttleKey);
-                $request->session()->regenerate();
-                return redirect()->route('admin.dashboard');
+            $user = User::where('email', $email)
+                        ->where('role', 'Admin')
+                        ->first();
+
+            if (!$user) {
+                return back()->with('error', 'Admin account does not exist.');
             }
 
-            RateLimiter::hit($throttleKey, 60);
-            return back()->with('error', 'Invalid admin credentials.');
+            if (!Hash::check($request->password, $user->password)) {
+                RateLimiter::hit($throttleKey, 60);
+                return back()->with('error', 'Incorrect password.');
+            }
+
+            Auth::login($user);
+            RateLimiter::clear($throttleKey);
+            $request->session()->regenerate();
+
+            return redirect()->route('admin.dashboard');
         }
 
-        // ✅ DRIVER or PASSENGER LOGIN (OTP only — no user record needed initially)
-        // First, check if driver exists and is approved
+        // ======================================================
+        // 🚗 DRIVER / PASSENGER LOGIN (OTP LOGIN)
+        // ======================================================
+
         if ($role === 'Driver') {
             $user = User::where('email', $email)->where('role', 'Driver')->first();
-            if ($user && $user->status !== 'approved') {
-                return back()->with('error', 'Your account is not yet approved by the admin.');
+
+            if (!$user) {
+                return back()->with('error', 'Driver account does not exist.');
+            }
+
+            // 🚫 Block pending or disapproved drivers
+            if ($user->status === 'pending') {
+                return back()->with('error', 'Your account is still pending approval. Please wait for admin approval.');
+            }
+
+            if ($user->status === 'disapproved') {
+                return back()->with('error', 'Your registration has been disapproved. You cannot log in.');
             }
         }
 
+        // Generate OTP
         $otp = rand(100000, 999999);
 
-        // Store OTP & login info in session
+        // Store OTP session data
         Session::put('otp', $otp);
         Session::put('otp_email', $email);
         Session::put('otp_role', $role);
@@ -82,44 +107,61 @@ class LoginController extends Controller
         return redirect()->route('otp.verify')->with('success', 'OTP sent to your email.');
     }
 
-    // Show OTP form
+    // ======================================================
+    // 🔐 SHOW OTP VERIFICATION PAGE
+    // ======================================================
     public function showOtpForm()
     {
         return view('auth.verify-otp');
     }
 
-    // Verify OTP
+    // ======================================================
+    // 🔐 VERIFY OTP
+    // ======================================================
     public function verifyOtp(Request $request)
     {
         $request->validate(['otp' => 'required|numeric']);
 
         if ($request->otp == Session::get('otp')) {
+
             $email = Session::get('otp_email');
             $role = Session::get('otp_role');
 
-            // ✅ Create user with only email, role, and password
-            //    No fullname or other fields needed
-            $user = User::firstOrCreate(
-                ['email' => $email],
-                [
-                    'role' => $role,
-                    'password' => bcrypt(Str::random(10)),
-                    'fullname' => $role . ' User', // default fullname
-                ]
-            );
+            // ================================
+            // 🚗 DRIVER CHECK
+            // ================================
+            if ($role === 'Driver') {
+                $user = User::where('email', $email)->where('role', 'Driver')->first();
 
-            Auth::login($user);
-            Session::forget(['otp', 'otp_email', 'otp_role']);
+                if (!$user) {
+                    return redirect()->route('login')->with('error', 'Driver account does not exist.');
+                }
 
-            if ($role === 'Passenger') {
-                return redirect()->route('passenger.dashboard');
-            } elseif ($role === 'Driver') {
-                // Check approval again just in case
                 if ($user->status !== 'approved') {
-                    Auth::logout();
                     return redirect()->route('login')->with('error', 'Your account is not yet approved by the admin.');
                 }
+
+                Auth::login($user);
+                Session::forget(['otp', 'otp_email', 'otp_role']);
                 return redirect()->route('driver.dashboard');
+            }
+
+            // ================================
+            // 🧍 PASSENGER (auto-create allowed)
+            // ================================
+            if ($role === 'Passenger') {
+                $user = User::firstOrCreate(
+                    ['email' => $email],
+                    [
+                        'role' => $role,
+                        'password' => bcrypt(Str::random(10)),
+                        'fullname' => $role . ' User',
+                    ]
+                );
+
+                Auth::login($user);
+                Session::forget(['otp', 'otp_email', 'otp_role']);
+                return redirect()->route('passenger.dashboard');
             }
         }
 
