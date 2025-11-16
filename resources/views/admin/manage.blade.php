@@ -45,14 +45,10 @@
         font-size: 0.95rem;
     }
 
-    tr.selectable:hover {
+    tr:hover {
         background-color: #e0f2fe;
         cursor: pointer;
         transition: background 0.3s ease;
-    }
-
-    tr.selected {
-        background-color: #bae6fd !important;
     }
 
     .btn {
@@ -133,9 +129,9 @@
 <div class="container mt-5 glass-container">
     <input type="text" id="searchInput" class="form-control search-box" placeholder="Search users...">
 
-    {{-- New Drivers --}}
-    @if(isset($users['driver']))
-        <h3 class="mt-4">New Drivers</h3>
+    @forelse ($users as $role => $roleUsers)
+        <h3 class="mt-4">{{ ucfirst($role) }}s</h3>
+
         <div class="table-responsive">
             <table class="table table-bordered table-striped user-table">
                 <thead>
@@ -145,146 +141,49 @@
                         <th>Email</th>
                         <th>Phone</th>
                         <th>City</th>
-                        <th>Status</th>
+                        <th>Role</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($users['driver'] as $user)
-                        @if($user->status != 'approved')
-                        <tr class="selectable" data-user='@json($user)'>
+                    @foreach ($roleUsers as $user)
+                        <tr data-user='@json($user)'>
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->fullname }}</td>
                             <td>{{ $user->email }}</td>
                             <td>{{ $user->phone }}</td>
                             <td>{{ $user->city }}</td>
-                            <td>{{ ucfirst($user->status ?? 'pending') }}</td>
-                        </tr>
-                        @endif
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-
-    {{-- Approved Drivers --}}
-    @if(isset($users['driver']))
-        <h3 class="mt-4">Approved Drivers</h3>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped user-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>City</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($users['driver'] as $user)
-                        @if($user->status == 'approved')
-                        <tr class="selectable" data-user='@json($user)'>
-                            <td>{{ $user->id }}</td>
-                            <td>{{ $user->fullname }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->phone }}</td>
-                            <td>{{ $user->city }}</td>
-                            <td>{{ ucfirst($user->status) }}</td>
-                        </tr>
-                        @endif
-                    @endforeach
-                </tbody>
-            </table>
-        </div>
-    @endif
-
-    {{-- Passengers --}}
-    @if(isset($users['passenger']))
-        <h3 class="mt-4">Passengers</h3>
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Full Name</th>
-                        <th>Email</th>
-                        <th>Phone</th>
-                        <th>City</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach ($users['passenger'] as $user)
-                        <tr>
-                            <td>{{ $user->id }}</td>
-                            <td>{{ $user->fullname }}</td>
-                            <td>{{ $user->email }}</td>
-                            <td>{{ $user->phone }}</td>
-                            <td>{{ $user->city }}</td>
+                            <td>{{ ucfirst($user->role) }}</td>
+                            <td>
+                                <form action="/admin/users/{{ $user->id }}/approve" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                                </form>
+                                <form action="/admin/users/{{ $user->id }}/disapprove" method="POST" style="display:inline;">
+                                    @csrf
+                                    <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
+                                </form>
+                            </td>
                         </tr>
                     @endforeach
                 </tbody>
             </table>
         </div>
-    @endif
+    @empty
+        <div class="alert alert-warning text-center">No users found.</div>
+    @endforelse
 
-    {{-- External Buttons --}}
+    <!-- Print / Download Button -->
     <div class="user-actions">
-        <form id="approveForm" action="" method="POST" style="display:inline;">
-            @csrf
-            <button type="submit" class="btn btn-success btn-sm">Approve</button>
-        </form>
-
-        <form id="disapproveForm" action="" method="POST" style="display:inline;">
-            @csrf
-            <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
-        </form>
-
-        <form id="deleteForm" action="" method="POST" style="display:inline;">
-            @csrf
-            @method('DELETE')
-            <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-        </form>
-
-        <button type="button" class="btn btn-primary btn-sm" id="printUser">Print / Download</button>
+        <button type="button" class="btn btn-primary btn-sm" id="printAllUsers">Print / Download All</button>
     </div>
 </div>
 
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
-    let selectedUser = null;
-
-    // Only driver rows selectable
-    document.querySelectorAll(".user-table tbody tr.selectable").forEach(row => {
-        row.addEventListener("click", () => {
-            document.querySelectorAll(".user-table tbody tr").forEach(r => r.classList.remove('selected'));
-            row.classList.add('selected');
-            selectedUser = JSON.parse(row.getAttribute('data-user'));
-
-            // Update external form actions
-            document.getElementById('approveForm').action = `/admin/users/${selectedUser.id}/approve`;
-            document.getElementById('disapproveForm').action = `/admin/users/${selectedUser.id}/disapprove`;
-            document.getElementById('deleteForm').action = `/admin/users/${selectedUser.id}`;
-        });
-    });
-
-    // Delete confirmation
-    document.getElementById('deleteForm').addEventListener('submit', e => {
-        e.preventDefault();
-        if (!selectedUser) return;
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This user will be permanently deleted.",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonColor: '#ef4444',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: 'Yes, delete it!'
-        }).then(result => {
-            if (result.isConfirmed) e.target.submit();
-        });
-    });
 
     // Search filter
     const searchInput = document.getElementById("searchInput");
@@ -295,60 +194,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Print / Download all driver info including images
-    document.getElementById('printUser').addEventListener('click', () => {
-        if (!selectedUser) return;
-        const defaultImg = '/images/no-image.png';
-        const photos = `
-            <div class="photo-gallery">
-                <div class="photo-card">
-                    <p class="photo-label">Profile Photo</p>
-                    <img src="${selectedUser.photo ?? defaultImg}" alt="Profile Photo">
-                </div>
-                <div class="photo-card">
-                    <p class="photo-label">Police Clearance</p>
-                    <img src="${selectedUser.police_clearance ?? defaultImg}" alt="Police Clearance">
-                </div>
-                <div class="photo-card">
-                    <p class="photo-label">Barangay Clearance</p>
-                    <img src="${selectedUser.barangay_clearance ?? defaultImg}" alt="Barangay Clearance">
-                </div>
-                <div class="photo-card">
-                    <p class="photo-label">Business Permit</p>
-                    <img src="${selectedUser.business_permit ?? defaultImg}" alt="Business Permit">
-                </div>
-            </div>
-        `;
-        const printWindow = window.open('', '_blank', 'width=1000,height=800');
-        printWindow.document.write(`
-            <html>
-                <head>
-                    <title>Driver Details</title>
-                    <style>
-                        body { font-family: 'Inter', sans-serif; padding: 20px; background: #f8fafc; color: #1f2937; }
-                        h2 { color: #0ea5e9; }
-                        ul { list-style: none; padding: 0; }
-                        li { margin-bottom: 8px; font-size: 1rem; }
-                        img { width: 150px; height: 150px; object-fit: cover; margin-right: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
-                        .photo-gallery { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
-                        .photo-card { text-align: center; }
-                        .photo-label { font-weight: 600; color: #0ea5e9; margin-top: 5px; }
-                    </style>
-                </head>
-                <body>
-                    <h2>Driver Details</h2>
+    // Print / Download All Users including images
+    document.getElementById('printAllUsers').addEventListener('click', () => {
+        const allRows = document.querySelectorAll(".user-table tbody tr");
+        if (allRows.length === 0) return alert('No users to print.');
+
+        let htmlContent = `<html>
+            <head>
+                <title>All Users</title>
+                <style>
+                    body { font-family: 'Inter', sans-serif; padding: 20px; background: #f8fafc; color: #1f2937; }
+                    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+                    th, td { border: 1px solid #cbd5e1; padding: 8px; text-align: left; }
+                    th { background: #38bdf8; color: #fff; }
+                    img { width: 120px; height: 120px; object-fit: cover; border-radius: 8px; border: 1px solid #cbd5e1; margin-right: 10px; }
+                    .photo-gallery { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 10px; }
+                    .photo-card { text-align: center; }
+                    .photo-label { font-weight: 600; color: #0ea5e9; margin-top: 5px; }
+                </style>
+            </head>
+            <body>
+                <h2>All Users</h2>`;
+
+        allRows.forEach(row => {
+            const user = JSON.parse(row.getAttribute('data-user'));
+            const defaultImg = '/images/no-image.png';
+            htmlContent += `
+                <div style="margin-bottom: 30px;">
                     <ul>
-                        <li><strong>ID:</strong> ${selectedUser.id}</li>
-                        <li><strong>Full Name:</strong> ${selectedUser.fullname}</li>
-                        <li><strong>Email:</strong> ${selectedUser.email}</li>
-                        <li><strong>Phone:</strong> ${selectedUser.phone}</li>
-                        <li><strong>City:</strong> ${selectedUser.city}</li>
-                        <li><strong>Status:</strong> ${selectedUser.status ?? 'pending'}</li>
+                        <li><strong>ID:</strong> ${user.id}</li>
+                        <li><strong>Full Name:</strong> ${user.fullname}</li>
+                        <li><strong>Email:</strong> ${user.email}</li>
+                        <li><strong>Phone:</strong> ${user.phone}</li>
+                        <li><strong>Age:</strong> ${user.age ?? 'N/A'}</li>
+                        <li><strong>Sex:</strong> ${user.sex ?? 'N/A'}</li>
+                        <li><strong>City:</strong> ${user.city ?? 'N/A'}</li>
+                        <li><strong>Role:</strong> ${user.role ?? 'N/A'}</li>
                     </ul>
-                    ${photos}
-                </body>
-            </html>
-        `);
+                    <div class="photo-gallery">
+                        <div class="photo-card">
+                            <p class="photo-label">Profile Photo</p>
+                            <img src="${user.photo ?? defaultImg}" alt="Profile Photo">
+                        </div>
+                        <div class="photo-card">
+                            <p class="photo-label">Police Clearance</p>
+                            <img src="${user.police_clearance ?? defaultImg}" alt="Police Clearance">
+                        </div>
+                        <div class="photo-card">
+                            <p class="photo-label">Barangay Clearance</p>
+                            <img src="${user.barangay_clearance ?? defaultImg}" alt="Barangay Clearance">
+                        </div>
+                        <div class="photo-card">
+                            <p class="photo-label">Business Permit</p>
+                            <img src="${user.business_permit ?? defaultImg}" alt="Business Permit">
+                        </div>
+                    </div>
+                </div>
+                <hr>`;
+        });
+
+        htmlContent += `</body></html>`;
+
+        const printWindow = window.open('', '_blank', 'width=900,height=700');
+        printWindow.document.write(htmlContent);
         printWindow.document.close();
         printWindow.focus();
         printWindow.print();
