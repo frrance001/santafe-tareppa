@@ -90,11 +90,8 @@
             </select>
 
             <input type="text" name="fullname" placeholder="Full Name" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
-
             <input type="email" name="email" placeholder="Email" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
-
             <input type="text" name="phone" placeholder="Phone Number (11 digits)" maxlength="11" inputmode="numeric" pattern="[0-9]*" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
-
             <input type="number" name="age" placeholder="Age" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
             <select name="sex" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
@@ -107,13 +104,10 @@
 
             <label class="block text-sm font-medium">Profile Photo</label>
             <input type="file" name="photo" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
-
             <label class="block text-sm font-medium">Business Permit</label>
             <input type="file" name="business_permit" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
-
             <label class="block text-sm font-medium">Barangay Clearance</label>
             <input type="file" name="barangay_clearance" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
-
             <label class="block text-sm font-medium">Police Clearance</label>
             <input type="file" name="police_clearance" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
 
@@ -129,11 +123,10 @@
                 class="w-full py-2 bg-gradient-to-r from-gray-500 to-gray-700 hover:from-gray-600 hover:to-gray-800 transition duration-200 rounded-lg text-white font-semibold shadow-md">
                 Submit
             </button>
-
         </form>
     </div>
 
-    <!-- UPDATED SUCCESS MODAL -->
+    <!-- SUCCESS MODAL -->
     @if(session('success'))
         <script>
             Swal.fire({
@@ -207,7 +200,6 @@
                 });
                 return;
             }
-
             document.getElementById('registerForm').submit();
         }
     </script>
