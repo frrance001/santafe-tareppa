@@ -96,6 +96,33 @@
         box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
     }
 
+    .driver-photo {
+        width: 130px;
+        height: 130px;
+        object-fit: cover;
+        border-radius: 12px;
+        border: 2px solid #cbd5e1;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    .photo-gallery {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin-top: 20px;
+    }
+
+    .photo-label {
+        font-weight: 600;
+        color: #0ea5e9;
+        margin-top: 10px;
+        display: block;
+    }
+
+    .photo-card {
+        text-align: center;
+    }
+
     .user-actions {
         margin-top: 15px;
     }
@@ -157,7 +184,7 @@
                 <tbody>
                     @foreach ($users['driver'] as $user)
                         @if($user->status == 'approved')
-                        <tr>
+                        <tr class="selectable" data-user='@json($user)'>
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->fullname }}</td>
                             <td>{{ $user->email }}</td>
@@ -228,7 +255,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     let selectedUser = null;
 
-    // Selectable user rows (drivers only)
+    // Only driver rows selectable
     document.querySelectorAll(".user-table tbody tr.selectable").forEach(row => {
         row.addEventListener("click", () => {
             document.querySelectorAll(".user-table tbody tr").forEach(r => r.classList.remove('selected'));
@@ -268,23 +295,48 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Print / Download
+    // Print / Download all driver info including images
     document.getElementById('printUser').addEventListener('click', () => {
         if (!selectedUser) return;
-        const printWindow = window.open('', '_blank', 'width=800,height=600');
+        const defaultImg = '/images/no-image.png';
+        const photos = `
+            <div class="photo-gallery">
+                <div class="photo-card">
+                    <p class="photo-label">Profile Photo</p>
+                    <img src="${selectedUser.photo ?? defaultImg}" alt="Profile Photo">
+                </div>
+                <div class="photo-card">
+                    <p class="photo-label">Police Clearance</p>
+                    <img src="${selectedUser.police_clearance ?? defaultImg}" alt="Police Clearance">
+                </div>
+                <div class="photo-card">
+                    <p class="photo-label">Barangay Clearance</p>
+                    <img src="${selectedUser.barangay_clearance ?? defaultImg}" alt="Barangay Clearance">
+                </div>
+                <div class="photo-card">
+                    <p class="photo-label">Business Permit</p>
+                    <img src="${selectedUser.business_permit ?? defaultImg}" alt="Business Permit">
+                </div>
+            </div>
+        `;
+        const printWindow = window.open('', '_blank', 'width=1000,height=800');
         printWindow.document.write(`
             <html>
                 <head>
-                    <title>User Details</title>
+                    <title>Driver Details</title>
                     <style>
                         body { font-family: 'Inter', sans-serif; padding: 20px; background: #f8fafc; color: #1f2937; }
                         h2 { color: #0ea5e9; }
                         ul { list-style: none; padding: 0; }
                         li { margin-bottom: 8px; font-size: 1rem; }
+                        img { width: 150px; height: 150px; object-fit: cover; margin-right: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
+                        .photo-gallery { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
+                        .photo-card { text-align: center; }
+                        .photo-label { font-weight: 600; color: #0ea5e9; margin-top: 5px; }
                     </style>
                 </head>
                 <body>
-                    <h2>User Details</h2>
+                    <h2>Driver Details</h2>
                     <ul>
                         <li><strong>ID:</strong> ${selectedUser.id}</li>
                         <li><strong>Full Name:</strong> ${selectedUser.fullname}</li>
@@ -293,6 +345,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <li><strong>City:</strong> ${selectedUser.city}</li>
                         <li><strong>Status:</strong> ${selectedUser.status ?? 'pending'}</li>
                     </ul>
+                    ${photos}
                 </body>
             </html>
         `);
