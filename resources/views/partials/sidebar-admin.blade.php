@@ -25,6 +25,7 @@
         z-index: 1000;
     }
 
+    /* ---- logo ---- */
     .sidebar .logo {
         text-align: center;
         margin-bottom: 20px;
@@ -39,6 +40,7 @@
         object-fit: cover;
     }
 
+    /* ---- Welcome ---- */
     .welcome {
         text-align: center;
         font-size: 17px;
@@ -46,6 +48,7 @@
         margin-bottom: 25px;
     }
 
+    /* ---- Menu ---- */
     .sidebar ul {
         padding: 0;
         margin: 0;
@@ -94,6 +97,69 @@
         background: #0284c7;
     }
 
+    /* ---------------- Burger Button ---------------- */
+    .sidebar-toggle {
+        display: none;
+        position: fixed;
+        top: 15px;
+        left: 15px;
+        width: 42px;
+        height: 42px;
+        background: #38bdf8;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        z-index: 1100;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* the 3 lines */
+    .sidebar-toggle .bar {
+        width: 24px;
+        height: 3px;
+        background: white;
+        border-radius: 3px;
+        transition: 0.3s;
+        position: relative;
+    }
+
+    .sidebar-toggle .bar::before,
+    .sidebar-toggle .bar::after {
+        content: "";
+        width: 24px;
+        height: 3px;
+        background: white;
+        position: absolute;
+        border-radius: 3px;
+        transition: 0.3s;
+    }
+
+    .sidebar-toggle .bar::before {
+        top: -8px;
+    }
+
+    .sidebar-toggle .bar::after {
+        top: 8px;
+    }
+
+    /* ---- X animation when active ---- */
+    .sidebar.active + .sidebar-toggle .bar {
+        background: transparent;
+    }
+
+    .sidebar.active + .sidebar-toggle .bar::before {
+        top: 0;
+        transform: rotate(45deg);
+    }
+
+    .sidebar.active + .sidebar-toggle .bar::after {
+        top: 0;
+        transform: rotate(-45deg);
+    }
+
     /* ---------------- Mobile Responsive ---------------- */
     @media (max-width: 768px) {
         .sidebar {
@@ -105,18 +171,7 @@
         }
 
         .sidebar-toggle {
-            display: block;
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            z-index: 1100;
-            background: #38bdf8;
-            color: white;
-            border: none;
-            padding: 8px 12px;
-            border-radius: 5px;
-            font-size: 20px;
-            cursor: pointer;
+            display: flex;
         }
     }
 
@@ -125,17 +180,12 @@
             display: none;
         }
 
-        /* Prevent main content from hiding under sidebar */
         .content {
             margin-left: 250px;
         }
     }
 </style>
 
-<!-- Mobile Toggle Button -->
-<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">
-    ☰
-</button>
 
 <!-- Sidebar -->
 <div class="sidebar">
@@ -191,3 +241,8 @@
         </button>
     </form>
 </div>
+
+<!-- Modern Burger Button -->
+<button class="sidebar-toggle" onclick="document.querySelector('.sidebar').classList.toggle('active')">
+    <span class="bar"></span>
+</button>
