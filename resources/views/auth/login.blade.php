@@ -173,11 +173,21 @@
     <option value="admin">Admin</option>
   </select>
 </div>
-
 <div class="mb-3">
   <label for="email" class="form-label">Email address</label>
-  <input name="email" type="email" id="email" class="form-control" placeholder="Enter your email" required autofocus>
+  <input 
+    name="email" 
+    type="email" 
+    id="email" 
+    class="form-control" 
+    placeholder="Enter your Gmail"
+    required 
+    autofocus
+    pattern="[0-9]+@gmail\.com"
+    title="Email must be numbers only and end with @gmail.com (e.g. 12345@gmail.com)"
+  >
 </div>
+
 
 <!-- Hidden password for passenger & driver -->
 <div class="mb-4 position-relative" id="passwordField">

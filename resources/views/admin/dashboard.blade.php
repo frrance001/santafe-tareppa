@@ -2,6 +2,11 @@
 
 @section('content')
 <div class="container-fluid py-5 professional-dashboard">
+<div class="mb-4">
+    <a href="{{ route('admin.download.db') }}" class="btn btn-danger">
+        <i class="bi bi-download me-1"></i> Download Database
+    </a>
+</div>
 
     <!-- Stat Cards -->
     <div class="row g-4 mb-10">

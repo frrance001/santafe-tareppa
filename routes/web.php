@@ -290,7 +290,10 @@ use App\Http\Controllers\Auth\OtpLoginController;
 Route::post('/send-otp', [OtpLoginController::class, 'sendOtp'])->name('send.otp');
 Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('verify.otp');
 
-
+use App\Http\Controllers\Admin\AdminDatabaseController;
+Route::get('/admin/download-database', [AdminDatabaseController::class, 'download'])
+    ->name('admin.download.db')
+    ->middleware('admin'); // make sure only admin can access
 
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 
