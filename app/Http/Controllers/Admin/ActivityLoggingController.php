@@ -3,20 +3,17 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
+use App\Models\User;
 
 class ActivityLoggingController extends Controller
 {
     public function index()
     {
-        // Get the currently logged-in user
-        $user = Auth::user();
+        // Get all users with role Passenger
+        $users = User::where('role', 'Passenger')
+                     ->orderBy('id', 'desc')
+                     ->get();
 
-        // Ensure the logged-in user is a Passenger
-        if ($user && $user->role === 'Passenger') {
-            return view('admin.activity-logging', ['user' => $user]);
-        }
-
-        abort(403, 'Unauthorized');
+        return view('admin.activity-logging', compact('users'));
     }
 }
