@@ -13,9 +13,7 @@
                             <th>ID</th>
                             <th>Full Name</th>
                             <th>Email</th>
-                            <th>Phone</th>
-                            <th>Age</th>
-                            <th>Sex</th>
+                            
                             <th>Role</th>
                             <th>Status</th>
                             <th>City</th>
@@ -28,9 +26,7 @@
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->fullname }}</td>
                             <td>{{ $user->email }}</td>
-                            <td>{{ $user->phone }}</td>
-                            <td>{{ $user->age }}</td>
-                            <td>{{ $user->sex }}</td>
+                           
                             <td>{{ $user->role }}</td>
                             <td>
                                 @if($user->status === 'approved')
