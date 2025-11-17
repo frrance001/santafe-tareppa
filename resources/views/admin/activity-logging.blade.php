@@ -4,13 +4,8 @@
 <div class="container-fluid py-4">
     <h1 class="mb-4">Activity Logging - Users</h1>
 
-    <div class="card">
-        <div class="card-header d-flex justify-content-between align-items-center">
-            <h5 class="mb-0">User Activity Logs</h5>
-            <a href="{{ route('admin.activity.export') }}" class="btn btn-sm btn-primary">
-                <i class="bi bi-download"></i> Export CSV
-            </a>
-        </div>
+   
+       
 
         <div class="card-body">
             <div class="table-responsive">
