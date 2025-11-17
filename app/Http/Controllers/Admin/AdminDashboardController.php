@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Ride;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Response;
 
 class AdminDashboardController extends Controller
 {
@@ -85,7 +86,6 @@ class AdminDashboardController extends Controller
         $user->status = 'approved';
         $user->save();
 
-        // Send approval email
         Mail::raw(
             "Hello {$user->fullname},\n\nYour driver account has been approved by the admin. You can now log in to your account and start accepting rides.\n\nThank you,\nSantafe Tareppa Team",
             function($message) use ($user) {
@@ -106,7 +106,6 @@ class AdminDashboardController extends Controller
         $user->status = 'disapproved';
         $user->save();
 
-        // Send disapproval email
         Mail::raw(
             "Hello {$user->fullname},\n\nWe regret to inform you that your driver account has been disapproved by the admin. For more details, please contact support.\n\nThank you,\nSantafe Tareppa Team",
             function($message) use ($user) {
@@ -116,5 +115,28 @@ class AdminDashboardController extends Controller
         );
 
         return back()->with('success', 'User disapproved and email sent.');
+    }
+
+    // ==========================
+    // Download Database
+    // ==========================
+    public function downloadDatabase()
+    {
+        $fileName = 'backup_' . date('Y_m_d_His') . '.sql';
+
+        $dbHost = env('DB_HOST');
+        $dbName = env('DB_DATABASE');
+        $dbUser = env('DB_USERNAME');
+        $dbPass = env('DB_PASSWORD');
+
+        $command = "mysqldump --user={$dbUser} --password={$dbPass} --host={$dbHost} {$dbName} > " . storage_path($fileName);
+
+        system($command, $returnVar);
+
+        if ($returnVar !== 0) {
+            return back()->with('error', 'Database backup failed.');
+        }
+
+        return response()->download(storage_path($fileName))->deleteFileAfterSend(true);
     }
 }
