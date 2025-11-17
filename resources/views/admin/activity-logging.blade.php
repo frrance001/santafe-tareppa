@@ -2,11 +2,9 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h1 class="mb-4">Activity Logging - Users</h1>
+    <h1 class="mb-4">Activity Logging - Your Account</h1>
 
-   
-       
-
+    <div class="card">
         <div class="card-body">
             <div class="table-responsive">
                 <table id="activityLogTable" class="table table-bordered table-striped table-hover">
@@ -63,7 +61,7 @@
             "pageLength": 25,
             "responsive": true,
             "columnDefs": [
-                { "orderable": false, "targets": [] } // Add column indexes if needed
+                { "orderable": false, "targets": [] }
             ]
         });
     });
