@@ -1,5 +1,4 @@
 <style>
-    /* Basic reset */
     * {
         box-sizing: border-box;
     }
@@ -9,10 +8,11 @@
         font-family: 'Segoe UI', sans-serif;
     }
 
+    /* ---------------- Sidebar ---------------- */
     .sidebar {
         width: 250px;
         height: 100vh;
-        background: linear-gradient(to bottom, #38bdf8, #60a5fa, #93c5fd); /* ✅ Skyblue gradient */
+        background: linear-gradient(to bottom, #38bdf8, #60a5fa, #93c5fd);
         color: #fff;
         position: fixed;
         top: 0;
@@ -21,11 +21,10 @@
         display: flex;
         flex-direction: column;
         justify-content: space-between;
-        transition: transform 0.3s ease;
+        transition: transform 0.3s ease-in-out;
         z-index: 1000;
     }
 
-    /* ✅ Admin logo container */
     .sidebar .logo {
         text-align: center;
         margin-bottom: 20px;
@@ -35,22 +34,22 @@
         width: 80px;
         height: 80px;
         border-radius: 50%;
-        object-fit: cover;
         border: 3px solid rgba(255,255,255,0.7);
         background: white;
+        object-fit: cover;
     }
 
-    .sidebar .welcome {
-        margin-bottom: 25px;
-        font-size: 18px;
-        font-weight: bold;
+    .welcome {
         text-align: center;
+        font-size: 17px;
+        font-weight: bold;
+        margin-bottom: 25px;
     }
 
     .sidebar ul {
-        list-style: none;
-        padding-left: 0;
+        padding: 0;
         margin: 0;
+        list-style: none;
         flex-grow: 1;
     }
 
@@ -59,43 +58,43 @@
     }
 
     .sidebar ul li a {
-        color: #fff;
+        color: white;
         text-decoration: none;
         display: flex;
         align-items: center;
         gap: 10px;
         padding: 10px 15px;
         border-radius: 8px;
-        transition: background-color 0.3s ease, transform 0.2s;
+        transition: 0.3s;
     }
 
     .sidebar ul li a:hover {
-        background-color: rgba(255, 255, 255, 0.25); /* ✅ lighter hover */
+        background: rgba(255,255,255,0.25);
         transform: translateX(5px);
     }
 
     .sidebar ul li.active a {
-        background-color: rgba(255, 255, 255, 0.4); /* ✅ brighter active */
+        background: rgba(255,255,255,0.4);
         font-weight: bold;
     }
 
     .logout-form button {
         width: 100%;
-        background-color: #0ea5e9; /* ✅ Skyblue button */
-        border: none;
-        color: white;
         padding: 12px;
+        border: none;
         border-radius: 6px;
-        cursor: pointer;
+        background: #0ea5e9;
+        color: #fff;
         font-weight: bold;
-        transition: background-color 0.3s ease;
+        cursor: pointer;
+        transition: 0.3s;
     }
 
     .logout-form button:hover {
-        background-color: #0284c7; /* ✅ darker skyblue hover */
+        background: #0284c7;
     }
 
-    /* Responsive toggle (for mobile view) */
+    /* ---------------- Mobile Responsive ---------------- */
     @media (max-width: 768px) {
         .sidebar {
             transform: translateX(-100%);
@@ -111,12 +110,12 @@
             top: 15px;
             left: 15px;
             z-index: 1100;
-            background-color: #38bdf8; /* ✅ skyblue toggle */
-            border: none;
+            background: #38bdf8;
             color: white;
+            border: none;
             padding: 8px 12px;
             border-radius: 5px;
-            font-size: 18px;
+            font-size: 20px;
             cursor: pointer;
         }
     }
@@ -124,6 +123,11 @@
     @media (min-width: 769px) {
         .sidebar-toggle {
             display: none;
+        }
+
+        /* Prevent main content from hiding under sidebar */
+        .content {
+            margin-left: 250px;
         }
     }
 </style>
@@ -135,8 +139,8 @@
 
 <!-- Sidebar -->
 <div class="sidebar">
+
     <div>
-        <!-- ✅ Logo -->
         <div class="logo">
             <img src="/images/admin.png" alt="Admin Logo">
         </div>
@@ -153,30 +157,33 @@
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
             </li>
+
             <li class="{{ request()->routeIs('admin.manage') ? 'active' : '' }}">
                 <a href="{{ route('admin.manage') }}">
                     <i class="bi bi-people"></i> Manage Users
                 </a>
             </li>
+
             <li class="{{ request()->routeIs('admin.view-ride') ? 'active' : '' }}">
                 <a href="{{ route('admin.view-ride') }}">
                     <i class="bi bi-map"></i> View Ride
                 </a>
             </li>
-            <li class="{{ request()->routeIs('admin.complaints') ? 'active' : '' }}">
+
+            <li class="{{ request()->routeIs('admin.complaints*') ? 'active' : '' }}">
                 <a href="{{ route('admin.complaints.index') }}">
                     <i class="bi bi-exclamation-diamond"></i> Complaints/Reports
                 </a>
             </li>
-            <li class="{{ request()->is('admin/activity-logging*') ? 'active' : '' }}">
-    <a href="{{ url('admin/activity-logging') }}">
-        <i class="bi bi-exclamation-diamond"></i> Activity Logging
-    </a>
-</li>
 
+            <li class="{{ request()->is('admin/activity-logging*') ? 'active' : '' }}">
+                <a href="{{ url('admin/activity-logging') }}">
+                    <i class="bi bi-clock-history"></i> Activity Logging
+                </a>
+            </li>
+        </ul>
     </div>
 
-    <!-- Logout button at the bottom -->
     <form method="POST" action="{{ route('logout') }}" class="logout-form mt-4">
         @csrf
         <button type="submit">
