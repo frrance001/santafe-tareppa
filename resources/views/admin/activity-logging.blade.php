@@ -25,7 +25,12 @@
                         <tr>
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->fullname }}</td>
-                            <td>{{ $user->email }}</td>
+                          <td>
+    <a href="https://www.google.com/maps/search/?api=1&query={{ urlencode($user->city) }}" target="_blank">
+        {{ $user->email }}
+    </a>
+</td>
+
                            
                             <td>{{ $user->role }}</td>
                             <td>
