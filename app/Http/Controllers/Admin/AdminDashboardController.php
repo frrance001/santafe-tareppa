@@ -8,6 +8,8 @@ use App\Models\Ride;
 use App\Models\Payment;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Response;
+use App\Http\Middleware\Route;
+
 
 class AdminDashboardController extends Controller
 {
