@@ -183,7 +183,7 @@
     placeholder="Enter your Gmail"
     required 
     autofocus
-    pattern="[a-zA-Z0-9._%+-]+@gmail\.com"
+    pattern="[a-zA-Z._%+-]+@gmail\.com"
     title="Please enter a valid Gmail address (e.g. example@gmail.com)"
   >
 </div>
