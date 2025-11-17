@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container-fluid py-4">
-    <h1 class="mb-4">Your Activity</h1>
+    <h1 class="mb-4">Activity Logging - Passengers</h1>
 
     <div class="card">
         <div class="card-body">
@@ -23,6 +23,7 @@
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach ($users as $user)
                         <tr>
                             <td>{{ $user->id }}</td>
                             <td>{{ $user->fullname }}</td>
@@ -43,6 +44,7 @@
                             <td>{{ $user->city }}</td>
                             <td>{{ $user->created_at->format('Y-m-d H:i') }}</td>
                         </tr>
+                        @endforeach
                     </tbody>
                 </table>
             </div>
@@ -50,7 +52,6 @@
     </div>
 </div>
 
-{{-- DataTables script --}}
 @section('scripts')
 <script>
     $(document).ready(function() {
