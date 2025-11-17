@@ -117,24 +117,43 @@ class AdminDashboardController extends Controller
 
         return back()->with('success', 'User disapproved and email sent.');
     }
-     public function downloadDatabase()
-    {
-        $dbName = env('DB_DATABASE');
-        $dbUser = env('DB_USERNAME');
-        $dbPass = env('DB_PASSWORD');
+    public function downloadDatabase()
+{
+    $database = env('DB_DATABASE');
+    $username = env('DB_USERNAME');
+    $password = env('DB_PASSWORD');
+    $host = env('DB_HOST', '127.0.0.1');
 
-        // Path to save temporary dump file
-        $fileName = "backup_" . date('Y-m-d_H-i-s') . ".sql";
-        $filePath = storage_path($fileName);
+    try {
+        $pdo = new \PDO("mysql:host=$host;dbname=$database", $username, $password);
+        $pdo->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
 
-        // Create the dump command
-        $command = "mysqldump -u{$dbUser} -p{$dbPass} {$dbName} > {$filePath}";
+        $tables = $pdo->query("SHOW TABLES")->fetchAll(\PDO::FETCH_COLUMN);
 
-        // Execute the command
-        exec($command);
+        return response()->streamDownload(function() use ($pdo, $tables) {
+            foreach ($tables as $table) {
+                // Drop table
+                echo "DROP TABLE IF EXISTS `$table`;\n";
 
-        // Return the file as download and delete after download
-        return response()->download($filePath)->deleteFileAfterSend(true);
+                // Create table
+                $create = $pdo->query("SHOW CREATE TABLE `$table`")->fetch(\PDO::FETCH_ASSOC);
+                echo $create['Create Table'] . ";\n\n";
+
+                // Insert data in chunks to avoid memory issues
+                $stmt = $pdo->query("SELECT * FROM `$table`");
+                while ($row = $stmt->fetch(\PDO::FETCH_ASSOC)) {
+                    $columns = implode('`,`', array_keys($row));
+                    $values = implode(',', array_map([$pdo, 'quote'], array_values($row)));
+                    echo "INSERT INTO `$table` (`$columns`) VALUES ($values);\n";
+                }
+                echo "\n\n";
+            }
+        }, 'system.sql', [
+            'Content-Type' => 'application/sql',
+        ]);
+
+    } catch (\Exception $e) {
+        return back()->with('error', 'Database export failed: ' . $e->getMessage());
     }
 }
-
+}
