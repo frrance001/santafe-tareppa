@@ -33,8 +33,11 @@ class LoginController extends Controller
         $role = ucfirst(strtolower($request->input('role')));
         $email = $request->input('email');
 
-        // Throttle protection
+        // ================================================
+        // 🔐 Throttle protection
+        // ================================================
         $throttleKey = Str::lower($email) . '|' . $request->ip();
+
         if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             return back()->withErrors([
@@ -54,6 +57,7 @@ class LoginController extends Controller
                         ->first();
 
             if (!$user) {
+                RateLimiter::hit($throttleKey, 60);
                 return back()->with('error', 'Admin account does not exist.');
             }
 
@@ -62,6 +66,7 @@ class LoginController extends Controller
                 return back()->with('error', 'Incorrect password.');
             }
 
+            // SUCCESS LOGIN
             Auth::login($user);
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
@@ -72,37 +77,39 @@ class LoginController extends Controller
         // ======================================================
         // 🚗 DRIVER / PASSENGER LOGIN (OTP LOGIN)
         // ======================================================
-
         if ($role === 'Driver') {
             $user = User::where('email', $email)->where('role', 'Driver')->first();
 
             if (!$user) {
+                RateLimiter::hit($throttleKey, 60);
                 return back()->with('error', 'Driver account does not exist.');
             }
 
             // 🚫 Block pending or disapproved drivers
             if ($user->status === 'pending') {
-                return back()->with('error', 'Your account is still pending approval. Please wait for admin approval.');
+                return back()->with('error', 'Your account is still pending approval.');
             }
 
             if ($user->status === 'disapproved') {
-                return back()->with('error', 'Your registration has been disapproved. You cannot log in.');
+                return back()->with('error', 'Your registration has been disapproved.');
             }
         }
 
-        // Generate OTP
+        // ======================================================
+        // 📩 Generate & Send OTP
+        // ======================================================
         $otp = rand(100000, 999999);
 
-        // Store OTP session data
         Session::put('otp', $otp);
         Session::put('otp_email', $email);
         Session::put('otp_role', $role);
 
-        // Send OTP email
         Mail::raw("Your OTP code is: $otp\n\nValid for 5 minutes.", function ($message) use ($email, $role) {
-            $message->to($email)
-                    ->subject("Santafe Tareppa $role Login OTP");
+            $message->to($email)->subject("Santafe Tareppa $role Login OTP");
         });
+
+        // Count as a failed login step (not yet authenticated)
+        RateLimiter::hit($throttleKey, 60);
 
         return redirect()->route('otp.verify')->with('success', 'OTP sent to your email.');
     }
@@ -122,49 +129,55 @@ class LoginController extends Controller
     {
         $request->validate(['otp' => 'required|numeric']);
 
-        if ($request->otp == Session::get('otp')) {
+        $email = Session::get('otp_email');
+        $role  = Session::get('otp_role');
+        $throttleKey = Str::lower($email) . '|' . $request->ip();
 
-            $email = Session::get('otp_email');
-            $role = Session::get('otp_role');
-
-            // ================================
-            // 🚗 DRIVER CHECK
-            // ================================
-            if ($role === 'Driver') {
-                $user = User::where('email', $email)->where('role', 'Driver')->first();
-
-                if (!$user) {
-                    return redirect()->route('login')->with('error', 'Driver account does not exist.');
-                }
-
-                if ($user->status !== 'approved') {
-                    return redirect()->route('login')->with('error', 'Your account is not yet approved by the admin.');
-                }
-
-                Auth::login($user);
-                Session::forget(['otp', 'otp_email', 'otp_role']);
-                return redirect()->route('driver.dashboard');
-            }
-
-            // ================================
-            // 🧍 PASSENGER (auto-create allowed)
-            // ================================
-            if ($role === 'Passenger') {
-                $user = User::firstOrCreate(
-                    ['email' => $email],
-                    [
-                        'role' => $role,
-                        'password' => bcrypt(Str::random(10)),
-                        'fullname' => $role . ' User',
-                    ]
-                );
-
-                Auth::login($user);
-                Session::forget(['otp', 'otp_email', 'otp_role']);
-                return redirect()->route('passenger.dashboard');
-            }
+        if ($request->otp != Session::get('otp')) {
+            RateLimiter::hit($throttleKey, 60);
+            return back()->with('error', 'Invalid OTP. Please try again.');
         }
 
-        return back()->with('error', 'Invalid OTP. Please try again.');
+        // OTP is correct → Clear attempts
+        RateLimiter::clear($throttleKey);
+
+        // ================================
+        // 🚗 DRIVER LOGIN
+        // ================================
+        if ($role === 'Driver') {
+            $user = User::where('email', $email)->where('role', 'Driver')->first();
+
+            if (!$user) {
+                return redirect()->route('login')->with('error', 'Driver account does not exist.');
+            }
+
+            if ($user->status !== 'approved') {
+                return redirect()->route('login')->with('error', 'Your account is not yet approved.');
+            }
+
+            Auth::login($user);
+            Session::forget(['otp', 'otp_email', 'otp_role']);
+
+            return redirect()->route('driver.dashboard');
+        }
+
+        // ================================
+        // 🧍 PASSENGER LOGIN (AUTO-CREATE)
+        // ================================
+        if ($role === 'Passenger') {
+            $user = User::firstOrCreate(
+                ['email' => $email],
+                [
+                    'role' => $role,
+                    'password' => bcrypt(Str::random(10)),
+                    'fullname' => $role . ' User',
+                ]
+            );
+
+            Auth::login($user);
+            Session::forget(['otp', 'otp_email', 'otp_role']);
+
+            return redirect()->route('passenger.dashboard');
+        }
     }
 }
