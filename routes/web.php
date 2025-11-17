@@ -293,6 +293,10 @@ Route::post('/verify-otp', [OtpLoginController::class, 'verifyOtp'])->name('veri
 Route::get('/admin/download-database', [AdminDashboardController::class, 'downloadDatabase'])
      ->name('admin.download.db')
      ->middleware(['auth', 'admin']); // only admins can download
+Route::prefix('admin')->middleware(['auth','admin'])->group(function () {
+    Route::get('/activity-logging', [\App\Http\Controllers\Admin\ActivityLoggingController::class, 'index'])
+         ->name('admin.activity.logging');
+});
 
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 

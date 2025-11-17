@@ -168,7 +168,12 @@
                     <i class="bi bi-exclamation-diamond"></i> Complaints/Reports
                 </a>
             </li>
-           
+            <li class="{{ request()->is('admin/activity-logging*') ? 'active' : '' }}">
+    <a href="{{ url('admin/activity-logging') }}">
+        <i class="bi bi-exclamation-diamond"></i> Activity Logging
+    </a>
+</li>
+
     </div>
 
     <!-- Logout button at the bottom -->
