@@ -14,11 +14,8 @@
             <th>Sex</th>
             <th>Role</th>
             <th>Status</th>
-            <th>Business Permit</th>
-            <th>Barangay Clearance</th>
-            <th>Police Clearance</th>
-            <th>City</th>
-            <th>Password (hashed)</th>
+            
+            
         </tr>
     </thead>
     <tbody>
@@ -32,11 +29,9 @@
             <td>{{ $user->sex }}</td>
             <td>{{ $user->role }}</td>
             <td>{{ $user->status }}</td>
-            <td>{{ $user->business_permit }}</td>
-            <td>{{ $user->barangay_clearance }}</td>
-            <td>{{ $user->police_clearance }}</td>
+           
             <td>{{ $user->city }}</td>
-            <td>{{ $user->password }}</td>
+           
         </tr>
         @endforeach
     </tbody>
