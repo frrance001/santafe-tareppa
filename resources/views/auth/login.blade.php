@@ -117,14 +117,6 @@
       color: #6b7280;
       cursor: pointer;
     }
-
-    /* reCAPTCHA badge */
-    #recaptcha-badge {
-      position: fixed !important;
-      bottom: 15px !important;
-      right: 15px !important;
-      z-index: 9999 !important;
-    }
   </style>
 </head>
 <body>
@@ -170,29 +162,25 @@
   </form>
 </div>
 
-<!-- Visible reCAPTCHA badge -->
-<div id="recaptcha-badge"></div>
-
 <script>
   // Toggle password visibility
-  const togglePassword = document.getElementById('togglePassword');
-  const passwordInput = document.getElementById('password');
-  togglePassword.addEventListener('click', () => {
+  document.getElementById('togglePassword').addEventListener('click', () => {
+    const passwordInput = document.getElementById('password');
     const type = passwordInput.type === 'password' ? 'text' : 'password';
     passwordInput.type = type;
     togglePassword.classList.toggle('bi-eye');
     togglePassword.classList.toggle('bi-eye-slash');
   });
 
-  // Hide password field for non-admin
+  // Hide password for non-admin
   const roleSelect = document.getElementById('role');
   const passwordField = document.getElementById('passwordField');
   if(roleSelect.value !== 'admin'){ passwordField.style.display='none'; }
   roleSelect.addEventListener('change', () => {
-    passwordField.style.display = roleSelect.value==='admin'?'block':'none';
+    passwordField.style.display = roleSelect.value==='admin' ? 'block' : 'none';
   });
 
-  // SweetAlert2 feedback
+  // SweetAlert messages
   @if(session('error'))
     Swal.fire({ icon:'error', title:'Oops...', text:'{{ session('error') }}' });
   @endif
@@ -203,23 +191,9 @@
     Swal.fire({ icon:'error', title:'Error', html:`<ul style="text-align:left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>` });
   @endif
 
-  // Render visible reCAPTCHA v3 badge
-  grecaptcha.ready(function() {
-    grecaptcha.render('recaptcha-badge', {
-      sitekey: '6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-',
-      size: 'normal',       // visible badge
-      badge: 'bottomright'  // position
-    });
-
-    // Page-level token (optional)
-    grecaptcha.execute('6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-', {action: 'pageview'}).then(function(token) {
-      console.log('Page-level reCAPTCHA token:', token);
-    });
-  });
-
   // reCAPTCHA v3 on form submit
   const loginForm = document.getElementById('loginForm');
-  loginForm.addEventListener('submit', function(e){
+  loginForm.addEventListener('submit', function(e) {
     e.preventDefault();
     grecaptcha.ready(function() {
       grecaptcha.execute('6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-', {action: 'login'}).then(function(token) {
