@@ -161,7 +161,9 @@
         <li>
             <a href="{{ route('driver.completed.rides') }}">Completed Rides</a>
         </li>
-        
+        <li>
+            <a href="#"><i class="bi bi-cash-coin"></i> Receive Payment</a>
+        </li>
     </ul>
 
     <!-- Logout button at the bottom -->

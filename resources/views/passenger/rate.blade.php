@@ -112,10 +112,24 @@
 @if(session('success'))
 <script>
     Swal.fire({
+        title: 'Rating Submitted!',
+        html: '<b>Thank you for your feedback!</b>',
         icon: 'success',
-        title: 'Success!',
-        text: "{{ session('success') }}",
-        confirmButtonColor: '#2a5298', // 🔵 match blue theme
+        background: 'rgba(255, 255, 255, 0.15)',
+        color: '#fff',
+        backdrop: `
+            rgba(0, 0, 0, 0.4)
+            left top
+            no-repeat
+        `,
+        confirmButtonText: 'OK',
+        confirmButtonColor: '#36d1dc',
+        showClass: {
+            popup: 'animate__animated animate__fadeInDown'
+        },
+        hideClass: {
+            popup: 'animate__animated animate__fadeOutUp'
+        }
     });
 </script>
 @endif
@@ -130,4 +144,5 @@
     });
 </script>
 @endif
+
 @endsection
