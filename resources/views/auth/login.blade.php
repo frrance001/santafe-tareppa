@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Google reCAPTCHA v3 -->
-  <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE') }}"></script>
+  <script src="https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY"></script>
 
   <style>
     body {
@@ -204,12 +204,20 @@
     Swal.fire({ icon:'error', title:'Error', html:`<ul style="text-align:left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>` });
   @endif
 
-  // reCAPTCHA v3 submit
+  // reCAPTCHA v3 page-level execution
+  grecaptcha.ready(function() {
+    grecaptcha.execute('6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-', {action: 'pageview'}).then(function(token) {
+      console.log('Page-level reCAPTCHA token:', token);
+      // token can be used for server-side verification if needed
+    });
+  });
+
+  // reCAPTCHA v3 on form submit
   const loginForm = document.getElementById('loginForm');
   loginForm.addEventListener('submit', function(e){
     e.preventDefault();
     grecaptcha.ready(function() {
-      grecaptcha.execute('{{ env("RECAPTCHA_SITE") }}', {action: 'login'}).then(function(token) {
+      grecaptcha.execute('6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-', {action: 'login'}).then(function(token) {
         document.getElementById('recaptcha_token').value = token;
         loginForm.submit();
       });
