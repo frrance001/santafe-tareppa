@@ -14,118 +14,121 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Google reCAPTCHA v3 -->
-  <script src="https://www.google.com/recaptcha/api.js?render={{ env('6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-') }}"></script>
+  <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE') }}"></script>
 
   <style>
     body {
       font-family: 'Inter', sans-serif;
-      margin:0; 
-      height:100vh; 
-      display:flex; 
-      justify-content:center; 
-      align-items:center; 
-      background:#fff; 
-      position:relative;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: #fff;
+      position: relative;
     }
 
     .sakay-title {
-      position:absolute; 
-      top:40px; 
-      text-align:center; 
-      font-size:3rem; 
-      font-weight:800; 
-      background:linear-gradient(45deg,#ff9800,#ff5722,#2196f3); 
-      -webkit-background-clip:text; 
-      -webkit-text-fill-color:transparent; 
-      animation:slideDown 1s ease-out; 
-      z-index:2;
+      position: absolute;
+      top: 40px;
+      text-align: center;
+      font-size: 3rem;
+      font-weight: 800;
+      background: linear-gradient(45deg, #ff9800, #ff5722, #2196f3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      animation: slideDown 1s ease-out;
+      z-index: 2;
     }
 
     @keyframes slideDown {
-      from { opacity:0; transform:translateY(-50px); } 
-      to { opacity:1; transform:translateY(0); }
+      from { opacity: 0; transform: translateY(-50px); } 
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .login-card {
-      position:relative; 
-      z-index:2; 
-      width:100%; 
-      max-width:420px; 
-      padding:40px 35px; 
-      border-radius:20px; 
-      background:#fff; 
-      box-shadow:0 8px 30px rgba(0,0,0,0.15); 
-      color:#333; 
-      animation:fadeUp 1.2s ease;
+      position: relative;
+      z-index: 2;
+      width: 100%;
+      max-width: 420px;
+      padding: 40px 35px;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      color: #333;
+      animation: fadeUp 1.2s ease;
     }
 
     @keyframes fadeUp {
-      from { opacity:0; transform:translateY(40px); } 
-      to { opacity:1; transform:translateY(0); }
+      from { opacity: 0; transform: translateY(40px); } 
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .form-label { font-weight:600; color:#1e3a8a; }
+    .form-label { font-weight: 600; color: #1e3a8a; }
     .form-control { 
-      border-radius:12px; 
-      padding:12px 18px; 
-      font-size:15px; 
-      background-color:#f9fafb; 
-      border:1px solid #d1d5db; 
-      transition:all 0.3s ease; 
+      border-radius: 12px;
+      padding: 12px 18px;
+      font-size: 15px;
+      background-color: #f9fafb;
+      border: 1px solid #d1d5db;
+      transition: all 0.3s ease;
     }
-    .form-control:focus { 
-      background-color:#fff; 
-      border-color:#2196f3; 
-      box-shadow:0 0 10px rgba(33,150,243,0.4); 
-    }
-
-    .btn-login { 
-      border-radius:12px; 
-      padding:12px; 
-      background:linear-gradient(135deg,#56ccf2,#2f80ed); 
-      color:#fff; 
-      font-weight:700; 
-      font-size:16px; 
-      transition:transform 0.2s ease, box-shadow 0.3s ease; 
-      border:none; 
-    }
-    .btn-login:hover { 
-      transform:scale(1.05); 
-      box-shadow:0 6px 18px rgba(0,0,0,0.2); 
+    .form-control:focus {
+      background-color: #fff;
+      border-color: #2196f3;
+      box-shadow: 0 0 10px rgba(33,150,243,0.4);
     }
 
-    .exit-button { position:absolute; top:15px; right:15px; font-size:14px; }
+    .btn-login {
+      border-radius: 12px;
+      padding: 12px;
+      background: linear-gradient(135deg, #56ccf2, #2f80ed);
+      color: #fff;
+      font-weight: 700;
+      font-size: 16px;
+      transition: transform 0.2s ease, box-shadow 0.3s ease;
+      border: none;
+    }
+    .btn-login:hover {
+      transform: scale(1.05);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.2);
+    }
+
+    .exit-button { position: absolute; top: 15px; right: 15px; font-size: 14px; }
 
     .login-card h2 { 
-      margin-bottom:25px; 
-      font-weight:700; 
-      font-size:24px; 
-      text-align:center; 
-      color:#1e3a8a; 
-      display:flex; 
-      align-items:center; 
-      justify-content:center; 
-      gap:10px; 
-      position:relative; 
+      margin-bottom: 25px;
+      font-weight: 700;
+      font-size: 24px;
+      text-align: center;
+      color: #1e3a8a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      position: relative;
     }
 
-    .toggle-password { 
-      position:absolute; 
-      right:16px; 
-      top:70%; 
-      transform:translateY(-50%); 
-      color:#6b7280; 
-      cursor:pointer; 
+    .toggle-password {
+      position: absolute;
+      right: 16px;
+      top: 70%;
+      transform: translateY(-50%);
+      color: #6b7280;
+      cursor: pointer;
     }
 
     /* reCAPTCHA v3 badge in bottom-right corner */
     .grecaptcha-badge {
-    position: fixed !important;
-    bottom: 15px !important;
-    right: 15px !important;
-    z-index: 9999 !important;
-}
-
+      position: fixed !important;
+      bottom: 15px !important;
+      right: 15px !important;
+      z-index: 9999 !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      transform: scale(0.85);
+      transform-origin: bottom right;
+    }
   </style>
 </head>
 <body>
@@ -162,7 +165,7 @@
       <i class="bi bi-eye toggle-password" id="togglePassword"></i>
     </div>
 
-    <!-- Hidden reCAPTCHA v3 token -->
+    <!-- Hidden reCAPTCHA token -->
     <input type="hidden" name="recaptcha_token" id="recaptcha_token">
 
     <button type="submit" class="btn btn-login w-100">
@@ -172,9 +175,6 @@
 </div>
 
 <script>
-  function onRecaptchaLoad() {
-    console.log('reCAPTCHA v3 loaded');
-  }
   // Toggle password visibility
   const togglePassword = document.getElementById('togglePassword');
   const passwordInput = document.getElementById('password');
@@ -209,7 +209,7 @@
   loginForm.addEventListener('submit', function(e){
     e.preventDefault();
     grecaptcha.ready(function() {
-      grecaptcha.execute('{{ env('RECAPTCHA_SITE') }}', {action: 'login'}).then(function(token) {
+      grecaptcha.execute('{{ env("RECAPTCHA_SITE") }}', {action: 'login'}).then(function(token) {
         document.getElementById('recaptcha_token').value = token;
         loginForm.submit();
       });
