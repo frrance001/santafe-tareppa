@@ -1,367 +1,184 @@
-    @extends('layouts.admin')
+@extends('layouts.admin')
 
-    @section('content')
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            background: #f0f4f8;
-            color: #1f2937;
-            font-family: 'Inter', sans-serif;
-        }
+@section('content')
+<style>
+body {
+    margin: 0;
+    padding: 0;
+    background: #f0f4f8;
+    color: #1f2937;
+    font-family: 'Inter', sans-serif;
+}
 
-        .glass-container {
-            background: rgba(255, 255, 255, 0.95);
-            border-radius: 16px;
-            padding: 40px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
-        }
+.glass-container {
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+}
 
-        h1, h3 {
-            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            font-weight: 700;
-        }
+h3 {
+    background: linear-gradient(90deg, #38bdf8, #0ea5e9);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
 
-        table {
-            background-color: #fff;
-            color: #1f2937;
-            border-radius: 12px;
-            overflow: hidden;
-            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
-        }
+.filter-container {
+    margin-bottom: 20px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
 
-        th {
-            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
-            color: #fff !important;
-            font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+.search-input {
+    flex: 1;
+}
 
-        td {
-            vertical-align: middle;
-            font-size: 0.95rem;
-        }
+.user-entry {
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: transform 0.3s ease;
+}
 
-        tr:hover {
-            background-color: #e0f2fe;
-            cursor: pointer;
-            transition: background 0.3s ease;
-        }
+.user-entry:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
 
-        .btn {
-            font-weight: 600;
-            border-radius: 8px;
-            padding: 6px 16px;
-            transition: all 0.3s ease;
-            margin-right: 5px;
-        }
+.user-photo {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-right: 15px;
+    float: left;
+}
 
-        .btn-primary {
-            background: linear-gradient(90deg, #38bdf8, #0ea5e9);
-            color: #fff;
-            border: none;
-        }
+.user-info { font-size: 0.9rem; overflow: hidden; }
+.user-role { font-weight: 600; color: #0ea5e9; }
+.status-approved { color: #10b981; font-weight: 600; }
+.status-pending { color: #f59e0b; font-weight: 600; }
+.status-disapproved { color: #ef4444; font-weight: 600; }
 
-        .btn-primary:hover {
-            background: linear-gradient(90deg, #0ea5e9, #3b82f6);
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
+.action-buttons { margin-top: 10px; clear: both; }
+</style>
 
-        .btn-success { background-color: #10b981; color: #fff; border: none; }
-        .btn-warning { background-color: #f59e0b; color: #fff; border: none; }
-        .btn-danger { background-color: #ef4444; color: #fff; border: none; }
+<div class="container mt-5 glass-container">
+    <h3>Users List</h3>
 
-        .btn-success:hover,
-        .btn-warning:hover,
-        .btn-danger:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        }
+    <!-- Filters -->
+    <div class="filter-container">
+        <!-- SEARCH -->
+        <input type="text" id="searchInput" class="form-control search-input" placeholder="Search users...">
 
-        .search-box {
-            max-width: 350px;
-            margin-bottom: 25px;
-            border-radius: 10px;
-            border: 1px solid #cbd5e1;
-            padding: 10px 14px;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
-        }
+        <!-- 🔽 ADDED DROPDOWN FILTER -->
+        <select id="statusDropdown" class="form-select" style="max-width:200px; border-radius:8px;">
+            <option value="all">All Users</option>
+            <option value="approved">Approved</option>
+            <option value="pending">Pending</option>
+            <option value="disapproved">Disapproved</option>
+        </select>
+    </div>
 
-        /* Modal Glass Style */
-        .modal-content {
-            background: rgba(255, 255, 255, 0.97);
-            backdrop-filter: blur(14px);
-            border-radius: 16px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
-        }
+    <div id="usersContainer"></div>
+</div>
 
-        .driver-photo {
-            width: 130px;
-            height: 130px;
-            object-fit: cover;
-            border-radius: 12px;
-            border: 2px solid #cbd5e1;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-        }
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
 
-        .photo-gallery {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 20px;
-            margin-top: 20px;
-        }
-
-        .photo-label {
-            font-weight: 600;
-            color: #0ea5e9;
-            margin-top: 10px;
-            display: block;
-        }
-
-        .photo-card {
-            text-align: center;
-        }
-
-        /* Status Colors */
-        .status-approved { color: #10b981; font-weight: 600; }
-        .status-pending { color: #f59e0b; font-weight: 600; }
-        .status-disapproved { color: #ef4444; font-weight: 600; }
-    </style>
-
-    <div class="container mt-5 glass-container">
-        <input type="text" id="searchInput" class="form-control search-box" placeholder="Search users...">
-
-        @forelse ($users as $role => $roleUsers)
-            <h3 class="mt-4">{{ ucfirst($role) }}s</h3>
-
-            @php
-                $approvedUsers = $roleUsers->where('status', 'approved');
-                $disapprovedUsers = $roleUsers->where('status', 'disapproved');
-                $pendingUsers = $roleUsers->where('status', 'pending');
-            @endphp
-
-            @foreach (['approved' => $approvedUsers, 'pending' => $pendingUsers, 'disapproved' => $disapprovedUsers] as $status => $usersByStatus)
-                @if($usersByStatus->isNotEmpty())
-                    <h5 class="mt-3 text-capitalize">{{ $status }} {{ $role }}s</h5>
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped user-table">
-                            <thead>
-                                <tr>
-                                    <th>ID</th>
-                                    <th>Full Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>City</th>
-                                    <th>Role</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($usersByStatus as $user)
-                                    <tr data-user='@json($user)'>
-                                        <td>{{ $user->id }}</td>
-                                        <td>{{ $user->fullname }}</td>
-                                        <td>{{ $user->email }}</td>
-                                        <td>{{ $user->phone }}</td>
-                                        <td>{{ $user->city }}</td>
-                                        <td>{{ ucfirst($user->role) }}</td>
-                                        <td>
-                                            @if ($user->role === 'driver')
-                                                @if ($user->status === 'approved')
-                                                    <span class="status-approved">{{ ucfirst($user->status) }}</span>
-                                                @elseif ($user->status === 'disapproved')
-                                                    <span class="status-disapproved">{{ ucfirst($user->status) }}</span>
-                                                @else
-                                                    <span class="status-pending">{{ ucfirst($user->status ?? 'Pending') }}</span>
-                                                @endif
-                                            @else
-                                                -
-                                            @endif
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endif
+<script>
+$(document).ready(function() {
+    const users = [
+        @foreach ($users as $role => $roleUsers)
+            @foreach ($roleUsers as $user)
+                {!! json_encode($user) !!},
             @endforeach
-        @empty
-            <div class="alert alert-warning text-center">No users found.</div>
-        @endforelse
-    </div>
+        @endforeach
+    ];
 
-    <meta name="csrf-token" content="{{ csrf_token() }}">
+    let currentStatus = 'all';
 
-    <!-- Modal -->
-    <div class="modal fade" id="userInfoModal" tabindex="-1" aria-labelledby="userInfoModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
-        <div class="modal-content">
-        <div class="modal-header" style="background: linear-gradient(90deg,#38bdf8,#0ea5e9); color: #fff;">
-            <h5 class="modal-title" id="userInfoModalLabel">User Information</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
-        </div>
+    // Main render function
+    function renderUsers() {
+        $('#usersContainer').empty();
 
-        <div class="modal-body">
-            <ul class="list-group mb-3">
-            <li class="list-group-item"><strong>ID:</strong> <span id="modal-id"></span></li>
-            <li class="list-group-item"><strong>Full Name:</strong> <span id="modal-fullname"></span></li>
-            <li class="list-group-item"><strong>Email:</strong> <span id="modal-email"></span></li>
-            <li class="list-group-item"><strong>Phone:</strong> <span id="modal-phone"></span></li>
-            <li class="list-group-item"><strong>Age:</strong> <span id="modal-age"></span></li>
-            <li class="list-group-item"><strong>Sex:</strong> <span id="modal-sex"></span></li>
-            <li class="list-group-item"><strong>City:</strong> <span id="modal-city"></span></li>
-            <li class="list-group-item"><strong>Role:</strong> <span id="modal-role"></span></li>
-            </ul>
+        const search = $('#searchInput').val().toLowerCase();
 
-            <h6 class="fw-bold text-primary mb-2">Documents & Photos:</h6>
-            <div id="photoGallery" class="photo-gallery">
-                <div class="photo-card">
-                    <p class="photo-label">Profile Photo</p>
-                    <img id="profilePhoto" class="driver-photo" src="" alt="Profile Photo">
-                </div>
-                <div class="photo-card">
-                    <p class="photo-label">Police Clearance</p>
-                    <img id="policeClearance" class="driver-photo" src="" alt="Police Clearance">
-                </div>
-                <div class="photo-card">
-                    <p class="photo-label">Barangay Clearance</p>
-                    <img id="brgyClearance" class="driver-photo" src="" alt="Barangay Clearance">
-                </div>
-                <div class="photo-card">
-                    <p class="photo-label">Business Permit</p>
-                    <img id="businessPermit" class="driver-photo" src="" alt="Business Permit">
+        let filtered = users.filter(u => u.fullname.toLowerCase().includes(search));
+
+        if (currentStatus !== 'all') {
+            filtered = filtered.filter(u => u.status === currentStatus);
+        }
+
+        if (filtered.length === 0) {
+            $('#usersContainer').append('<p>No users found.</p>');
+            return;
+        }
+
+        filtered.forEach(user => appendUser(user));
+    }
+
+    // Creates a card for each user
+    function appendUser(user) {
+        const statusTime = user.status_updated_at
+            ? ` (${new Date(user.status_updated_at).toLocaleString()})`
+            : '';
+
+        const showButtons = user.status === 'pending' ? '' : 'style="display:none;"';
+
+        const html = `
+            <div class="user-entry">
+                <img src="${user.photo ?? '/images/no-image.png'}" class="user-photo" alt="User Photo">
+
+                <div class="user-info">
+                    <p><strong>${user.fullname}</strong></p>
+                    <p>Email: ${user.email}</p>
+                    <p>Phone: ${user.phone}</p>
+                    <p>City: ${user.city}</p>
+
+                    <p class="user-role">
+                        ${user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                    </p>
+
+                    <p class="status-${user.status}">
+                        ${user.status.charAt(0).toUpperCase() + user.status.slice(1)}
+                        ${statusTime}
+                    </p>
+
+                    <div class="action-buttons" ${showButtons}>
+                        <form action="/admin/users/${user.id}/approve" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-success btn-sm">Approve</button>
+                        </form>
+
+                        <form action="/admin/users/${user.id}/disapprove" method="POST" style="display:inline;">
+                            @csrf
+                            <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
+                        </form>
+                    </div>
                 </div>
             </div>
+        `;
 
-            <div class="mt-3" id="userActions">
-                <form id="approveForm" action="" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-success btn-sm">Approve</button>
-                </form>
+        $('#usersContainer').append(html);
+    }
 
-                <form id="disapproveForm" action="" method="POST" style="display:inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-warning btn-sm">Disapprove</button>
-                </form>
-
-                <form id="deleteForm" action="" method="POST" style="display:inline;">
-                    @csrf
-                    @method('DELETE')
-                    <button type="submit" class="btn btn-danger btn-sm">Delete</button>
-                </form>
-
-                <button type="button" class="btn btn-primary btn-sm" id="printUser">Print / Download</button>
-            </div>
-        </div>
-        </div>
-    </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const modal = new bootstrap.Modal(document.getElementById('userInfoModal'));
-        let selectedUser = null;
-
-        document.querySelectorAll(".user-table tbody tr").forEach(row => {
-            row.addEventListener("click", e => {
-                const user = JSON.parse(row.getAttribute("data-user"));
-                selectedUser = user;
-
-                document.getElementById("modal-id").innerText = user.id;
-                document.getElementById("modal-fullname").innerText = user.fullname;
-                document.getElementById("modal-email").innerText = user.email;
-                document.getElementById("modal-phone").innerText = user.phone;
-                document.getElementById("modal-age").innerText = user.age ?? 'N/A';
-                document.getElementById("modal-sex").innerText = user.sex ?? 'N/A';
-                document.getElementById("modal-city").innerText = user.city ?? 'N/A';
-                document.getElementById("modal-role").innerText = user.role ?? 'N/A';
-
-                const defaultImg = '/images/no-image.png';
-                document.getElementById('profilePhoto').src = user.photo ?? defaultImg;
-                document.getElementById('policeClearance').src = user.police_clearance ?? defaultImg;
-                document.getElementById('brgyClearance').src = user.barangay_clearance ?? defaultImg;
-                document.getElementById('businessPermit').src = user.business_permit ?? defaultImg;
-
-                document.getElementById('approveForm').action = `/admin/users/${user.id}/approve`;
-                document.getElementById('disapproveForm').action = `/admin/users/${user.id}/disapprove`;
-                document.getElementById('deleteForm').action = `/admin/users/${user.id}`;
-
-                // Toggle buttons based on status
-                const approveBtn = document.getElementById('approveForm');
-                const disapproveBtn = document.getElementById('disapproveForm');
-
-                if(user.status === 'pending') {
-                    approveBtn.style.display = 'inline-block';
-                    disapproveBtn.style.display = 'inline-block';
-                } else {
-                    approveBtn.style.display = 'none';
-                    disapproveBtn.style.display = 'none';
-                }
-
-                modal.show();
-            });
-        });
-
-        document.getElementById('deleteForm').addEventListener('submit', e => {
-            e.preventDefault();
-            Swal.fire({
-                title: 'Are you sure?',
-                text: "This user will be permanently deleted.",
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#ef4444',
-                cancelButtonColor: '#6c757d',
-                confirmButtonText: 'Yes, delete it!'
-            }).then(result => {
-                if (result.isConfirmed) e.target.submit();
-            });
-        });
-
-        const searchInput = document.getElementById("searchInput");
-        searchInput.addEventListener("keyup", () => {
-            const filter = searchInput.value.toLowerCase();
-            document.querySelectorAll(".user-table tbody tr").forEach(row => {
-                row.style.display = row.innerText.toLowerCase().includes(filter) ? "" : "none";
-            });
-        });
-
-        document.getElementById('printUser').addEventListener('click', () => {
-            if (!selectedUser) return;
-            const modalBody = document.querySelector('#userInfoModal .modal-body').innerHTML;
-            const printWindow = window.open('', '_blank', 'width=800,height=600');
-            printWindow.document.write(`
-                <html>
-                    <head>
-                        <title>User Details</title>
-                        <style>
-                            body { font-family: 'Inter', sans-serif; padding: 20px; background: #f8fafc; color: #1f2937; }
-                            h2 { color: #0ea5e9; }
-                            ul { list-style: none; padding: 0; }
-                            li { margin-bottom: 8px; font-size: 1rem; }
-                            img { width: 150px; height: 150px; object-fit: cover; margin-right: 10px; border-radius: 8px; border: 1px solid #cbd5e1; }
-                            .photo-gallery { display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; }
-                            .photo-card { text-align: center; }
-                            .photo-label { font-weight: 600; color: #0ea5e9; margin-top: 5px; }
-                        </style>
-                    </head>
-                    <body>
-                        <h2>User Details</h2>
-                        ${modalBody}
-                    </body>
-                </html>
-            `);
-            printWindow.document.close();
-            printWindow.focus();
-            printWindow.print();
-            printWindow.close();
-        });
+    // Search typing
+    $('#searchInput').on('keyup', function() {
+        renderUsers();
     });
-    </script>  
-    @endsection
+
+    // 🔽 DROPDOWN FILTER LOGIC
+    $('#statusDropdown').on('change', function() {
+        currentStatus = $(this).val();
+        renderUsers();
+    });
+
+    renderUsers();
+});
+</script>
+
+@endsection

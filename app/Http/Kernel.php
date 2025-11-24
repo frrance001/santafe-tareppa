@@ -63,4 +63,5 @@ class Kernel extends HttpKernel
         'passenger' => \App\Http\Middleware\EnsurePassenger::class,
         'driver' => \App\Http\Middleware\DriverMiddleware::class,
     ];
+    
 }

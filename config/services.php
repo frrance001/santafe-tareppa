@@ -33,4 +33,9 @@ return [
     
 
 
+    'recaptcha' => [
+    'site_key' => env('6LfqyxUsAAAAAPy0drlq-z9tcSasfl7PGqIUwOOs'),
+    'secret_key' => env('6LfqyxUsAAAAAPGN2twULvLtv0FNEMqwUG8PLoSJ'),
+],
+
 ];

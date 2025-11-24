@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use App\Models\User;
 
 class LoginController extends Controller
@@ -20,37 +21,57 @@ class LoginController extends Controller
         return view('auth.login');
     }
 
-    // ================================================
+    // ======================================================
     // 🚀 MAIN LOGIN FUNCTION
-    // ================================================
+    // ======================================================
     public function login(Request $request)
     {
+        // 1️⃣ Validate basic input
         $request->validate([
-            'role' => 'required',
+            'role' => 'required|string',
             'email' => 'required|email',
         ]);
 
         $role = ucfirst(strtolower($request->input('role')));
         $email = $request->input('email');
 
-        // ================================================
-        // 🔐 Throttle protection
-        // ================================================
+        // 2️⃣ Rate limiting
         $throttleKey = Str::lower($email) . '|' . $request->ip();
-
-        if (RateLimiter::tooManyAttempts($throttleKey, 3)) {
+        if (RateLimiter::tooManyAttempts($throttleKey, 5)) {
             $seconds = RateLimiter::availableIn($throttleKey);
             return back()->withErrors([
-                'email' => "Too many login attempts. Try again in {$seconds} seconds.",
+                'email' => "Too many login attempts. Try again in {$seconds} seconds."
             ])->onlyInput('email');
         }
 
+        // 3️⃣ Validate Google reCAPTCHA v3
+        $recaptchaToken = $request->input('recaptcha_token');
+        if (!$recaptchaToken) {
+            return back()->with('error', 'reCAPTCHA token is missing.');
+        }
+
+        $recaptchaResponse = Http::asForm()->post('https://www.google.com/recaptcha/api/siteverify', [
+            'secret' => env('RECAPTCHA_SECRET'),
+            'response' => $recaptchaToken,
+            'remoteip' => $request->ip(),
+        ]);
+
+        $recaptchaData = $recaptchaResponse->json();
+
+        if (
+            !isset($recaptchaData['success']) || 
+            $recaptchaData['success'] !== true || 
+            ($recaptchaData['score'] ?? 0) < 0.5
+        ) {
+            RateLimiter::hit($throttleKey, 60);
+            return back()->with('error', 'reCAPTCHA verification failed. Please try again.');
+        }
+
         // ======================================================
-        // 🛑 ADMIN LOGIN (password required)
+        // 🛑 ADMIN LOGIN (Password Required)
         // ======================================================
         if ($role === 'Admin') {
-
-            $request->validate(['password' => 'required']);
+            $request->validate(['password' => 'required|string']);
 
             $user = User::where('email', $email)
                         ->where('role', 'Admin')
@@ -66,49 +87,45 @@ class LoginController extends Controller
                 return back()->with('error', 'Incorrect password.');
             }
 
-            // SUCCESS LOGIN
+            // ✅ Successful Admin login
             Auth::login($user);
             RateLimiter::clear($throttleKey);
             $request->session()->regenerate();
-
             return redirect()->route('admin.dashboard');
         }
 
         // ======================================================
-        // 🚗 DRIVER / PASSENGER LOGIN (OTP LOGIN)
+        // 🚗 DRIVER / PASSENGER LOGIN (OTP)
         // ======================================================
-        if ($role === 'Driver') {
-            $user = User::where('email', $email)->where('role', 'Driver')->first();
+        $user = User::where('email', $email)->where('role', $role)->first();
 
+        if ($role === 'Driver') {
             if (!$user) {
                 RateLimiter::hit($throttleKey, 60);
                 return back()->with('error', 'Driver account does not exist.');
             }
-
-            // 🚫 Block pending or disapproved drivers
             if ($user->status === 'pending') {
                 return back()->with('error', 'Your account is still pending approval.');
             }
-
             if ($user->status === 'disapproved') {
                 return back()->with('error', 'Your registration has been disapproved.');
             }
         }
 
-        // ======================================================
-        // 📩 Generate & Send OTP
-        // ======================================================
+        // Generate OTP
         $otp = rand(100000, 999999);
+        Session::put([
+            'otp' => $otp,
+            'otp_email' => $email,
+            'otp_role' => $role,
+        ]);
 
-        Session::put('otp', $otp);
-        Session::put('otp_email', $email);
-        Session::put('otp_role', $role);
-
+        // Send OTP via email
         Mail::raw("Your OTP code is: $otp\n\nValid for 5 minutes.", function ($message) use ($email, $role) {
             $message->to($email)->subject("Santafe Tareppa $role Login OTP");
         });
 
-        // Count as a failed login step (not yet authenticated)
+        // Count as a login attempt
         RateLimiter::hit($throttleKey, 60);
 
         return redirect()->route('otp.verify')->with('success', 'OTP sent to your email.');
@@ -138,46 +155,35 @@ class LoginController extends Controller
             return back()->with('error', 'Invalid OTP. Please try again.');
         }
 
-        // OTP is correct → Clear attempts
+        // Clear OTP attempts
         RateLimiter::clear($throttleKey);
 
-        // ================================
-        // 🚗 DRIVER LOGIN
-        // ================================
+        // Driver login
         if ($role === 'Driver') {
             $user = User::where('email', $email)->where('role', 'Driver')->first();
-
-            if (!$user) {
-                return redirect()->route('login')->with('error', 'Driver account does not exist.');
+            if (!$user || $user->status !== 'approved') {
+                return redirect()->route('login')->with('error', 'Your account is not approved.');
             }
-
-            if ($user->status !== 'approved') {
-                return redirect()->route('login')->with('error', 'Your account is not yet approved.');
-            }
-
             Auth::login($user);
-            Session::forget(['otp', 'otp_email', 'otp_role']);
-
-            return redirect()->route('driver.dashboard');
         }
 
-        // ================================
-        // 🧍 PASSENGER LOGIN (AUTO-CREATE)
-        // ================================
+        // Passenger login (auto-create if not exists)
         if ($role === 'Passenger') {
             $user = User::firstOrCreate(
                 ['email' => $email],
                 [
                     'role' => $role,
                     'password' => bcrypt(Str::random(10)),
-                    'fullname' => $role . ' User',
+                    'fullname' => 'Passenger User',
                 ]
             );
-
             Auth::login($user);
-            Session::forget(['otp', 'otp_email', 'otp_role']);
-
-            return redirect()->route('passenger.dashboard');
         }
+
+        // Clear OTP session
+        Session::forget(['otp', 'otp_email', 'otp_role']);
+
+        // Redirect based on role
+        return $role === 'Driver' ? redirect()->route('driver.dashboard') : redirect()->route('passenger.dashboard');
     }
 }
