@@ -120,15 +120,12 @@
 
     /* reCAPTCHA v3 badge in bottom-right corner */
     .grecaptcha-badge {
-      visibility: visible !important;
-      opacity: 1 !important;
-      position: fixed !important;
-      bottom: 15px !important;
-      right: 15px !important;
-      z-index: 9999 !important;
-      transform: scale(0.85);
-      transform-origin: bottom right;
-    }
+    position: fixed !important;
+    bottom: 15px !important;
+    right: 15px !important;
+    z-index: 9999 !important;
+}
+
   </style>
 </head>
 <body>
@@ -175,6 +172,9 @@
 </div>
 
 <script>
+  function onRecaptchaLoad() {
+    console.log('reCAPTCHA v3 loaded');
+  }
   // Toggle password visibility
   const togglePassword = document.getElementById('togglePassword');
   const passwordInput = document.getElementById('password');
