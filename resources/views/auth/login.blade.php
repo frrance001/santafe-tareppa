@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Google reCAPTCHA v3 -->
-  <script src="https://www.google.com/recaptcha/api.js?render=YOUR_SITE_KEY"></script>
+  <script src="https://www.google.com/recaptcha/api.js?render=6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-"></script>
 
   <style>
     body {
@@ -118,16 +118,12 @@
       cursor: pointer;
     }
 
-    /* reCAPTCHA v3 badge in bottom-right corner */
-    .grecaptcha-badge {
+    /* reCAPTCHA badge */
+    #recaptcha-badge {
       position: fixed !important;
       bottom: 15px !important;
       right: 15px !important;
       z-index: 9999 !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      transform: scale(0.85);
-      transform-origin: bottom right;
     }
   </style>
 </head>
@@ -174,6 +170,9 @@
   </form>
 </div>
 
+<!-- Visible reCAPTCHA badge -->
+<div id="recaptcha-badge"></div>
+
 <script>
   // Toggle password visibility
   const togglePassword = document.getElementById('togglePassword');
@@ -204,11 +203,17 @@
     Swal.fire({ icon:'error', title:'Error', html:`<ul style="text-align:left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>` });
   @endif
 
-  // reCAPTCHA v3 page-level execution
+  // Render visible reCAPTCHA v3 badge
   grecaptcha.ready(function() {
+    grecaptcha.render('recaptcha-badge', {
+      sitekey: '6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-',
+      size: 'normal',       // visible badge
+      badge: 'bottomright'  // position
+    });
+
+    // Page-level token (optional)
     grecaptcha.execute('6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-', {action: 'pageview'}).then(function(token) {
       console.log('Page-level reCAPTCHA token:', token);
-      // token can be used for server-side verification if needed
     });
   });
 
