@@ -118,16 +118,16 @@
       cursor:pointer; 
     }
 
-    /* Make v3 badge visible inside login card */
-    .login-card .grecaptcha-badge {
+    /* reCAPTCHA v3 badge in bottom-right corner */
+    .grecaptcha-badge {
       visibility: visible !important;
       opacity: 1 !important;
-      position: absolute !important;
+      position: fixed !important;
       bottom: 15px !important;
       right: 15px !important;
-      transform: scale(0.8); /* shrink it slightly */
+      z-index: 9999 !important;
+      transform: scale(0.85);
       transform-origin: bottom right;
-      z-index: 10 !important;
     }
   </style>
 </head>
@@ -165,7 +165,7 @@
       <i class="bi bi-eye toggle-password" id="togglePassword"></i>
     </div>
 
-    <!-- Hidden v3 token -->
+    <!-- Hidden reCAPTCHA v3 token -->
     <input type="hidden" name="recaptcha_token" id="recaptcha_token">
 
     <button type="submit" class="btn btn-login w-100">
@@ -203,15 +203,6 @@
   @if($errors->any())
     Swal.fire({ icon:'error', title:'Error', html:`<ul style="text-align:left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>` });
   @endif
-
-  // Move reCAPTCHA badge inside the login card
-  window.onload = () => {
-    const badge = document.querySelector('.grecaptcha-badge');
-    const card = document.querySelector('.login-card');
-    if(badge && card){
-      card.appendChild(badge);
-    }
-  };
 
   // reCAPTCHA v3 submit
   const loginForm = document.getElementById('loginForm');
