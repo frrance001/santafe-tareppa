@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Google reCAPTCHA v3 -->
-  <script src="https://www.google.com/recaptcha/api.js?render=6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-"></script>
+  <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE_KEY') }}"></script>
 
   <style>
     body {
@@ -102,18 +102,12 @@
       font-size: 24px;
       text-align: center;
       color: #1e3a8a;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      position: relative;
     }
 
     .toggle-password {
       position: absolute;
       right: 16px;
-      top: 70%;
-      transform: translateY(-50%);
+      bottom: 12px;
       color: #6b7280;
       cursor: pointer;
     }
@@ -144,7 +138,7 @@
 
     <div class="mb-3">
       <label for="email" class="form-label">Email address</label>
-      <input name="email" type="email" id="email" class="form-control" placeholder="Enter your Gmail" required autofocus pattern="[a-zA-Z._%+-]+@gmail\.com" title="Please enter a valid Gmail address">
+      <input name="email" type="email" id="email" class="form-control" placeholder="Enter your Gmail" required pattern="[a-zA-Z._%+-]+@gmail\.com">
     </div>
 
     <div class="mb-4 position-relative" id="passwordField">
@@ -165,19 +159,17 @@
 <script>
   // Toggle password visibility
   document.getElementById('togglePassword').addEventListener('click', () => {
-    const passwordInput = document.getElementById('password');
-    const type = passwordInput.type === 'password' ? 'text' : 'password';
-    passwordInput.type = type;
-    togglePassword.classList.toggle('bi-eye');
-    togglePassword.classList.toggle('bi-eye-slash');
+    const input = document.getElementById('password');
+    input.type = input.type === 'password' ? 'text' : 'password';
   });
 
   // Hide password for non-admin
   const roleSelect = document.getElementById('role');
   const passwordField = document.getElementById('passwordField');
-  if(roleSelect.value !== 'admin'){ passwordField.style.display='none'; }
+  passwordField.style.display = 'none';
+
   roleSelect.addEventListener('change', () => {
-    passwordField.style.display = roleSelect.value==='admin' ? 'block' : 'none';
+    passwordField.style.display = roleSelect.value === 'admin' ? 'block' : 'none';
   });
 
   // SweetAlert messages
@@ -191,16 +183,12 @@
     Swal.fire({ icon:'error', title:'Error', html:`<ul style="text-align:left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>` });
   @endif
 
-  // reCAPTCHA v3 on form submit
-  const loginForm = document.getElementById('loginForm');
-  loginForm.addEventListener('submit', function(e) {
-    e.preventDefault();
-    grecaptcha.ready(function() {
-      grecaptcha.execute('6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-', {action: 'login'}).then(function(token) {
-        document.getElementById('recaptcha_token').value = token;
-        loginForm.submit();
-      });
-    });
+  // reCAPTCHA v3 generate token ONCE on page load
+  grecaptcha.ready(function() {
+    grecaptcha.execute("{{ env('RECAPTCHA_SITE_KEY') }}", { action: "login" })
+        .then(function(token) {
+            document.getElementById("recaptcha_token").value = token;
+        });
   });
 </script>
 

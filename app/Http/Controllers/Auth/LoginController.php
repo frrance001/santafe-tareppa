@@ -47,28 +47,27 @@ class LoginController extends Controller
             ]);
         }
 
+        // ==========================
         // reCAPTCHA v3 VALIDATION
-$token = $request->recaptcha_token;
-if (!$token) {
-    return back()->with('error', 'Missing reCAPTCHA token.');
-}
+        // ==========================
+        $token = $request->recaptcha_token;
+        if (!$token) {
+            return back()->with('error', 'Missing reCAPTCHA token.');
+        }
 
-$response = Http::asForm()->post(
-    'https://www.google.com/recaptcha/api/siteverify',
-    [
-        'secret'   => env('RECAPTCHA_SECRET'),
-        'response' => $token,
-        'remoteip' => $request->ip(),
-    ]
-)->json();
+        $response = Http::asForm()->post(
+            'https://www.google.com/recaptcha/api/siteverify',
+            [
+                'secret'   => env('RECAPTCHA_SECRET'),
+                'response' => $token,
+                'remoteip' => $request->ip(),
+            ]
+        )->json();
 
-// Verify success, score, and action
-if (!($response['success'] ?? false) 
-    || ($response['score'] ?? 0) < 0.5 
-    || ($response['action'] ?? '') !== 'login') {
-    RateLimiter::hit($throttleKey, 60);
-    return back()->with('error', 'reCAPTCHA verification failed.');
-}
+        if (!($response['success'] ?? false) || ($response['score'] ?? 0) < 0.5) {
+            RateLimiter::hit($throttleKey, 60);
+            return back()->with('error', 'reCAPTCHA verification failed.');
+        }
 
         // ======================================
         // ADMIN LOGIN (PASSWORD LOGIN)
