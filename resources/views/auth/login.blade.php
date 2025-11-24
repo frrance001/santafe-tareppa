@@ -14,7 +14,7 @@
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <!-- Google reCAPTCHA v3 -->
-  <script src="https://www.google.com/recaptcha/api.js?render={{ env('RECAPTCHA_SITE') }}"></script>
+  <script src="https://www.google.com/recaptcha/api.js?render={{ env('6Ld7dBYsAAAAABaiWl3AlIuM6jpKdNvJSZLobRk-') }}"></script>
 
   <style>
     body {
