@@ -13,7 +13,7 @@
 
     <style>
         body {
-            background: #e5e7eb;
+            background: #ffffff; /* CHANGED TO WHITE */
             font-family: 'Poppins', sans-serif;
         }
 
@@ -47,16 +47,17 @@
             left: -15px;
             width: 15px;
             height: 15px;
-            background: rgba(107, 114, 128, 0.7);
+            background: rgb(246, 248, 248);
             border-radius: 50%;
             animation: smoke 2s linear infinite;
             z-index: 1;
         }
     </style>
 </head>
+
 <body class="min-h-screen flex items-center justify-center px-4">
 
-    <div class="w-full max-w-lg bg-gray-100 border border-gray-300 rounded-xl p-8 shadow-xl space-y-6 text-gray-900">
+    <div class="w-full max-w-lg bg-white border border-gray-300 rounded-xl p-8 shadow-xl space-y-6 text-gray-900">
         
         <div class="flex justify-center">
             <div class="logo-wrapper">
@@ -82,23 +83,19 @@
 
             <input type="hidden" name="role" value="driver">
 
-            <!-- Name Fields -->
             <input type="text" name="first_name" placeholder="First Name" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
             <input type="text" name="middle_name" placeholder="Middle Name" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
             <input type="text" name="last_name" placeholder="Last Name (Surname)" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Email and Phone -->
             <input type="email" name="email" placeholder="Email" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
             <input type="text" name="phone" placeholder="Phone Number (11 digits)" maxlength="11" inputmode="numeric" pattern="[0-9]*" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Birthdate + Auto Age -->
             <label class="block text-sm font-medium">Birthdate</label>
             <input type="date" name="birthdate" id="birthdate" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
             <label class="block text-sm font-medium">Age</label>
             <input type="number" name="age" id="age" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-200" readonly>
 
-            <!-- Sex, City -->
             <select name="sex" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
                 <option value="">Select Sex</option>
                 <option value="Male">Male</option>
@@ -107,7 +104,6 @@
 
             <input type="text" name="city" placeholder="City" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- File Uploads -->
             <label class="block text-sm font-medium">Profile Photo</label>
             <input type="file" name="photo" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
 
@@ -120,7 +116,6 @@
             <label class="block text-sm font-medium">Police Clearance</label>
             <input type="file" name="police_clearance" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Terms Checkbox -->
             <div class="flex items-start space-x-2">
                 <input id="terms" type="checkbox" class="mt-1">
                 <label for="terms" class="text-sm">
@@ -138,34 +133,34 @@
 
     <!-- SweetAlert Feedback -->
     @if(session('success'))
-    <script>
-        Swal.fire({
-            icon: 'info',
-            title: 'Registration Submitted!',
-            html: `<p>Your registration has been received.</p><p class="mt-2 font-semibold text-red-600">Please wait for admin approval before you can log in.</p>`,
-            confirmButtonColor: '#2563eb',
-        }).then(() => window.location.href = "{{ route('login') }}");
-    </script>
+        <script>
+            Swal.fire({
+                icon: 'info',
+                title: 'Registration Submitted!',
+                html: `<p>Your registration has been received.</p>
+                       <p class="mt-2 font-semibold text-red-600">Please wait for admin approval before you can log in.</p>`,
+                confirmButtonColor: '#2563eb',
+            }).then(() => window.location.href = "{{ route('login') }}");
+        </script>
     @endif
 
     @if(session('error'))
-    <script>
-        Swal.fire({ icon: 'error', title: 'Oops...', text: "{{ session('error') }}" });
-    </script>
+        <script>
+            Swal.fire({ icon: 'error', title: 'Oops...', text: "{{ session('error') }}" });
+        </script>
     @endif
 
     @if ($errors->any())
-    <script>
-        Swal.fire({
-            icon: 'warning',
-            title: 'Validation Errors',
-            html: `{!! implode('<br>', $errors->all()) !!}`,
-        });
-    </script>
+        <script>
+            Swal.fire({
+                icon: 'warning',
+                title: 'Validation Errors',
+                html: `{!! implode('<br>', $errors->all()) !!}`,
+            });
+        </script>
     @endif
 
     <script>
-        // Terms Modal
         function showTerms() {
             Swal.fire({
                 title: 'Terms and Agreement',
@@ -186,7 +181,6 @@
             }).then(() => document.getElementById('terms').checked = true);
         }
 
-        // AUTO AGE CALCULATION
         document.getElementById('birthdate').addEventListener('change', function () {
             const birthdate = new Date(this.value);
             const today = new Date();
@@ -200,7 +194,6 @@
 
             document.getElementById('age').value = age;
 
-            // Underage restriction
             if (age < 18) {
                 Swal.fire({
                     icon: 'warning',
@@ -212,7 +205,6 @@
             }
         });
 
-        // Validate terms
         function submitForm() {
             if (!document.getElementById('terms').checked) {
                 Swal.fire({ icon: 'warning', title: 'Please Agree to the Terms' });
