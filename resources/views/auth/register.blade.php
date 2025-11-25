@@ -52,9 +52,6 @@
             animation: smoke 2s linear infinite;
             z-index: 1;
         }
-        .smoke:nth-child(1) {animation-delay: 0s;}
-        .smoke:nth-child(2) {animation-delay: 0.5s; left: -25px; width: 12px; height: 12px;}
-        .smoke:nth-child(3) {animation-delay: 1s; left: -20px; width: 18px; height: 18px;}
     </style>
 </head>
 <body class="min-h-screen flex items-center justify-center px-4">
@@ -74,16 +71,15 @@
             <h3 class="text-xl font-semibold text-gray-800 mb-2">Registration Requirements</h3>
             <ul class="list-disc pl-5 space-y-1 text-gray-700">
                 <li>Provide your <strong>First Name, Middle Name, Last Name, Email, Phone Number</strong>.</li>
-                <li>Enter your <strong>Age, Sex, and City</strong>.</li>
+                <li>Enter your <strong>Birthdate</strong> — age will auto-fill.</li>
                 <li>Upload your <strong>Profile Photo</strong>.</li>
-                <li>Upload required documents: <strong>Business Permit, Barangay Clearance, Police Clearance</strong>.</li>
+                <li>Upload: <strong>Business Permit, Barangay Clearance, Police Clearance</strong>.</li>
             </ul>
         </div>
 
         <form id="registerForm" method="POST" action="{{ route('register') }}" enctype="multipart/form-data" class="space-y-4">
             @csrf
 
-            <!-- Hidden Role Field -->
             <input type="hidden" name="role" value="driver">
 
             <!-- Name Fields -->
@@ -95,22 +91,32 @@
             <input type="email" name="email" placeholder="Email" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
             <input type="text" name="phone" placeholder="Phone Number (11 digits)" maxlength="11" inputmode="numeric" pattern="[0-9]*" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
-            <!-- Age, Sex, City -->
-            <input type="number" name="age" placeholder="Age" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+            <!-- Birthdate + Auto Age -->
+            <label class="block text-sm font-medium">Birthdate</label>
+            <input type="date" name="birthdate" id="birthdate" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+
+            <label class="block text-sm font-medium">Age</label>
+            <input type="number" name="age" id="age" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-200" readonly>
+
+            <!-- Sex, City -->
             <select name="sex" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
                 <option value="">Select Sex</option>
                 <option value="Male">Male</option>
                 <option value="Female">Female</option>
             </select>
+
             <input type="text" name="city" placeholder="City" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
 
             <!-- File Uploads -->
             <label class="block text-sm font-medium">Profile Photo</label>
             <input type="file" name="photo" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
+
             <label class="block text-sm font-medium">Business Permit</label>
             <input type="file" name="business_permit" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
+
             <label class="block text-sm font-medium">Barangay Clearance</label>
             <input type="file" name="barangay_clearance" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
+
             <label class="block text-sm font-medium">Police Clearance</label>
             <input type="file" name="police_clearance" class="w-full border border-gray-400 rounded-lg bg-gray-50" required>
 
@@ -123,7 +129,6 @@
                 </label>
             </div>
 
-            <!-- Submit Button -->
             <button type="button" onclick="submitForm()"
                 class="w-full py-2 bg-gradient-to-r from-sky-400 to-sky-600 hover:from-sky-500 hover:to-sky-700 transition duration-200 rounded-lg text-white font-semibold shadow-md">
                 Submit
@@ -131,49 +136,36 @@
         </form>
     </div>
 
-    <!-- SUCCESS MODAL -->
+    <!-- SweetAlert Feedback -->
     @if(session('success'))
-        <script>
-            Swal.fire({
-                icon: 'info',
-                title: 'Registration Submitted!',
-                html: `
-                    <p>Your registration has been received.</p>
-                    <p class="mt-2 font-semibold text-red-600">
-                        Please wait for admin approval before you can log in.
-                    </p>
-                `,
-                confirmButtonColor: '#2563eb',
-                confirmButtonText: 'OK'
-            }).then(() => {
-                window.location.href = "{{ route('login') }}";
-            });
-        </script>
+    <script>
+        Swal.fire({
+            icon: 'info',
+            title: 'Registration Submitted!',
+            html: `<p>Your registration has been received.</p><p class="mt-2 font-semibold text-red-600">Please wait for admin approval before you can log in.</p>`,
+            confirmButtonColor: '#2563eb',
+        }).then(() => window.location.href = "{{ route('login') }}");
+    </script>
     @endif
 
     @if(session('error'))
-        <script>
-            Swal.fire({
-                icon: 'error',
-                title: 'Oops...',
-                text: "{{ session('error') }}",
-                confirmButtonColor: '#dc2626'
-            });
-        </script>
+    <script>
+        Swal.fire({ icon: 'error', title: 'Oops...', text: "{{ session('error') }}" });
+    </script>
     @endif
 
     @if ($errors->any())
-        <script>
-            Swal.fire({
-                icon: 'warning',
-                title: 'Validation Errors',
-                html: `{!! implode('<br>', $errors->all()) !!}`,
-                confirmButtonColor: '#f59e0b'
-            });
-        </script>
+    <script>
+        Swal.fire({
+            icon: 'warning',
+            title: 'Validation Errors',
+            html: `{!! implode('<br>', $errors->all()) !!}`,
+        });
+    </script>
     @endif
 
     <script>
+        // Terms Modal
         function showTerms() {
             Swal.fire({
                 title: 'Terms and Agreement',
@@ -185,24 +177,45 @@
                             <li>You will comply with transportation and safety laws.</li>
                             <li>Admins may verify your identity and documents.</li>
                             <li>False information may suspend your account.</li>
-                            <li>You will update your driver information if needed.</li>
+                            <li>You will update your information if needed.</li>
                         </ul>
                     </div>
                 `,
                 confirmButtonText: 'I Agree',
                 confirmButtonColor: '#16a34a'
-            }).then(() => {
-                document.getElementById('terms').checked = true;
-            });
+            }).then(() => document.getElementById('terms').checked = true);
         }
 
-        function submitForm() {
-            if (!document.getElementById('terms').checked) {
+        // AUTO AGE CALCULATION
+        document.getElementById('birthdate').addEventListener('change', function () {
+            const birthdate = new Date(this.value);
+            const today = new Date();
+
+            let age = today.getFullYear() - birthdate.getFullYear();
+            const monthDiff = today.getMonth() - birthdate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthdate.getDate())) {
+                age--;
+            }
+
+            document.getElementById('age').value = age;
+
+            // Underage restriction
+            if (age < 18) {
                 Swal.fire({
                     icon: 'warning',
-                    title: 'Please Agree to the Terms',
-                    text: 'You must agree before submitting.',
+                    title: 'Age Restriction',
+                    text: 'You must be at least 18 to register as a driver.',
                 });
+                this.value = "";
+                document.getElementById('age').value = "";
+            }
+        });
+
+        // Validate terms
+        function submitForm() {
+            if (!document.getElementById('terms').checked) {
+                Swal.fire({ icon: 'warning', title: 'Please Agree to the Terms' });
                 return;
             }
             document.getElementById('registerForm').submit();
