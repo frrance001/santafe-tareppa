@@ -180,14 +180,18 @@
                         <tr>
                             <td>{{ $rating->id }}</td>
 
-                            {{-- Passenger --}}
-                            <td>
-                                @if ($rating->rateable_type === App\Models\Ride::class)
-                                    {{ optional($rating->rateable->passenger)->name ?? 'Unknown' }}
-                                @else
-                                    {{ optional($rating->rater)->name ?? 'Unknown' }}
-                                @endif
-                            </td>
+                           {{-- Passenger --}}
+<td>
+    @php
+        if ($rating->rateable_type === App\Models\Ride::class) {
+            $user = optional($rating->rateable->passenger);
+        } else {
+            $user = optional($rating->rater);
+        }
+    @endphp
+
+    {{ $user->id ?? 'Unknown ID' }} — {{ $user->name ?? 'Unknown User' }}
+</td>
 
                             {{-- Driver --}}
                             <td>
