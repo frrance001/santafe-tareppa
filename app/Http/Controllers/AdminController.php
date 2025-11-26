@@ -24,14 +24,19 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User approved successfully!');
     }
 
-    // Disapprove user
-    public function disapprove($id)
+    // Disapprove user with reason
+    public function disapprove(Request $request, $id)
     {
+        $request->validate([
+            'reason' => 'required|string|max:500',
+        ]);
+
         $user = User::findOrFail($id);
         $user->status = 'disapproved';
+        $user->disapproval_reason = $request->reason; // make sure this column exists in DB
         $user->save();
 
-        return redirect()->back()->with('success', 'User disapproved successfully!');
+        return redirect()->back()->with('success', 'User disapproved successfully.');
     }
 
     // Delete user
@@ -47,7 +52,6 @@ class AdminController extends Controller
     // MANAGE USERS BY STATUS
     // -------------------------------
 
-    // PENDING USERS
     public function managePending()
     {
         $status = 'pending';
@@ -56,7 +60,6 @@ class AdminController extends Controller
         return view('admin.manage.index', compact('users', 'status'));
     }
 
-    // APPROVED USERS
     public function manageApproved()
     {
         $status = 'approved';
@@ -65,7 +68,6 @@ class AdminController extends Controller
         return view('admin.manage.index', compact('users', 'status'));
     }
 
-    // DISAPPROVED USERS
     public function manageDisapproved()
     {
         $status = 'disapproved';
