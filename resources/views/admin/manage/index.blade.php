@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <h2>{{ ucfirst($status) }} Users</h2>
+    <h2>{{ ucfirst($status) }} Drivers</h2>
     <hr>
 
     <table class="table table-bordered mt-3">
@@ -17,7 +17,12 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($users as $user)
+            @php
+                // Filter only drivers
+                $drivers = $users->where('role', 'driver');
+            @endphp
+
+            @forelse ($drivers as $user)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $user->fullname }}</td>
@@ -33,8 +38,7 @@
                     </td>
                     <td>{{ $user->created_at->format('M d, Y') }}</td>
                     <td>
-                        <!-- Only show actions for pending drivers -->
-                        @if($user->role === 'Driver' && $user->status === 'pending')
+                        @if($user->status === 'pending')
                             <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal{{ $user->id }}">Approve</button>
                             <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#disapproveModal{{ $user->id }}">Disapprove</button>
                         @endif
@@ -77,6 +81,10 @@
                                 <div class="modal-body">
                                     Are you sure you want to disapprove <strong>{{ $user->fullname }}</strong>?
                                     <p>Email: {{ $user->email }}</p>
+                                    <div class="mt-3">
+                                        <label for="reason{{ $user->id }}" class="form-label">Reason for disapproval:</label>
+                                        <textarea name="reason" id="reason{{ $user->id }}" class="form-control" rows="3" required></textarea>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-danger">Disapprove</button>
@@ -89,7 +97,7 @@
 
             @empty
                 <tr>
-                    <td colspan="6" class="text-center text-danger">No {{ $status }} users found.</td>
+                    <td colspan="6" class="text-center text-danger">No {{ $status }} drivers found.</td>
                 </tr>
             @endforelse
         </tbody>
