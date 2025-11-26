@@ -37,13 +37,16 @@
                             {{ ucfirst($user->status) }}
                         </span>
                     </td>
-                    <td>
-                        @if(session('disapproval_reason_'.$user->id))
-                            {{ session('disapproval_reason_'.$user->id) }}
-                        @elseif($user->status === 'disapproved')
-                            <em>No reason provided</em>
-                        @endif
-                    </td>
+                  <td>
+    @if($user->status === 'disapproved')
+        Driver did not meet the requirements
+    @elseif($user->status === 'pending')
+        <em>Pending review</em>
+    @else
+        -
+    @endif
+</td>
+
                     <td>{{ $user->created_at->format('M d, Y') }}</td>
                     <td>
                         @if($user->status === 'pending')
