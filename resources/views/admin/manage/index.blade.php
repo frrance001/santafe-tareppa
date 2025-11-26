@@ -14,7 +14,7 @@
                 <th>Status</th>
                 <th>Reason</th>
                 <th>Date Registered</th>
-                <th>Action</th>
+               
             </tr>
         </thead>
         <tbody>
