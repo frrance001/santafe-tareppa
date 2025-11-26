@@ -13,7 +13,7 @@
 
     <style>
         body {
-            background: #ffffff; /* CHANGED TO WHITE */
+            background: #ffffff;
             font-family: 'Poppins', sans-serif;
         }
 
@@ -71,7 +71,7 @@
         <div class="bg-gray-200 border border-gray-400 p-4 rounded-lg shadow-sm text-sm">
             <h3 class="text-xl font-semibold text-gray-800 mb-2">Registration Requirements</h3>
             <ul class="list-disc pl-5 space-y-1 text-gray-700">
-                <li>Provide your <strong>First Name, Middle Name, Last Name, Email, Phone Number</strong>.</li>
+                <li>Provide your <strong>First Name, Middle Name, Last Name, Suffix (optional), Email, Phone Number</strong>.</li>
                 <li>Enter your <strong>Birthdate</strong> — age will auto-fill.</li>
                 <li>Upload your <strong>Profile Photo</strong>.</li>
                 <li>Upload: <strong>Business Permit, Barangay Clearance, Police Clearance</strong>.</li>
@@ -83,9 +83,22 @@
 
             <input type="hidden" name="role" value="driver">
 
-            <input type="text" name="first_name" placeholder="First Name" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
-            <input type="text" name="middle_name" placeholder="Middle Name" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
-            <input type="text" name="last_name" placeholder="Last Name (Surname)" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+            <!-- Name Fields -->
+            <div class="flex space-x-2">
+                <input type="text" name="first_name" placeholder="First Name" class="w-1/3 p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+                <input type="text" name="middle_name" placeholder="Middle Name" class="w-1/3 p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+                <input type="text" name="last_name" placeholder="Last Name (Surname)" class="w-1/3 p-2 border border-gray-400 rounded-lg bg-gray-50" required>
+            </div>
+
+            <!-- Suffix Dropdown -->
+            <select name="suffix" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50">
+                <option value="">Suffix (optional)</option>
+                <option value="Jr.">Jr.</option>
+                <option value="Sr.">Sr.</option>
+                <option value="II">II</option>
+                <option value="III">III</option>
+                <option value="IV">IV</option>
+            </select>
 
             <input type="email" name="email" placeholder="Email" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
             <input type="text" name="phone" placeholder="Phone Number (11 digits)" maxlength="11" inputmode="numeric" pattern="[0-9]*" class="w-full p-2 border border-gray-400 rounded-lg bg-gray-50" required>
