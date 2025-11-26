@@ -299,13 +299,9 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function () {
 });
 
 Route::post('/login', [LoginController::class, 'login'])->name('login');
-Route::prefix('admin')->name('admin.')->group(function () {
-    // User status pages
-    Route::get('/pending-users', [AdminController::class, 'managePending'])->name('manage.pending');
-    Route::get('/approved-users', [AdminController::class, 'manageApproved'])->name('manage.approved');
-    Route::get('/disapproved-users', [AdminController::class, 'manageDisapproved'])->name('manage.disapproved');
 
-    // Approve / Disapprove actions
-    Route::post('/users/{id}/approve', [AdminController::class, 'approve'])->name('approve');
-    Route::post('/users/{id}/disapprove', [AdminController::class, 'disapprove'])->name('disapprove');
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('pending', [AdminController::class, 'managePending'])->name('manage.pending');
+    Route::post('approve/{id}', [AdminController::class, 'approve'])->name('approve');
+    Route::post('disapprove/{id}', [AdminController::class, 'disapprove'])->name('disapprove');
 });
