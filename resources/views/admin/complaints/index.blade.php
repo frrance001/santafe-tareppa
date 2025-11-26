@@ -81,10 +81,32 @@
     .score-medium { background-color: #fbbf24; }
     .score-high { background-color: #22c55e; }
 
+    /* Glass-style select inputs */
+    select.form-control {
+        background: rgba(255, 255, 255, 0.8); /* semi-transparent white */
+        color: #000; /* text color */
+        border: 1px solid rgba(0,0,0,0.1);
+        border-radius: 8px;
+        padding: 8px 12px;
+        transition: background 0.3s ease, transform 0.2s ease;
+    }
+
+    select.form-control:focus {
+        background: rgba(255, 255, 255, 0.95);
+        outline: none;
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3); /* green-ish glow on focus */
+        transform: translateY(-1px);
+    }
+
     @media (max-width: 768px) {
         .glass-card table th,
         .glass-card table td {
             padding: 8px 10px;
+            font-size: 0.85rem;
+        }
+
+        select.form-control {
+            padding: 6px 10px;
             font-size: 0.85rem;
         }
     }
