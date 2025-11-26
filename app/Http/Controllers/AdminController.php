@@ -25,19 +25,23 @@ class AdminController extends Controller
     }
 
     // Disapprove user with reason
-    public function disapprove(Request $request, $id)
-    {
-        $request->validate([
-            'reason' => 'required|string|max:500',
-        ]);
+   // Disapprove user with optional reason (no DB changes)
+public function disapprove(Request $request, $id)
+{
+    $request->validate([
+        'reason' => 'required|string|max:500',
+    ]);
 
-        $user = User::findOrFail($id);
-        $user->status = 'disapproved';
-        $user->disapproval_reason = $request->reason; // make sure this column exists in DB
-        $user->save();
+    $user = User::findOrFail($id);
+    $user->status = 'disapproved';
+    $user->save(); // only updates status
 
-        return redirect()->back()->with('success', 'User disapproved successfully.');
-    }
+    // You can use the reason for logging, emailing, or flash message
+    $reason = $request->reason;
+    \Log::info("User {$user->fullname} disapproved. Reason: {$reason}");
+
+    return redirect()->back()->with('success', "User disapproved successfully. Reason: {$reason}");
+}
 
     // Delete user
     public function destroy($id)
