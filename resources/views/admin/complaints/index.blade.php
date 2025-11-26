@@ -180,21 +180,17 @@
                         <tr>
                             <td>{{ $rating->id }}</td>
 
-                           {{-- Passenger (User ID + Email + Role) --}}
+                           {{-- Passenger (from Ride only) --}}
 <td>
     @php
-        if ($rating->rateable_type === App\Models\Ride::class) {
-            $user = optional($rating->rateable->passenger);
-        } else {
-            $user = optional($rating->rater);
-        }
+        $passenger = optional($rating->rateable->passenger);
     @endphp
 
-    {{ $user->id ?? 'Unknown ID' }}
+    {{ $passenger->id ?? 'Unknown ID' }}
     —
-    {{ $user->email ?? 'Unknown Email' }}
+    {{ $passenger->email ?? 'Unknown Email' }}
     —
-    {{ ucfirst($user->role ?? 'Unknown Role') }}
+    {{ ucfirst($passenger->role ?? 'Unknown Role') }}
 </td>
 
                             {{-- Driver --}}
