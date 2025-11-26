@@ -122,7 +122,7 @@ Route::middleware('auth')->prefix('driver')->name('driver.')->group(function () 
 Route::post('/driver/accept-rides/{id}/accept', [App\Http\Controllers\Driver\RideController::class, 'accept'])
     ->name('driver.accept-rides.accept')
     ->middleware('auth');
-use App\Http\Controllers\ComplaintController;
+
 
 Route::prefix('admin')->name('admin.')->middleware(['auth','is_admin'])->group(function () {
     Route::resource('complaints', \App\Http\Controllers\Admin\ComplaintController::class)
