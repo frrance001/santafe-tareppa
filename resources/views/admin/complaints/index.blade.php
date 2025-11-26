@@ -125,7 +125,7 @@
                         <tr>
                             <td>{{ $rating->id }}</td>
 
-                            {{-- Passenger (from Ride only) --}}
+                            {{-- Passenger --}}
                             <td>
                                 @php
                                     $passenger = optional($rating->rateable->passenger);
@@ -133,7 +133,7 @@
                                 {{ $passenger->email ?? 'Unknown Email' }}
                             </td>
 
-                            {{-- Driver (from Ride only) --}}
+                            {{-- Driver --}}
                             <td>
                                 @php
                                     $driver = optional($rating->rateable->driver);
@@ -181,8 +181,15 @@
         const filter = searchInput.value.toLowerCase();
 
         for (let i = 0; i < rows.length; i++) {
-            let rowText = rows[i].textContent.toLowerCase();
-            rows[i].style.display = rowText.includes(filter) ? '' : 'none';
+            const passenger = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
+            const driver = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
+            const comment = rows[i].getElementsByTagName('td')[4].textContent.toLowerCase();
+
+            if (passenger.includes(filter) || driver.includes(filter) || comment.includes(filter)) {
+                rows[i].style.display = '';
+            } else {
+                rows[i].style.display = 'none';
+            }
         }
     });
 </script>
