@@ -92,7 +92,7 @@
     }
 
     select.form-control:focus {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(22, 22, 22, 0.95);
         outline: none;
         box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3); /* green-ish glow on focus */
         transform: translateY(-1px);
