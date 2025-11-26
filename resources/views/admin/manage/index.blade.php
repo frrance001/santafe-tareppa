@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container mt-4">
-    <h2>{{ ucfirst($status) }} Users</h2>
+    <h2>{{ ucfirst($status) }} Drivers</h2>
     <hr>
 
     <table class="table table-bordered mt-3">
@@ -17,7 +17,9 @@
             </tr>
         </thead>
         <tbody>
-            @forelse ($users as $user)
+            @php $drivers = $users->where('role', 'Driver'); @endphp
+
+            @forelse ($drivers as $user)
                 <tr>
                     <td>{{ $loop->iteration }}</td>
                     <td>{{ $user->fullname }}</td>
@@ -34,7 +36,7 @@
                     <td>{{ $user->created_at->format('M d, Y') }}</td>
                     <td>
                         <!-- Only show actions for pending drivers -->
-                        @if($user->role === 'Driver' && $user->status === 'pending')
+                        @if($user->status === 'pending')
                             <button class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#approveModal{{ $user->id }}">Approve</button>
                             <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#disapproveModal{{ $user->id }}">Disapprove</button>
                         @endif
@@ -89,7 +91,7 @@
 
             @empty
                 <tr>
-                    <td colspan="6" class="text-center text-danger">No {{ $status }} users found.</td>
+                    <td colspan="6" class="text-center text-danger">No pending drivers found.</td>
                 </tr>
             @endforelse
         </tbody>
