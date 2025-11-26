@@ -304,14 +304,14 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/', [AdminController::class, 'index'])->name('dashboard');
 
     // Manage users by status
-    Route::get('pending', [AdminController::class, 'managePending'])->name('manage.pending');
-    Route::get('approved', [AdminController::class, 'manageApproved'])->name('manage.approved');
-    Route::get('disapproved', [AdminController::class, 'manageDisapproved'])->name('manage.disapproved');
+    Route::get('pending', [AdminDashboardController::class, 'managePending'])->name('manage.pending');
+    Route::get('approved', [AdminDashboardController::class, 'manageApproved'])->name('manage.approved');
+    Route::get('disapproved', [AdminDashboardController::class, 'manageDisapproved'])->name('manage.disapproved');
 
     // Approve/Disapprove actions
-    Route::post('approve/{id}', [AdminController::class, 'approve'])->name('approve');
-    Route::post('disapprove/{id}', [AdminController::class, 'disapprove'])->name('disapprove');
+    Route::post('approve/{id}', [AdminDashboardController::class, 'approve'])->name('approve');
+    Route::post('disapprove/{id}', [AdminDashboardController::class, 'disapprove'])->name('disapprove');
 
     // Delete user
-    Route::delete('delete/{id}', [AdminController::class, 'destroy'])->name('delete');
+    Route::delete('delete/{id}', [AdminDashboardController::class, 'destroy'])->name('delete');
 });
