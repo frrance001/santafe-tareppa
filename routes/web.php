@@ -299,9 +299,19 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function () {
 });
 
 Route::post('/login', [LoginController::class, 'login'])->name('login');
-
 Route::prefix('admin')->name('admin.')->group(function () {
+    // Dashboard or main page
+    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+
+    // Manage users by status
     Route::get('pending', [AdminController::class, 'managePending'])->name('manage.pending');
+    Route::get('approved', [AdminController::class, 'manageApproved'])->name('manage.approved');
+    Route::get('disapproved', [AdminController::class, 'manageDisapproved'])->name('manage.disapproved');
+
+    // Approve/Disapprove actions
     Route::post('approve/{id}', [AdminController::class, 'approve'])->name('approve');
     Route::post('disapprove/{id}', [AdminController::class, 'disapprove'])->name('disapprove');
+
+    // Delete user
+    Route::delete('delete/{id}', [AdminController::class, 'destroy'])->name('delete');
 });
