@@ -12,7 +12,7 @@
     }
 
     .glass-card {
-        background: rgba(255, 255, 255, 0.95);
+        background: rgba(200, 176, 176, 0.95);
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border-radius: 16px;
@@ -27,7 +27,7 @@
     }
 
     .glass-card table {
-        background: #fff;
+        background: #e3d5d5;
         border-radius: 12px;
         overflow: hidden;
         border-collapse: separate;
@@ -74,7 +74,7 @@
     .score-badge {
         padding: 4px 10px;
         border-radius: 8px;
-        color: #fff;
+        color: #dfa4a4;
         font-weight: 600;
     }
     .score-low { background-color: #f87171; }
@@ -83,7 +83,7 @@
 
     /* Glass-style select inputs */
     select.form-control {
-        background: rgba(255, 255, 255, 0.8); /* semi-transparent white */
+        background: rgba(24, 23, 23, 0.8); /* semi-transparent white */
         color: #000; /* text color */
         border: 1px solid rgba(0,0,0,0.1);
         border-radius: 8px;
