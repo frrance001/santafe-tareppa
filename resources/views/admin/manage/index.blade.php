@@ -12,6 +12,7 @@
                 <th>Full Name</th>
                 <th>Email</th>
                 <th>Status</th>
+                <th>Reason</th>
                 <th>Date Registered</th>
                 <th>Action</th>
             </tr>
@@ -35,6 +36,13 @@
                             @endif">
                             {{ ucfirst($user->status) }}
                         </span>
+                    </td>
+                    <td>
+                        @if(session('disapproval_reason_'.$user->id))
+                            {{ session('disapproval_reason_'.$user->id) }}
+                        @elseif($user->status === 'disapproved')
+                            <em>No reason provided</em>
+                        @endif
                     </td>
                     <td>{{ $user->created_at->format('M d, Y') }}</td>
                     <td>
@@ -97,7 +105,7 @@
 
             @empty
                 <tr>
-                    <td colspan="6" class="text-center text-danger">No {{ $status }} drivers found.</td>
+                    <td colspan="7" class="text-center text-danger">No {{ $status }} drivers found.</td>
                 </tr>
             @endforelse
         </tbody>

@@ -24,15 +24,23 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User approved successfully!');
     }
 
-    // Disapprove user
-    public function disapprove($id)
-    {
-        $user = User::findOrFail($id);
-        $user->status = 'disapproved';
-        $user->save();
+   // Disapprove user
+public function disapprove(Request $request, $id)
+{
+    $request->validate([
+        'reason' => 'required|string|max:255',
+    ]);
 
-        return redirect()->back()->with('success', 'User disapproved successfully!');
-    }
+    $user = User::findOrFail($id);
+    $user->status = 'disapproved';
+    $user->save();
+
+    // Store reason in session for temporary display
+    session()->flash('disapproval_reason_' . $user->id, $request->reason);
+
+    return redirect()->back()->with('success', 'User disapproved successfully!');
+}
+
 
     // Delete user
     public function destroy($id)
