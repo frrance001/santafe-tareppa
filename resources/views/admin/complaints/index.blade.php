@@ -180,27 +180,26 @@
                         <tr>
                             <td>{{ $rating->id }}</td>
 
-                           {{-- Passenger (from Ride only) --}}
+                          {{-- Passenger (from Ride only) --}}
 <td>
     @php
         $passenger = optional($rating->rateable->passenger);
     @endphp
-
-    {{ $passenger->id ?? 'Unknown ID' }}
-    —
-    {{ $passenger->email ?? 'Unknown Email' }}
-    —
+    {{ $passenger->id ?? 'Unknown ID' }} —
+    {{ $passenger->email ?? 'Unknown Email' }} —
     {{ ucfirst($passenger->role ?? 'Unknown Role') }}
 </td>
 
-                            {{-- Driver --}}
-                            <td>
-                                @if ($rating->rateable_type === App\Models\Ride::class)
-                                    {{ optional($rating->rateable->driver)->name ?? 'Unknown' }}
-                                @else
-                                    N/A
-                                @endif
-                            </td>
+{{-- Driver (from Ride only) --}}
+<td>
+    @php
+        $driver = optional($rating->rateable->driver);
+    @endphp
+    {{ $driver->id ?? 'Unknown ID' }} —
+    {{ $driver->email ?? 'Unknown Email' }} —
+    {{ ucfirst($driver->role ?? 'Unknown Role') }}
+</td>
+
 
                             {{-- Score --}}
                             <td>
