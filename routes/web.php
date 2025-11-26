@@ -14,6 +14,7 @@ use App\Http\Controllers\VerificationController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\LocationController;
 use App\Http\Controllers\Passenger\DashboardController;
+use App\Http\Controllers\Admin\ComplaintController;
 Route::get('/', function () {
     return view('welcome');
 });
@@ -309,5 +310,6 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/users/{id}/approve', [AdminController::class, 'approve'])->name('approve');
     Route::post('/users/{id}/disapprove', [AdminController::class, 'disapprove'])->name('disapprove');
 });
+
 Route::get('/admin/ratings', [ComplaintController::class, 'index'])
     ->name('admin.ratings.index');
