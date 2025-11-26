@@ -185,9 +185,9 @@
     @php
         $passenger = optional($rating->rateable->passenger);
     @endphp
-    {{ $passenger->id ?? 'Unknown ID' }} —
+   
     {{ $passenger->email ?? 'Unknown Email' }} —
-    {{ ucfirst($passenger->role ?? 'Unknown Role') }}
+   
 </td>
 
 {{-- Driver (from Ride only) --}}
@@ -195,9 +195,9 @@
     @php
         $driver = optional($rating->rateable->driver);
     @endphp
-    {{ $driver->id ?? 'Unknown ID' }} —
+   
     {{ $driver->email ?? 'Unknown Email' }} —
-    {{ ucfirst($driver->role ?? 'Unknown Role') }}
+   
 </td>
 
 
