@@ -180,7 +180,7 @@
                         <tr>
                             <td>{{ $rating->id }}</td>
 
-                           {{-- Passenger (User ID + Email) --}}
+                           {{-- Passenger (User ID + Email + Role) --}}
 <td>
     @php
         if ($rating->rateable_type === App\Models\Ride::class) {
@@ -190,7 +190,11 @@
         }
     @endphp
 
-    {{ $user->id ?? 'Unknown ID' }} — {{ $user->email ?? 'Unknown Email' }}
+    {{ $user->id ?? 'Unknown ID' }}
+    —
+    {{ $user->email ?? 'Unknown Email' }}
+    —
+    {{ ucfirst($user->role ?? 'Unknown Role') }}
 </td>
 
                             {{-- Driver --}}
