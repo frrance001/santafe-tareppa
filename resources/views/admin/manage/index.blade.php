@@ -70,26 +70,21 @@
                 <div class="modal fade" id="disapproveModal{{ $user->id }}" tabindex="-1" aria-labelledby="disapproveModalLabel{{ $user->id }}" aria-hidden="true">
                     <div class="modal-dialog">
                         <div class="modal-content">
-                           <form action="{{ route('admin.disapprove', $user->id) }}" method="POST">
-    @csrf
-    <div class="modal-header">
-        <h5 class="modal-title">Disapprove Driver</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-    </div>
-    <div class="modal-body">
-        Are you sure you want to disapprove <strong>{{ $user->fullname }}</strong>?
-        <p>Email: {{ $user->email }}</p>
-        <div class="mt-3">
-            <label for="reason{{ $user->id }}" class="form-label">Reason for disapproval:</label>
-            <textarea name="reason" id="reason{{ $user->id }}" class="form-control" rows="3" required></textarea>
-        </div>
-    </div>
-    <div class="modal-footer">
-        <button type="submit" class="btn btn-danger">Disapprove</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-    </div>
-</form>
-
+                            <form action="{{ route('admin.disapprove', $user->id) }}" method="POST">
+                                @csrf
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="disapproveModalLabel{{ $user->id }}">Disapprove Driver</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    Are you sure you want to disapprove <strong>{{ $user->fullname }}</strong>?
+                                    <p>Email: {{ $user->email }}</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="submit" class="btn btn-danger">Disapprove</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                </div>
+                            </form>
                         </div>
                     </div>
                 </div>
