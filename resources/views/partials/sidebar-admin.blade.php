@@ -73,7 +73,7 @@
         transform: translateX(5px);
     }
 
-    .sidebar ul li.active a {
+    .sidebar ul li.active > a {
         background: rgba(255,255,255,0.4);
         font-weight: bold;
     }
@@ -92,6 +92,39 @@
 
     .logout-form button:hover {
         background: #0284c7;
+    }
+
+    /* -------- Dropdown -------- */
+    .dropdown-toggle {
+        display: flex;
+        justify-content: space-between;
+        width: 100%;
+        align-items: center;
+        cursor: pointer;
+    }
+
+    .dropdown-menu {
+        display: none;
+        padding-left: 20px;
+        margin-top: 8px;
+        flex-direction: column;
+    }
+
+    .dropdown-menu a {
+        font-size: 14px;
+        padding: 8px 10px;
+    }
+
+    .dropdown-open .dropdown-menu {
+        display: flex;
+    }
+
+    .arrow {
+        transition: 0.3s;
+    }
+
+    .rotate {
+        transform: rotate(90deg);
     }
 
     /* ---------------- Mobile Responsive ---------------- */
@@ -125,7 +158,6 @@
             display: none;
         }
 
-        /* Prevent main content from hiding under sidebar */
         .content {
             margin-left: 250px;
         }
@@ -152,16 +184,40 @@
         @endif
 
         <ul>
+
             <li class="{{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <a href="{{ route('admin.dashboard') }}">
                     <i class="bi bi-speedometer2"></i> Dashboard
                 </a>
             </li>
 
-            <li class="{{ request()->routeIs('admin.manage') ? 'active' : '' }}">
-                <a href="{{ route('admin.manage') }}">
-                    <i class="bi bi-people"></i> Manage Users
+            <!-- ==== DROPDOWN FOR MANAGE USERS ==== -->
+            <li class="dropdown 
+                {{ request()->routeIs('admin.manage.approved') ||
+                   request()->routeIs('admin.manage.disapproved') ||
+                   request()->routeIs('admin.manage.pending') ? 'dropdown-open active' : '' }}">
+
+                <a class="dropdown-toggle" onclick="toggleDropdown(this)">
+                    <span><i class="bi bi-people"></i> Manage Users</span>
+                    <i class="bi bi-chevron-right arrow"></i>
                 </a>
+
+                <div class="dropdown-menu">
+                    <a href="{{ route('admin.manage.approved') }}"
+                       class="{{ request()->routeIs('admin.manage.approved') ? 'active' : '' }}">
+                        ✔ Approved Users
+                    </a>
+
+                    <a href="{{ route('admin.manage.disapproved') }}"
+                       class="{{ request()->routeIs('admin.manage.disapproved') ? 'active' : '' }}">
+                        ✖ Disapproved Users
+                    </a>
+
+                    <a href="{{ route('admin.manage.pending') }}"
+                       class="{{ request()->routeIs('admin.manage.pending') ? 'active' : '' }}">
+                        ⏳ Pending Users
+                    </a>
+                </div>
             </li>
 
             <li class="{{ request()->routeIs('admin.view-ride') ? 'active' : '' }}">
@@ -181,6 +237,7 @@
                     <i class="bi bi-clock-history"></i> Activity Logging
                 </a>
             </li>
+
         </ul>
     </div>
 
@@ -191,3 +248,13 @@
         </button>
     </form>
 </div>
+
+<script>
+function toggleDropdown(el) {
+    let li = el.parentElement;
+    let arrow = el.querySelector(".arrow");
+
+    li.classList.toggle("dropdown-open");
+    arrow.classList.toggle("rotate");
+}
+</script>
