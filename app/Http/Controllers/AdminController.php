@@ -42,4 +42,35 @@ class AdminController extends Controller
 
         return redirect()->back()->with('success', 'User deleted successfully!');
     }
+
+    // -------------------------------
+    // MANAGE USERS BY STATUS
+    // -------------------------------
+
+    // PENDING USERS
+    public function managePending()
+    {
+        $status = 'pending';
+        $users = User::where('status', $status)->get();
+
+        return view('admin.manage.index', compact('users', 'status'));
+    }
+
+    // APPROVED USERS
+    public function manageApproved()
+    {
+        $status = 'approved';
+        $users = User::where('status', $status)->get();
+
+        return view('admin.manage.index', compact('users', 'status'));
+    }
+
+    // DISAPPROVED USERS
+    public function manageDisapproved()
+    {
+        $status = 'disapproved';
+        $users = User::where('status', $status)->get();
+
+        return view('admin.manage.index', compact('users', 'status'));
+    }
 }
