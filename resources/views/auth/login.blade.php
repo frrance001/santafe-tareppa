@@ -183,12 +183,19 @@
     Swal.fire({ icon:'error', title:'Error', html:`<ul style="text-align:left;">@foreach($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>` });
   @endif
 
-  // reCAPTCHA v3 generate token ONCE on page load
-  grecaptcha.ready(function() {
-    grecaptcha.execute("{{ env('RECAPTCHA_SITE_KEY') }}", { action: "login" })
-        .then(function(token) {
-            document.getElementById("recaptcha_token").value = token;
-        });
+  // ==============================
+  // reCAPTCHA v3: generate token ON form submit
+  // ==============================
+  const form = document.getElementById('loginForm');
+  form.addEventListener('submit', function(e) {
+      e.preventDefault(); // stop default submit
+      grecaptcha.ready(function() {
+          grecaptcha.execute("{{ env('RECAPTCHA_SITE_KEY') }}", { action: "login" })
+              .then(function(token) {
+                  document.getElementById("recaptcha_token").value = token;
+                  form.submit(); // submit after token is set
+              });
+      });
   });
 </script>
 

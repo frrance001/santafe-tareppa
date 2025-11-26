@@ -24,7 +24,7 @@
             margin: 0;
             font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background-color: #f9fafb;
-            color: #1e293b;
+            color: #1e293b; 
         }
 
         /* Sidebar */
