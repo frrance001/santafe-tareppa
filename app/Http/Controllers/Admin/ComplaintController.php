@@ -56,7 +56,7 @@ class ComplaintController extends Controller
     $passengers = User::where('role', 'passenger')->get();
     $drivers    = User::where('role', 'driver')->get();
 
-    return view('admin.ratings.index', compact('ratings', 'passengers', 'drivers'));
+    return view('admin.complaints.index', compact('ratings', 'passengers', 'drivers'));
 }
 
 
