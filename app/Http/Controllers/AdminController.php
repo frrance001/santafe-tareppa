@@ -48,13 +48,16 @@ class AdminController extends Controller
     // -------------------------------
 
     // PENDING USERS
-    public function managePending()
-    {
-        $status = 'pending';
-        $users = User::where('status', $status)->get();
+   public function managePending()
+{
+    $status = 'pending';
+    $users = User::where('status', $status)
+                 ->where('role', 'Driver')
+                 ->get();
 
-        return view('admin.manage.index', compact('users', 'status'));
-    }
+    return view('admin.manage.index', compact('users', 'status'));
+}
+
 
     // APPROVED USERS
     public function manageApproved()
