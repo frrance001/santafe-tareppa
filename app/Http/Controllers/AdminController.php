@@ -7,7 +7,13 @@ use Illuminate\Http\Request;
 
 class AdminController extends Controller
 {
-   
+    // Show users grouped by role
+    public function index()
+    {
+        $users = User::all()->groupBy('role');
+        return view('admin.dashboard', compact('users'));
+    }
+
     // Approve user
     public function approve($id)
     {
