@@ -93,16 +93,45 @@
 <div class="container py-5">
     <h1 class="text-center">Ratings & Feedback</h1>
 
-    {{-- Flash Messages --}}
     @if (session('success'))
         <div class="alert alert-success mb-4">{{ session('success') }}</div>
     @endif
 
     <div class="glass-card">
 
-        {{-- SEARCH BOX --}}
-        <div class="mb-3">
-            <input type="text" id="searchInput" class="form-control" placeholder="Search by passenger, driver, or comment">
+        <h5>Filters</h5>
+
+        {{-- FILTERS (CLIENT-SIDE) --}}
+        <div class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Passenger</label>
+                <select id="passengerFilter" class="form-control">
+                    <option value="">All Passengers</option>
+                    @foreach($passengers as $p)
+                        <option value="{{ $p->email }}">{{ $p->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Driver</label>
+                <select id="driverFilter" class="form-control">
+                    <option value="">All Drivers</option>
+                    @foreach($drivers as $d)
+                        <option value="{{ $d->email }}">{{ $d->name }}</option>
+                    @endforeach
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label fw-bold">Score</label>
+                <select id="scoreFilter" class="form-control">
+                    <option value="">All Scores</option>
+                    @for ($i = 1; $i <= 5; $i++)
+                        <option value="{{ $i }}">{{ $i }}</option>
+                    @endfor
+                </select>
+            </div>
         </div>
 
         <h5>All Ratings</h5>
@@ -124,34 +153,10 @@
                     @forelse ($ratings as $rating)
                         <tr>
                             <td>{{ $rating->id }}</td>
-
-                            {{-- Passenger --}}
-                            <td>
-                                @php
-                                    $passenger = optional($rating->rateable->passenger);
-                                @endphp
-                                {{ $passenger->email ?? 'Unknown Email' }}
-                            </td>
-
-                            {{-- Driver --}}
-                            <td>
-                                @php
-                                    $driver = optional($rating->rateable->driver);
-                                @endphp
-                                {{ $driver->email ?? 'Unknown Email' }}
-                            </td>
-
-                            {{-- Score --}}
-                            <td>
-                                @php
-                                    $scoreClass = 'score-low';
-                                    if ($rating->score >= 3 && $rating->score < 5) $scoreClass = 'score-medium';
-                                    if ($rating->score == 5) $scoreClass = 'score-high';
-                                @endphp
-                                <span class="score-badge {{ $scoreClass }}">{{ $rating->score }}</span>
-                            </td>
-
-                            <td>{{ Str::limit($rating->comment, 50) }}</td>
+                            <td>{{ optional($rating->rateable->passenger)->email ?? 'Unknown Email' }}</td>
+                            <td>{{ optional($rating->rateable->driver)->email ?? 'Unknown Email' }}</td>
+                            <td>{{ $rating->score }}</td>
+                            <td>{{ $rating->comment }}</td>
                             <td>{{ $rating->rateable_id }}</td>
                             <td>{{ $rating->created_at->format('Y-m-d H:i') }}</td>
                         </tr>
@@ -163,35 +168,38 @@
                 </tbody>
             </table>
         </div>
-
-        {{-- Pagination --}}
-        <div class="mt-4 d-flex justify-content-center">
-            {{ $ratings->links() }}
-        </div>
     </div>
 </div>
 
-{{-- CLIENT-SIDE SEARCH SCRIPT --}}
+{{-- CLIENT-SIDE FILTER SCRIPT --}}
 <script>
-    const searchInput = document.getElementById('searchInput');
+    const passengerFilter = document.getElementById('passengerFilter');
+    const driverFilter = document.getElementById('driverFilter');
+    const scoreFilter = document.getElementById('scoreFilter');
     const table = document.getElementById('ratingsTable').getElementsByTagName('tbody')[0];
     const rows = table.getElementsByTagName('tr');
 
-    searchInput.addEventListener('keyup', function() {
-        const filter = searchInput.value.toLowerCase();
+    function applyFilters() {
+        const passengerValue = passengerFilter.value.toLowerCase();
+        const driverValue = driverFilter.value.toLowerCase();
+        const scoreValue = scoreFilter.value;
 
         for (let i = 0; i < rows.length; i++) {
             const passenger = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
             const driver = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
-            const comment = rows[i].getElementsByTagName('td')[4].textContent.toLowerCase();
+            const score = rows[i].getElementsByTagName('td')[3].textContent;
 
-            if (passenger.includes(filter) || driver.includes(filter) || comment.includes(filter)) {
-                rows[i].style.display = '';
-            } else {
-                rows[i].style.display = 'none';
-            }
+            const passengerMatch = !passengerValue || passenger === passengerValue;
+            const driverMatch = !driverValue || driver === driverValue;
+            const scoreMatch = !scoreValue || score === scoreValue;
+
+            rows[i].style.display = (passengerMatch && driverMatch && scoreMatch) ? '' : 'none';
         }
-    });
+    }
+
+    passengerFilter.addEventListener('change', applyFilters);
+    driverFilter.addEventListener('change', applyFilters);
+    scoreFilter.addEventListener('change', applyFilters);
 </script>
 
 @endsection
