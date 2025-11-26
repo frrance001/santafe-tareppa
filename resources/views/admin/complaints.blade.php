@@ -72,47 +72,9 @@
         <div class="alert alert-success bg-success bg-opacity-75 text-white">{{ session('success') }}</div>
     @endif
 
+    {{-- Complaints Table --}}
     <div class="glass-card mt-4">
         <h5 class="mb-3">All Complaints</h5>
-
-        {{-- Filter Form --}}
-        <form method="GET" action="{{ route('admin.complaints.index') }}" class="mb-4 flex flex-wrap gap-2 items-end">
-            <div>
-                <label class="text-sm">Status</label>
-                <select name="status" class="form-select p-1 rounded bg-gray-700 text-white">
-                    <option value="">All</option>
-                    <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                    <option value="resolved" {{ request('status') == 'resolved' ? 'selected' : '' }}>Resolved</option>
-                </select>
-            </div>
-
-            <div>
-                <label class="text-sm">Driver</label>
-                <input type="text" name="driver" value="{{ request('driver') }}" placeholder="Driver Name" class="p-1 rounded bg-gray-700 text-white">
-            </div>
-
-            <div>
-                <label class="text-sm">Passenger</label>
-                <input type="text" name="passenger" value="{{ request('passenger') }}" placeholder="Passenger Name" class="p-1 rounded bg-gray-700 text-white">
-            </div>
-
-            <div>
-                <label class="text-sm">From</label>
-                <input type="date" name="from" value="{{ request('from') }}" class="p-1 rounded bg-gray-700 text-white">
-            </div>
-
-            <div>
-                <label class="text-sm">To</label>
-                <input type="date" name="to" value="{{ request('to') }}" class="p-1 rounded bg-gray-700 text-white">
-            </div>
-
-            <div>
-                <button type="submit" class="btn btn-primary px-3 py-1 mt-2">Filter</button>
-                <a href="{{ route('admin.complaints.index') }}" class="btn btn-warning px-3 py-1 mt-2 ml-2">Reset</a>
-            </div>
-        </form>
-
-        {{-- Complaints Table --}}
         <div class="table-responsive">
             <table class="table table-bordered table-hover rounded text-white">
                 <thead class="table-dark">
@@ -165,7 +127,7 @@
 
         {{-- Pagination --}}
         <div class="mt-3 text-white">
-            {{ $complaints->appends(request()->query())->links() }}
+            {{ $complaints->links() }}
         </div>
     </div>
 </div>
