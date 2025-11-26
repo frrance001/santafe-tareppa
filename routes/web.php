@@ -300,7 +300,7 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function () {
 
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::prefix('admin')->name('admin.')->group(function () {
-    Route::get('/approved-users', [AdminController::class, 'manageApproved'])->name('manage.approved');
     Route::get('/pending-users', [AdminController::class, 'managePending'])->name('manage.pending');
+    Route::get('/approved-users', [AdminController::class, 'manageApproved'])->name('manage.approved');
     Route::get('/disapproved-users', [AdminController::class, 'manageDisapproved'])->name('manage.disapproved');
 });
