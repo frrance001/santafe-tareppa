@@ -24,24 +24,15 @@ class AdminController extends Controller
         return redirect()->back()->with('success', 'User approved successfully!');
     }
 
-    // Disapprove user with reason
-   // Disapprove user with optional reason (no DB changes)
-public function disapprove(Request $request, $id)
-{
-    $request->validate([
-        'reason' => 'required|string|max:500',
-    ]);
+    // Disapprove user
+    public function disapprove($id)
+    {
+        $user = User::findOrFail($id);
+        $user->status = 'disapproved';
+        $user->save();
 
-    $user = User::findOrFail($id);
-    $user->status = 'disapproved';
-    $user->save(); // only updates status
-
-    // You can use the reason for logging, emailing, or flash message
-    $reason = $request->reason;
-    \Log::info("User {$user->fullname} disapproved. Reason: {$reason}");
-
-    return redirect()->back()->with('success', "User disapproved successfully. Reason: {$reason}");
-}
+        return redirect()->back()->with('success', 'User disapproved successfully!');
+    }
 
     // Delete user
     public function destroy($id)
@@ -56,6 +47,7 @@ public function disapprove(Request $request, $id)
     // MANAGE USERS BY STATUS
     // -------------------------------
 
+    // PENDING USERS
     public function managePending()
     {
         $status = 'pending';
@@ -64,6 +56,7 @@ public function disapprove(Request $request, $id)
         return view('admin.manage.index', compact('users', 'status'));
     }
 
+    // APPROVED USERS
     public function manageApproved()
     {
         $status = 'approved';
@@ -72,6 +65,7 @@ public function disapprove(Request $request, $id)
         return view('admin.manage.index', compact('users', 'status'));
     }
 
+    // DISAPPROVED USERS
     public function manageDisapproved()
     {
         $status = 'disapproved';
@@ -79,4 +73,5 @@ public function disapprove(Request $request, $id)
 
         return view('admin.manage.index', compact('users', 'status'));
     }
+    
 }
