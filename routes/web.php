@@ -300,18 +300,12 @@ Route::prefix('admin')->middleware(['auth','admin'])->group(function () {
 
 Route::post('/login', [LoginController::class, 'login'])->name('login');
 Route::prefix('admin')->name('admin.')->group(function () {
-    // Dashboard or main page
-    Route::get('/', [AdminController::class, 'index'])->name('dashboard');
+    // User status pages
+    Route::get('/pending-users', [AdminController::class, 'managePending'])->name('manage.pending');
+    Route::get('/approved-users', [AdminController::class, 'manageApproved'])->name('manage.approved');
+    Route::get('/disapproved-users', [AdminController::class, 'manageDisapproved'])->name('manage.disapproved');
 
-    // Manage users by status
-    Route::get('pending', [AdminDashboardController::class, 'managePending'])->name('manage.pending');
-    Route::get('approved', [AdminDashboardController::class, 'manageApproved'])->name('manage.approved');
-    Route::get('disapproved', [AdminDashboardController::class, 'manageDisapproved'])->name('manage.disapproved');
-
-    // Approve/Disapprove actions
-    Route::post('approve/{id}', [AdminDashboardController::class, 'approve'])->name('approve');
-    Route::post('disapprove/{id}', [AdminDashboardController::class, 'disapprove'])->name('disapprove');
-
-    // Delete user
-    Route::delete('delete/{id}', [AdminDashboardController::class, 'destroy'])->name('delete');
+    // Approve / Disapprove actions
+    Route::post('/users/{id}/approve', [AdminController::class, 'approve'])->name('approve');
+    Route::post('/users/{id}/disapprove', [AdminController::class, 'disapprove'])->name('disapprove');
 });
