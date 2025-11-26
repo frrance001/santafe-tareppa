@@ -90,8 +90,6 @@
     }
 </style>
 
-
-
 <div class="container py-5">
     <h1 class="text-center">Ratings & Feedback</h1>
 
@@ -100,69 +98,17 @@
         <div class="alert alert-success mb-4">{{ session('success') }}</div>
     @endif
 
-
-
     <div class="glass-card">
 
-        <h5>Filters</h5>
-
-        {{-- FILTER FORM --}}
-        <form method="GET" action="{{ route('admin.ratings.index') }}" class="mb-4">
-            <div class="row g-3">
-
-                {{-- Passenger Filter --}}
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Passenger</label>
-                    <select name="passenger_id" class="form-control">
-                        <option value="">All Passengers</option>
-                        @foreach($passengers as $p)
-                            <option value="{{ $p->id }}" {{ request('passenger_id') == $p->id ? 'selected' : '' }}>
-                                {{ $p->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Driver Filter --}}
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Driver</label>
-                    <select name="driver_id" class="form-control">
-                        <option value="">All Drivers</option>
-                        @foreach($drivers as $d)
-                            <option value="{{ $d->id }}" {{ request('driver_id') == $d->id ? 'selected' : '' }}>
-                                {{ $d->name }}
-                            </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Score Filter --}}
-                <div class="col-md-4">
-                    <label class="form-label fw-bold">Score</label>
-                    <select name="score" class="form-control">
-                        <option value="">All Scores</option>
-                        @for ($i = 1; $i <= 5; $i++)
-                            <option value="{{ $i }}" {{ request('score') == $i ? 'selected' : '' }}>
-                                {{ $i }}
-                            </option>
-                        @endfor
-                    </select>
-                </div>
-
-            </div>
-
-            <div class="mt-3 text-end">
-                <button class="btn btn-primary">Filter</button>
-                <a href="{{ route('admin.ratings.index') }}" class="btn btn-secondary">Reset</a>
-            </div>
-        </form>
-
-
+        {{-- SEARCH BOX --}}
+        <div class="mb-3">
+            <input type="text" id="searchInput" class="form-control" placeholder="Search by passenger, driver, or comment">
+        </div>
 
         <h5>All Ratings</h5>
 
         <div class="table-responsive">
-            <table class="table table-hover">
+            <table class="table table-hover" id="ratingsTable">
                 <thead>
                     <tr>
                         <th>ID</th>
@@ -175,31 +121,25 @@
                     </tr>
                 </thead>
                 <tbody>
-
                     @forelse ($ratings as $rating)
                         <tr>
                             <td>{{ $rating->id }}</td>
 
-                          {{-- Passenger (from Ride only) --}}
-<td>
-    @php
-        $passenger = optional($rating->rateable->passenger);
-    @endphp
-   
-    {{ $passenger->email ?? 'Unknown Email' }} —
-   
-</td>
+                            {{-- Passenger (from Ride only) --}}
+                            <td>
+                                @php
+                                    $passenger = optional($rating->rateable->passenger);
+                                @endphp
+                                {{ $passenger->email ?? 'Unknown Email' }}
+                            </td>
 
-{{-- Driver (from Ride only) --}}
-<td>
-    @php
-        $driver = optional($rating->rateable->driver);
-    @endphp
-   
-    {{ $driver->email ?? 'Unknown Email' }} —
-   
-</td>
-
+                            {{-- Driver (from Ride only) --}}
+                            <td>
+                                @php
+                                    $driver = optional($rating->rateable->driver);
+                                @endphp
+                                {{ $driver->email ?? 'Unknown Email' }}
+                            </td>
 
                             {{-- Score --}}
                             <td>
@@ -212,9 +152,7 @@
                             </td>
 
                             <td>{{ Str::limit($rating->comment, 50) }}</td>
-
                             <td>{{ $rating->rateable_id }}</td>
-
                             <td>{{ $rating->created_at->format('Y-m-d H:i') }}</td>
                         </tr>
                     @empty
@@ -222,7 +160,6 @@
                             <td colspan="7" class="text-center">No ratings found.</td>
                         </tr>
                     @endforelse
-
                 </tbody>
             </table>
         </div>
@@ -233,5 +170,21 @@
         </div>
     </div>
 </div>
+
+{{-- CLIENT-SIDE SEARCH SCRIPT --}}
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const table = document.getElementById('ratingsTable').getElementsByTagName('tbody')[0];
+    const rows = table.getElementsByTagName('tr');
+
+    searchInput.addEventListener('keyup', function() {
+        const filter = searchInput.value.toLowerCase();
+
+        for (let i = 0; i < rows.length; i++) {
+            let rowText = rows[i].textContent.toLowerCase();
+            rows[i].style.display = rowText.includes(filter) ? '' : 'none';
+        }
+    });
+</script>
 
 @endsection
