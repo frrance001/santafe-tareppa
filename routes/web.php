@@ -309,8 +309,8 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('disapproved', [AdminController::class, 'manageDisapproved'])->name('manage.disapproved');
 
     // Approve/Disapprove actions
-    Route::post('approve/{id}', [AdminController::class, 'approve'])->name('approve');
-    Route::post('disapprove/{id}', [AdminController::class, 'disapprove'])->name('disapprove');
+    Route::post('/admin/users/approve/{id}', [AdminDashboardController::class, 'approve'])->name('admin.approve');
+Route::post('/admin/users/disapprove/{id}', [AdminDashboardController::class, 'disapprove'])->name('admin.disapprove');
 
     // Delete user
     Route::delete('delete/{id}', [AdminController::class, 'destroy'])->name('delete');
