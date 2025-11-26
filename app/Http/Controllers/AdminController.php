@@ -11,7 +11,7 @@ class AdminController extends Controller
     public function index()
     {
         $users = User::all()->groupBy('role');
-        return view('admin.users.index', compact('users'));
+        return view('admin.user.index', compact('users'));
     }
 
     // Approve user
