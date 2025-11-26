@@ -14,34 +14,38 @@ class ComplaintController extends Controller
      * Show paginated complaints list with optional search and filters.
      */
     public function index(Request $request)
-    {
-        $q = $request->query('q');
+{
+    $q = $request->query('q');
 
-        $ratings = Rating::with([
-                'rater',
-                'rateable.passenger',
-                'rateable.driver'
-            ])
-            ->when($q, function ($query) use ($q) {
-                $query->where(function ($sub) use ($q) {
-                    $sub->where('comment', 'like', "%{$q}%")
-                        ->orWhereHas('rater', fn($r) => 
-                            $r->where('name', 'like', "%{$q}%")
-                        )
-                        ->orWhereHas('rateable.passenger', fn($p) => 
-                            $p->where('name', 'like', "%{$q}%")
-                        )
-                        ->orWhereHas('rateable.driver', fn($d) =>
-                            $d->where('name', 'like', "%{$q}%")
-                        );
-                });
-            })
-            ->latest()
-            ->paginate(15)
-            ->withQueryString();
+    $ratings = Rating::with([
+            'rater',
+            'rateable.passenger',
+            'rateable.driver'
+        ])
+        ->when($q, function ($query) use ($q) {
+            $query->where(function ($sub) use ($q) {
+                $sub->where('comment', 'like', "%{$q}%")
+                    ->orWhereHas('rater', fn($r) =>
+                        $r->where('name', 'like', "%{$q}%")
+                    )
+                    ->orWhereHas('rateable.passenger', fn($p) =>
+                        $p->where('name', 'like', "%{$q}%")
+                    )
+                    ->orWhereHas('rateable.driver', fn($d) =>
+                        $d->where('name', 'like', "%{$q}%")
+                    );
+            });
+        })
+        ->latest()
+        ->paginate(15)
+        ->withQueryString();
 
-        return view('admin.complaints.index', compact('ratings'));
-    }
+    // 🔥 ADD THESE
+    $passengers = User::where('role', 'passenger')->get();
+    $drivers    = User::where('role', 'driver')->get();
+
+    return view('admin.complaints.index', compact('ratings', 'passengers', 'drivers'));
+}
 
 
     /**
