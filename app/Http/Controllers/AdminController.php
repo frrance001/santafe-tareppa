@@ -27,18 +27,16 @@ class AdminController extends Controller
    // Disapprove user
 public function disapprove(Request $request, $id)
 {
-    $request->validate([
-        'reason' => 'required|string|max:255',
-    ]);
-
     $user = User::findOrFail($id);
+
+    // Mark user as disapproved
     $user->status = 'disapproved';
     $user->save();
 
-    // Store reason in session for temporary display
-    session()->flash('disapproval_reason_' . $user->id, $request->reason);
+    // Store the reason temporarily in session
+    $request->session()->flash('disapproval_reason_'.$user->id, $request->reason);
 
-    return redirect()->back()->with('success', 'User disapproved successfully!');
+    return redirect()->back()->with('success', 'Driver disapproved successfully!');
 }
 
 
