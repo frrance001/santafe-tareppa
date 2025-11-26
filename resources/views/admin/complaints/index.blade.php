@@ -81,20 +81,20 @@
     .score-medium { background-color: #fbbf24; }
     .score-high { background-color: #22c55e; }
 
-    /* Glass-style select inputs */
-    select.form-control {
-        background: rgba(24, 23, 23, 0.8); /* semi-transparent white */
-        color: #000; /* text color */
+    /* Glass-style inputs */
+    input.form-control {
+        background: rgba(24, 23, 23, 0.1);
+        color: #000;
         border: 1px solid rgba(0,0,0,0.1);
         border-radius: 8px;
         padding: 8px 12px;
         transition: background 0.3s ease, transform 0.2s ease;
     }
 
-    select.form-control:focus {
-        background: rgba(22, 22, 22, 0.95);
+    input.form-control:focus {
+        background: rgba(22, 22, 22, 0.05);
         outline: none;
-        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3); /* green-ish glow on focus */
+        box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
         transform: translateY(-1px);
     }
 
@@ -105,7 +105,7 @@
             font-size: 0.85rem;
         }
 
-        select.form-control {
+        input.form-control {
             padding: 6px 10px;
             font-size: 0.85rem;
         }
@@ -127,32 +127,17 @@
         <div class="row g-3 mb-4">
             <div class="col-md-4">
                 <label class="form-label fw-bold">Passenger</label>
-                <select id="passengerFilter" class="form-control">
-                    <option value="">All Passengers</option>
-                    @foreach($passengers as $p)
-                        <option value="{{ $p->email }}">{{ $p->name }}</option>
-                    @endforeach
-                </select>
+                <input type="text" id="passengerFilter" class="form-control" placeholder="Type passenger email...">
             </div>
 
             <div class="col-md-4">
                 <label class="form-label fw-bold">Driver</label>
-                <select id="driverFilter" class="form-control">
-                    <option value="">All Drivers</option>
-                    @foreach($drivers as $d)
-                        <option value="{{ $d->email }}">{{ $d->name }}</option>
-                    @endforeach
-                </select>
+                <input type="text" id="driverFilter" class="form-control" placeholder="Type driver email...">
             </div>
 
             <div class="col-md-4">
                 <label class="form-label fw-bold">Score</label>
-                <select id="scoreFilter" class="form-control">
-                    <option value="">All Scores</option>
-                    @for ($i = 1; $i <= 5; $i++)
-                        <option value="{{ $i }}">{{ $i }}</option>
-                    @endfor
-                </select>
+                <input type="text" id="scoreFilter" class="form-control" placeholder="Type score (1-5)...">
             </div>
         </div>
 
@@ -211,17 +196,17 @@
             const driver = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
             const score = rows[i].getElementsByTagName('td')[3].textContent;
 
-            const passengerMatch = !passengerValue || passenger === passengerValue;
-            const driverMatch = !driverValue || driver === driverValue;
+            const passengerMatch = !passengerValue || passenger.includes(passengerValue);
+            const driverMatch = !driverValue || driver.includes(driverValue);
             const scoreMatch = !scoreValue || score === scoreValue;
 
             rows[i].style.display = (passengerMatch && driverMatch && scoreMatch) ? '' : 'none';
         }
     }
 
-    passengerFilter.addEventListener('change', applyFilters);
-    driverFilter.addEventListener('change', applyFilters);
-    scoreFilter.addEventListener('change', applyFilters);
+    passengerFilter.addEventListener('input', applyFilters);
+    driverFilter.addEventListener('input', applyFilters);
+    scoreFilter.addEventListener('input', applyFilters);
 </script>
 
 @endsection
