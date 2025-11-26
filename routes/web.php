@@ -309,3 +309,4 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/users/{id}/approve', [AdminController::class, 'approve'])->name('approve');
     Route::post('/users/{id}/disapprove', [AdminController::class, 'disapprove'])->name('disapprove');
 });
+Route::get('/admin/ratings', [AdminController::class, 'allRatings']);
