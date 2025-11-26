@@ -92,11 +92,14 @@
                                 <div class="modal-body">
                                     Are you sure you want to disapprove <strong>{{ $user->fullname }}</strong>?
                                     <p>Email: {{ $user->email }}</p>
-                                    <div class="mt-3">
-                                        <label for="reason{{ $user->id }}" class="form-label">Reason for disapproval:</label>
-                                        <textarea name="reason" id="reason{{ $user->id }}" class="form-control" rows="3" required></textarea>
-                                    </div>
-                                </div>
+                                  <div class="mt-3">
+    <label for="reason{{ $user->id }}" class="form-label">Reason for disapproval:</label>
+    <select name="reason" id="reason{{ $user->id }}" class="form-select" required>
+        <option value="" disabled selected>Select a reason</option>
+        <option value="Did not meet requirements">Did not meet requirements</option>
+    </select>
+</div>
+
                                 <div class="modal-footer">
                                     <button type="submit" class="btn btn-danger">Disapprove</button>
                                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
