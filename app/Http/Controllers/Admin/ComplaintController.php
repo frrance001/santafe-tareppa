@@ -13,12 +13,9 @@ class ComplaintController extends Controller
     /**
      * Show paginated complaints list with optional search and filters.
      */
-   public function index(Request $request)
+    public function index(Request $request)
 {
     $q = $request->query('q');
-    $passengerId = $request->query('passenger_id');
-    $driverId    = $request->query('driver_id');
-    $score       = $request->query('score');
 
     $ratings = Rating::with([
             'rater',
@@ -39,20 +36,11 @@ class ComplaintController extends Controller
                     );
             });
         })
-        ->when($passengerId, function ($query, $passengerId) {
-            $query->whereHas('rateable.passenger', fn($q) => $q->where('id', $passengerId));
-        })
-        ->when($driverId, function ($query, $driverId) {
-            $query->whereHas('rateable.driver', fn($q) => $q->where('id', $driverId));
-        })
-        ->when($score, function ($query, $score) {
-            $query->where('score', $score);
-        })
         ->latest()
         ->paginate(15)
         ->withQueryString();
 
-    // Fetch passengers and drivers for the filter dropdowns
+    // 🔥 ADD THESE
     $passengers = User::where('role', 'passenger')->get();
     $drivers    = User::where('role', 'driver')->get();
 
