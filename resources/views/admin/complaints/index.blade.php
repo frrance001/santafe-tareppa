@@ -168,7 +168,7 @@
 </style>
 
 <div class="container py-5">
-    <h1 class="text-center">Ratings & Feedback</h1>
+    <h1 class="text-center"></h1>
 
     @if (session('success'))
         <div class="alert alert-success mb-4">{{ session('success') }}</div>
