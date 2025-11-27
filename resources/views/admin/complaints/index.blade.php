@@ -13,7 +13,7 @@
     }
 
     .glass-card {
-        background: rgba(200, 176, 176, 0.95);
+        background: rgba(135, 206, 235, 0.2); /* light sky blue with transparency */
         backdrop-filter: blur(10px);
         -webkit-backdrop-filter: blur(10px);
         border-radius: 16px;
@@ -28,7 +28,7 @@
     }
 
     .glass-card table {
-        background: #e3d5d5;
+        background: #87ceeb; /* Sky blue */
         border-radius: 12px;
         overflow: hidden;
         border-collapse: separate;
@@ -42,16 +42,16 @@
         text-align: left;
         font-size: 0.95rem;
         color: #000;
-        border-bottom: 1px solid #e0e0e0;
+        border-bottom: 1px solid rgba(255,255,255,0.3);
     }
 
     .glass-card table th {
-        background-color: #f0f0f0;
+        background-color: #b0e0e6; /* Lighter sky blue for header */
         font-weight: 700;
     }
 
     .table-hover tbody tr:hover {
-        background-color: #f9f9f9;
+        background-color: rgba(255, 255, 255, 0.3);
         transition: all 0.2s ease;
     }
 
@@ -76,7 +76,7 @@
     .score-badge {
         padding: 4px 10px;
         border-radius: 8px;
-        color: #dfa4a4;
+        color: #fff;
         font-weight: 600;
     }
 
@@ -125,6 +125,29 @@
         width: 250px;
     }
 
+    /* DataTables pagination & buttons style */
+    .dataTables_wrapper .dataTables_paginate .paginate_button {
+        background: #b0e0e6;
+        border-radius: 6px;
+        color: #000 !important;
+        border: none;
+        margin: 2px;
+        padding: 4px 12px;
+        cursor: pointer;
+    }
+
+    .dataTables_wrapper .dataTables_paginate .paginate_button.current {
+        background: #00bfff !important;
+        color: #fff !important;
+    }
+
+    .dataTables_wrapper .dataTables_length select,
+    .dataTables_wrapper .dataTables_filter input {
+        border-radius: 8px;
+        padding: 5px 10px;
+        border: 1px solid rgba(0,0,0,0.2);
+    }
+
     @media (max-width: 768px) {
         .glass-card table th,
         .glass-card table td {
@@ -169,7 +192,12 @@
                             <td>{{ $rating->id }}</td>
                             <td>{{ optional($rating->rateable->passenger)->email ?? 'Unknown Email' }}</td>
                             <td>{{ optional($rating->rateable->driver)->email ?? 'Unknown Email' }}</td>
-                            <td>{{ $rating->score }}</td>
+                            <td>
+                                <span class="score-badge 
+                                    {{ $rating->score <= 2 ? 'score-low' : ($rating->score == 3 ? 'score-medium' : 'score-high') }}">
+                                    {{ $rating->score }}
+                                </span>
+                            </td>
                             <td class="comment-preview" data-full="{{ $rating->comment }}">{{ $rating->comment }}</td>
                             <td>{{ $rating->rateable_id }}</td>
                             <td>{{ $rating->created_at->format('Y-m-d H:i') }}</td>
@@ -198,7 +226,15 @@
             "order": [[0, "desc"]],
             "columnDefs": [
                 { "orderable": false, "targets": [4] } // Disable sorting on comment
-            ]
+            ],
+            "language": {
+                "paginate": {
+                    "previous": "Prev",
+                    "next": "Next"
+                },
+                "lengthMenu": "Show _MENU_ entries",
+                "search": "Filter rows:"
+            }
         });
     });
 </script>
