@@ -63,7 +63,7 @@
         border-radius: 10px;
     }
 
-    /* DATATABLES DARK / GLASS THEME */
+    /* Datatables Custom Theme */
     .dataTables_wrapper .dataTables_filter input {
         background: rgba(255, 255, 255, 0.07);
         border: 1px solid #555;
@@ -83,12 +83,8 @@
         color: #fff !important;
     }
 
-    .dataTables_wrapper .paginate_button {
-        color: #fff !important;
-    }
-
     .table thead th {
-        background: rgba(0,0,0,0.6) !important;
+        background: rgba(0, 0, 0, 0.6) !important;
         color: #facc15 !important;
     }
 
@@ -118,7 +114,9 @@
 
     {{-- Flash Messages --}}
     @if (session('success'))
-        <div class="alert alert-success bg-success bg-opacity-75 text-white">{{ session('success') }}</div>
+        <div class="alert alert-success bg-success bg-opacity-75 text-white">
+            {{ session('success') }}
+        </div>
     @endif
 
     {{-- Complaints Table --}}
@@ -157,8 +155,10 @@
                             <td>{{ $complaint->created_at->format('Y-m-d') }}</td>
                             <td>
                                 <a href="{{ route('admin.complaints.show', $complaint->id) }}" class="btn btn-sm btn-primary mb-1">View</a>
+
                                 @if($complaint->status !== 'resolved')
-                                    <form action="{{ route('admin.complaints.resolve', $complaint->id) }}" method="POST" class="d-inline">
+                                    <form action="{{ route('admin.complaints.resolve', $complaint->id) }}"
+                                          method="POST" class="d-inline">
                                         @csrf
                                         @method('PATCH')
                                         <button type="submit" class="btn btn-sm btn-success">Mark Resolved</button>
@@ -174,6 +174,7 @@
                 </tbody>
             </table>
         </div>
+
     </div>
 </div>
 
@@ -191,7 +192,6 @@
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.html5.min.js"></script>
 <script src="https://cdn.datatables.net/buttons/2.4.1/js/buttons.print.min.js"></script>
 
-
 <script>
 $(document).ready(function () {
 
@@ -203,43 +203,44 @@ $(document).ready(function () {
             [10, 25, 50, 100, "Show All"]
         ],
 
-        // DOM Layout (Aligns search, show rows & buttons)
         dom:
             "<'row mb-3'<'col-md-4'l><'col-md-4 text-center'f><'col-md-4 text-end'B>>" +
             "<'row'<'col-12'tr>>" +
             "<'row mt-3'<'col-md-6'i><'col-md-6'p>>",
 
         buttons: [
-            { extend: 'excel', className: 'btn btn-warning btn-sm text-dark fw-bold' },
-            { extend: 'csv', className: 'btn btn-warning btn-sm text-dark fw-bold' },
-            { extend: 'print', className: 'btn btn-warning btn-sm text-dark fw-bold' },
+            { extend: "excel", className: "btn btn-warning btn-sm text-dark fw-bold" },
+            { extend: "csv", className: "btn btn-warning btn-sm text-dark fw-bold" },
+            { extend: "print", className: "btn btn-warning btn-sm text-dark fw-bold" },
 
             {
-                text: 'Preview Day',
-                className: 'btn btn-outline-warning btn-sm',
+                text: "Preview Day",
+                className: "btn btn-outline-warning btn-sm",
                 action: function () { filterByDate(1); }
             },
             {
-                text: 'Preview Week',
-                className: 'btn btn-outline-warning btn-sm',
+                text: "Preview Week",
+                className: "btn btn-outline-warning btn-sm",
                 action: function () { filterByDate(7); }
             },
             {
-                text: 'Preview Month',
-                className: 'btn btn-outline-warning btn-sm',
+                text: "Preview Month",
+                className: "btn btn-outline-warning btn-sm",
                 action: function () { filterByDate(30); }
             }
         ]
     });
 
-    // Filter by last X days
     function filterByDate(days) {
         let today = new Date();
+
         table.rows().every(function () {
             let dateStr = $(this.node()).find("td:nth-child(8)").text().trim();
             let rowDate = new Date(dateStr.replace(/-/g, "/"));
-            let diff = (today - rowDate) / (1000 * 60 * 60 * 24);
-            this.visible(diff <= days);
+
+            let diffDays = (today - rowDate) / (1000 * 60 * 60 * 24);
+
+            this.visible(diffDays <= days);
         });
     }
 });
