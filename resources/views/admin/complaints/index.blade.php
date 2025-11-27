@@ -2,6 +2,7 @@
 
 @section('content')
 
+<!-- Google Font -->
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
 
@@ -32,6 +33,7 @@
         overflow: hidden;
         border-collapse: separate;
         border-spacing: 0;
+        width: 100%;
     }
 
     .glass-card table th,
@@ -77,6 +79,7 @@
         color: #dfa4a4;
         font-weight: 600;
     }
+
     .score-low { background-color: #f87171; }
     .score-medium { background-color: #fbbf24; }
     .score-high { background-color: #22c55e; }
@@ -96,6 +99,30 @@
         outline: none;
         box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.3);
         transform: translateY(-1px);
+    }
+
+    /* Comment preview */
+    td.comment-preview {
+        max-width: 200px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        cursor: pointer;
+        position: relative;
+    }
+
+    td.comment-preview:hover::after {
+        content: attr(data-full);
+        position: absolute;
+        top: 25px;
+        left: 0;
+        background: rgba(0,0,0,0.85);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        white-space: normal;
+        z-index: 1000;
+        width: 250px;
     }
 
     @media (max-width: 768px) {
@@ -121,26 +148,6 @@
 
     <div class="glass-card">
 
-        <h5>Filters</h5>
-
-        {{-- FILTERS (CLIENT-SIDE) --}}
-        <div class="row g-3 mb-4">
-            <div class="col-md-4">
-                <label class="form-label fw-bold">Passenger</label>
-                <input type="text" id="passengerFilter" class="form-control" placeholder="Type passenger email...">
-            </div>
-
-            <div class="col-md-4">
-                <label class="form-label fw-bold">Driver</label>
-                <input type="text" id="driverFilter" class="form-control" placeholder="Type driver email...">
-            </div>
-
-            <div class="col-md-4">
-                <label class="form-label fw-bold">Score</label>
-                <input type="text" id="scoreFilter" class="form-control" placeholder="Type score (1-5)...">
-            </div>
-        </div>
-
         <h5>All Ratings</h5>
 
         <div class="table-responsive">
@@ -163,7 +170,7 @@
                             <td>{{ optional($rating->rateable->passenger)->email ?? 'Unknown Email' }}</td>
                             <td>{{ optional($rating->rateable->driver)->email ?? 'Unknown Email' }}</td>
                             <td>{{ $rating->score }}</td>
-                            <td>{{ $rating->comment }}</td>
+                            <td class="comment-preview" data-full="{{ $rating->comment }}">{{ $rating->comment }}</td>
                             <td>{{ $rating->rateable_id }}</td>
                             <td>{{ $rating->created_at->format('Y-m-d H:i') }}</td>
                         </tr>
@@ -178,35 +185,22 @@
     </div>
 </div>
 
-{{-- CLIENT-SIDE FILTER SCRIPT --}}
+<!-- jQuery & DataTables -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
 <script>
-    const passengerFilter = document.getElementById('passengerFilter');
-    const driverFilter = document.getElementById('driverFilter');
-    const scoreFilter = document.getElementById('scoreFilter');
-    const table = document.getElementById('ratingsTable').getElementsByTagName('tbody')[0];
-    const rows = table.getElementsByTagName('tr');
-
-    function applyFilters() {
-        const passengerValue = passengerFilter.value.toLowerCase();
-        const driverValue = driverFilter.value.toLowerCase();
-        const scoreValue = scoreFilter.value;
-
-        for (let i = 0; i < rows.length; i++) {
-            const passenger = rows[i].getElementsByTagName('td')[1].textContent.toLowerCase();
-            const driver = rows[i].getElementsByTagName('td')[2].textContent.toLowerCase();
-            const score = rows[i].getElementsByTagName('td')[3].textContent;
-
-            const passengerMatch = !passengerValue || passenger.includes(passengerValue);
-            const driverMatch = !driverValue || driver.includes(driverValue);
-            const scoreMatch = !scoreValue || score === scoreValue;
-
-            rows[i].style.display = (passengerMatch && driverMatch && scoreMatch) ? '' : 'none';
-        }
-    }
-
-    passengerFilter.addEventListener('input', applyFilters);
-    driverFilter.addEventListener('input', applyFilters);
-    scoreFilter.addEventListener('input', applyFilters);
+    $(document).ready(function() {
+        $('#ratingsTable').DataTable({
+            "pageLength": 25,
+            "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
+            "order": [[0, "desc"]],
+            "columnDefs": [
+                { "orderable": false, "targets": [4] } // Disable sorting on comment
+            ]
+        });
+    });
 </script>
 
 @endsection
