@@ -109,6 +109,7 @@
         text-overflow: ellipsis;
         cursor: pointer;
         position: relative;
+        transition: all 0.3s ease;
     }
 
     td.comment-preview:hover::after {
@@ -123,6 +124,10 @@
         white-space: normal;
         z-index: 1000;
         width: 250px;
+    }
+
+    td.comment-preview.expanded {
+        white-space: normal !important;
     }
 
     /* DataTables pagination & buttons style */
@@ -219,24 +224,29 @@
 <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        $('#ratingsTable').DataTable({
-            "pageLength": 25,
-            "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
-            "order": [[0, "desc"]],
-            "columnDefs": [
-                { "orderable": false, "targets": [4] } // Disable sorting on comment
-            ],
-            "language": {
-                "paginate": {
-                    "previous": "Prev",
-                    "next": "Next"
-                },
-                "lengthMenu": "Show _MENU_ entries",
-                "search": "Filter rows:"
-            }
-        });
+$(document).ready(function() {
+    var table = $('#ratingsTable').DataTable({
+        "pageLength": 25,
+        "lengthMenu": [ [10, 25, 50, -1], [10, 25, 50, "All"] ],
+        "order": [[0, "desc"]],
+        "columnDefs": [
+            { "orderable": false, "targets": [4] } // Disable sorting on comment
+        ],
+        "language": {
+            "paginate": {
+                "previous": "Prev",
+                "next": "Next"
+            },
+            "lengthMenu": "Show _MENU_ entries",
+            "search": "Filter rows:"
+        }
     });
+
+    // Click to toggle full comment preview
+    $('#ratingsTable tbody').on('click', 'td.comment-preview', function () {
+        $(this).toggleClass('expanded');
+    });
+});
 </script>
 
 @endsection
